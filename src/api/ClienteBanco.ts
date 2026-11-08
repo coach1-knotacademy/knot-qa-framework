@@ -90,13 +90,11 @@ export class ClienteBanco {
 
   /** POST /api/transferencias con el token de la sesión. */
   async transferir(origen: string, destino: string, monto: number): Promise<Respuesta<Comprobante>> {
-    // TODO RETO 4: envía la transferencia y devuelve { estado, datos }, igual que cuentas().
-    //   - Método POST a '/api/transferencias'
-    //   - En "data" van origen, destino y monto
-    //   - En "headers" va this.encabezados(): así viaja el token sin que la prueba lo vea
-    // Pista: copia login() y cambia la ruta, los datos y agrega los headers.
-    // Cuando termines, borra la línea "throw" de abajo.
-    throw new Error('PENDIENTE (S3): completa ClienteBanco.transferir — ver retos/S03.md, reto 4');
+    const respuesta = await this.request.post('/api/transferencias', {
+      data: { origen, destino, monto },
+      headers: this.encabezados(),
+    });
+    return { estado: respuesta.status(), datos: await respuesta.json() };
   }
 
   /** Arma el encabezado Authorization con el token guardado. Solo lo usa esta clase. */

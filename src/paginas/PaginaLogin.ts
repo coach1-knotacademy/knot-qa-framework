@@ -22,9 +22,8 @@ export class PaginaLogin extends PaginaBase {
 
   /** Escribe usuario y clave y pulsa Ingresar. */
   async ingresar(usuario: string, clave: string): Promise<void> {
-    // TODO RETO 1: escribe el usuario, escribe la clave y pulsa el botón Ingresar.
-    // Pista: usa los localizadores del constructor, por ejemplo: await this.campoUsuario.fill(usuario);
-    // Cuando termines, borra la línea "throw" de abajo.
-    throw new Error('PENDIENTE (S3): completa PaginaLogin.ingresar — ver retos/S03.md, reto 1');
+    await this.campoUsuario.fill(usuario);
+    await this.campoClave.fill(clave);
+    await this.botonIngresar.click();
   }
 }

@@ -22,9 +22,7 @@ export class PaginaOtp extends PaginaBase {
 
   /** Escribe el código de 6 dígitos y pulsa Validar. */
   async validar(codigo: string): Promise<void> {
-    // TODO RETO 2: escribe el código en su campo y pulsa el botón Validar.
-    // Pista: es igual a PaginaLogin.ingresar, pero con un solo campo.
-    // Cuando termines, borra la línea "throw" de abajo.
-    throw new Error('PENDIENTE (S3): completa PaginaOtp.validar — ver retos/S03.md, reto 2');
+    await this.campoCodigo.fill(codigo);
+    await this.botonValidar.click();
   }
 }

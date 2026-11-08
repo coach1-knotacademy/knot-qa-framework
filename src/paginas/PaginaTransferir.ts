@@ -33,14 +33,15 @@ export class PaginaTransferir extends PaginaBase {
 
   /** Llena el formulario y pulsa Transferir. */
   async transferir({ origen, destino, monto, aceptar4x1000 = true }: DatosTransferencia): Promise<void> {
-    // TODO RETO 3: llena el formulario y pulsa Transferir.
-    //   1. Si viene "origen", elígelo en la lista:  await this.listaOrigen.selectOption(origen);
-    //   2. Escribe el destino y el monto. Ojo: fill() recibe texto, así que usa String(monto).
-    //   3. Si aceptar4x1000 es true, marca la casilla con .check().
-    //   4. Pulsa el botón Transferir.
-    // Pista: para el paso 1 y el 3 usa un "if", por ejemplo: if (origen) { ... }
-    // Cuando termines, borra la línea "throw" de abajo.
-    throw new Error('PENDIENTE (S3): completa PaginaTransferir.transferir — ver retos/S03.md, reto 3');
+    if (origen) {
+      await this.listaOrigen.selectOption(origen);
+    }
+    await this.campoDestino.fill(destino);
+    await this.campoMonto.fill(String(monto));
+    if (aceptar4x1000) {
+      await this.casilla4x1000.check();
+    }
+    await this.botonTransferir.click();
   }
 
   /** Espera la respuesta del banco y devuelve el texto del comprobante o del error. */

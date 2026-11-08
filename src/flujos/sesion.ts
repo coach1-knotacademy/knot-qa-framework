@@ -23,14 +23,12 @@ export interface PaginasDeIngreso {
  * Úsalo solo en las pruebas cuyo objetivo ES el ingreso.
  */
 export async function iniciarSesionPorUi(paginas: PaginasDeIngreso, usuario: Usuario): Promise<void> {
-  // TODO RETO 5: arma el ingreso con las piezas de los retos 1 y 2.
-  //   1. Abre la pantalla de login e ingresa con usuario.usuario y usuario.clave.
-  //   2. Espera a que cargue la pantalla del código:  await paginas.otp.esperarQueCargue();
-  //   3. Lee el código en el buzón:  const codigo = await paginas.buzon.leerUltimoCodigo(usuario.usuario);
-  //   4. Valida el código en la pantalla OTP y espera a que cargue la pantalla de inicio.
-  // Pista: cada paso es una línea con "await". Haz primero los retos 1 y 2.
-  // Cuando termines, borra la línea "throw" de abajo.
-  throw new Error('PENDIENTE (S3): completa iniciarSesionPorUi en flujos/sesion.ts — ver retos/S03.md, reto 5');
+  await paginas.login.abrir();
+  await paginas.login.ingresar(usuario.usuario, usuario.clave);
+  await paginas.otp.esperarQueCargue();
+  const codigo = await paginas.buzon.leerUltimoCodigo(usuario.usuario);
+  await paginas.otp.validar(codigo);
+  await paginas.inicio.esperarQueCargue();
 }
 
 /**
