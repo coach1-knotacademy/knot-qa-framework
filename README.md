@@ -43,7 +43,7 @@ Explicación y diagrama: [`docs/arquitectura.md`](docs/arquitectura.md). Para ve
 | Sesión | Tema | Qué crece |
 |---|---|---|
 | S3 | Arquitectura por capas y clases | `src/paginas`, `src/api`, `src/flujos` · [retos/S03.md](retos/S03.md) |
-| S4 | Principios SOLID | `src/legado` y `tests/retos-s04` · `retos/S04.md` (se publica el jueves) |
+| S4 | Principios SOLID | `src/legado` y `tests/retos-s04` · [retos/S04.md](retos/S04.md) |
 | S5 | Patrones de diseño | `src/flujos` y `src/soporte` (fábricas, constructores de datos) |
 | S6 | Configuración y localizadores | `src/config` (ambientes) y `src/paginas` (localizadores robustos) |
 | S7 | BDD | `features/` con escenarios Gherkin que llaman a `src/flujos` |
