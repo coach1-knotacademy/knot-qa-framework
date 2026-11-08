@@ -4,8 +4,10 @@
  */
 import { Cuenta } from '../../api/ClienteBanco';
 import { Usuario } from '../../datos/usuarios';
+import { Cliente } from './Cliente';
 
-export class ClienteHttp {
+/** Después del reto 5: el cliente real también cumple el contrato Cliente. */
+export class ClienteHttp implements Cliente {
   private token = '';
 
   constructor(private readonly urlBase: string) {}

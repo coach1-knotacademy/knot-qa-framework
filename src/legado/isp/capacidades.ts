@@ -8,6 +8,12 @@ export interface SeAbre {
   abrir(): Promise<void>;
 }
 
-// TODO RETO 4 (paso 1): crea dos interfaces más, con el mismo estilo de SeAbre:
-//   - ConsultaSaldos, con:  saldoDe(cuenta: string): Promise<string>;
-//   - CierraSesion, con:    cerrarSesion(): Promise<void>;
+/** Las páginas que muestran saldos. */
+export interface ConsultaSaldos {
+  saldoDe(cuenta: string): Promise<string>;
+}
+
+/** Las páginas que tienen el botón Salir. */
+export interface CierraSesion {
+  cerrarSesion(): Promise<void>;
+}
