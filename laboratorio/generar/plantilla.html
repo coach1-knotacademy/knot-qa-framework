@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laboratorio S4 SOLID</title>
+<style>
+/* Laboratorio en el navegador: editor con números de línea, pruebas que corren aquí mismo (sin instalar nada), pistas y solución. Todo en un solo archivo, sin recursos externos. */
+:root {
+  --bg: #f4f6f8; --surface: #ffffff; --ink: #15212b; --muted: #5a6873; --line: #d6dee3;
+  --accent: #6a3fb0; --accent-soft: #efe7f9; --ok: #1d7a4b; --ok-soft: #e1f3e8; --bug: #b3263e; --bug-soft: #fbe4e8;
+  --warn: #9a5b00; --warn-soft: #fbefd9; --code-bg: #fbfcfd; --gut: #eef2f4; --on: #ffffff; --term: #0f1720; --term-ink: #dfe7ee;
+  --f-body: "Segoe UI", system-ui, -apple-system, sans-serif; --f-mono: Consolas, "Cascadia Mono", Menlo, ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f161c; --surface: #17212a; --ink: #e4ecf1; --muted: #93a4b0; --line: #2b3946;
+  --accent: #b996ee; --accent-soft: #261b3a; --ok: #5fcf92; --ok-soft: #143326; --bug: #f2788d; --bug-soft: #3d1820;
+  --warn: #f0b552; --warn-soft: #3a2a10; --code-bg: #111a21; --gut: #16212a; --on: #0f161c; --term: #0a0f14; --term-ink: #dfe7ee; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f161c; --surface: #17212a; --ink: #e4ecf1; --muted: #93a4b0; --line: #2b3946;
+  --accent: #b996ee; --accent-soft: #261b3a; --ok: #5fcf92; --ok-soft: #143326; --bug: #f2788d; --bug-soft: #3d1820;
+  --warn: #f0b552; --warn-soft: #3a2a10; --code-bg: #111a21; --gut: #16212a; --on: #0f161c; --term: #0a0f14; --term-ink: #dfe7ee; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--f-body); padding: 0 16px 60px; }
+.wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+header { padding-top: 20px; display: flex; flex-direction: column; gap: 6px; }
+h1 { margin: 0; font-size: clamp(24px, 3.4vw, 34px); line-height: 1.15; }
+h2 { margin: 0; font-size: 21px; } h3 { margin: 0; font-size: 16px; }
+p { margin: 0; } a { color: var(--accent); }
+code { font-family: var(--f-mono); font-size: 13px; background: var(--gut); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.lead { color: var(--muted); max-width: 80ch; }
+.how { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; list-style: none; padding: 0; margin: 0; counter-reset: p; }
+.how li { counter-increment: p; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 14px; display: flex; gap: 10px; }
+.how li::before { content: counter(p); flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--on); display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.tab { border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 12px; padding: 8px 12px; cursor: pointer; font: 600 14px var(--f-body); display: flex; align-items: center; gap: 8px; }
+.tab .l { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-weight: 800; }
+.tab small { font-weight: 500; color: var(--muted); }
+.tab[aria-selected="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.tab.done .l { background: var(--ok); color: var(--on); }
+.tab:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.reto { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 16px; align-items: start; }
+.side { display: flex; flex-direction: column; gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.card ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14.5px; }
+.mision { border-left: 4px solid var(--accent); }
+details.hint { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+details.hint summary { cursor: pointer; padding: 9px 12px; font-weight: 600; font-size: 14px; }
+details.hint > div { padding: 0 12px 12px; font-size: 14px; }
+.main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.ftabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.ftab { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 5px 10px; cursor: pointer; font: 500 13px var(--f-mono); display: flex; gap: 6px; align-items: center; }
+.ftab[aria-selected="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.badge { font: 600 10.5px var(--f-body); letter-spacing: .04em; text-transform: uppercase; border-radius: 99px; padding: 1px 7px; }
+.b-editar { background: var(--accent); color: var(--on); } .b-antes, .b-referencia { background: var(--warn-soft); color: var(--warn); } .b-pruebas { background: var(--ok-soft); color: var(--ok); } .b-apoyo { background: var(--gut); color: var(--muted); }
+.ruta { font: 12.5px var(--f-mono); color: var(--muted); display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.editor { display: grid; grid-template-columns: auto minmax(0, 1fr); border: 1.5px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--code-bg); height: 460px; }
+.editor.ro { border-style: dashed; }
+.gutter { background: var(--gut); color: var(--muted); font: 13.5px/21px var(--f-mono); text-align: right; padding: 10px 8px 10px 10px; overflow: hidden; user-select: none; min-width: 48px; }
+.gutter div { height: 21px; white-space: pre; }
+.gutter .todo { color: var(--warn); font-weight: 700; }
+.gutter .cur { color: var(--on); background: var(--accent); border-radius: 4px; padding: 0 4px; }
+.gutter .err { color: var(--on); background: var(--bug); border-radius: 4px; padding: 0 4px; }
+textarea.code { border: 0; outline: 0; resize: none; margin: 0; padding: 10px 12px; font: 13.5px/21px var(--f-mono); color: var(--ink); background: transparent; white-space: pre; overflow: auto; tab-size: 2; width: 100%; height: 100%; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.run { background: var(--ok); color: var(--on); border: 0; border-radius: 10px; padding: 10px 18px; font: 700 15px var(--f-body); cursor: pointer; }
+.btn { background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 9px 13px; font: 500 14px var(--f-body); cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.linea { margin-left: auto; font: 700 15px var(--f-mono); background: var(--accent-soft); color: var(--accent); border-radius: 10px; padding: 8px 12px; }
+.term { background: var(--term); color: var(--term-ink); border-radius: 10px; padding: 12px 14px; font: 13px/1.55 var(--f-mono); white-space: pre-wrap; overflow-wrap: anywhere; min-height: 120px; max-height: 460px; overflow: auto; }
+.term .ok { color: #5fcf92; } .term .bad { color: #f2788d; } .term .dim { color: #8b9aa6; } .term .yel { color: #f0b552; }
+.sol pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font: 12.5px/1.5 var(--f-mono); overflow: auto; max-height: 380px; margin: 0; }
+.note { font-size: 13px; color: var(--muted); }
+@media (max-width: 900px) { .reto { grid-template-columns: minmax(0, 1fr); } .editor { height: 380px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <p class="eyebrow">Bootcamp QA · Knot Academy × Accenture · S4 · SOLID</p>
+  <h1>Laboratorio S4: arregla código heredado sin instalar nada</h1>
+  <p class="lead">Es el mismo código del repo <code>knot-qa-framework</code> y las mismas pruebas, pero aquí corren en el navegador. No rompes nada: «Restaurar archivo» lo deja como al principio. Tu avance queda guardado en este navegador.</p>
+</header>
+<ol class="how">
+  <li><span>Elige un reto. La meta de la sala es <b>uno en verde</b>; empiecen por el 2.</span></li>
+  <li><span>Dilo como tester: ¿qué falla y cuándo? Después, busquen la línea.</span></li>
+  <li><span>Toca «Correr pruebas»: al principio todo sale en rojo. Es lo esperado.</span></li>
+  <li><span>Cambia el código donde dice <code>TODO</code> (número naranja) hasta ver verde.</span></li>
+</ol>
+<div class="tabs" role="tablist" id="tabs"></div>
+<div id="reto"></div>
+<p class="note">Este laboratorio no carga nada de internet: el código y las pruebas corren aquí mismo. Playwright no revisa tipos; en los retos 4 y 5, el «chequeo de tipos» imita lo que haría <code>npm run tipos</code>.</p>
+</div>
+<script>/*SUCRASE*/</script>
+<script>
+var RETOS = /*DATA*/;
+(function () {
+  function $(s, r) { return (r || document).querySelector(s); }
+  function el(tag, attrs, html) { var e = document.createElement(tag); if (attrs) for (var k in attrs) e.setAttribute(k, attrs[k]); if (html != null) e.innerHTML = html; return e; }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function get(k) { try { return localStorage.getItem('s4lab:' + k); } catch (e) { return null; } }
+  function set(k, v) { try { if (v == null) localStorage.removeItem('s4lab:' + k); else localStorage.setItem('s4lab:' + k, v); } catch (e) {} }
+  var ROL = { editar: 'editar', antes: 'antes · no tocar', referencia: 'antes · solo leer', pruebas: 'pruebas', apoyo: 'apoyo' };
+  var estado = {};
+  RETOS.forEach(function (r) { estado[r.id] = { archivos: {}, actual: r.archivos[0].nombre }; r.archivos.forEach(function (a) { var g = get(r.id + ':' + a.nombre); estado[r.id].archivos[a.nombre] = g != null ? g : a.codigo; }); });
+  var actual = get('reto') || RETOS[0].id;
+  if (!RETOS.some(function (r) { return r.id === actual; })) actual = RETOS[0].id;
+
+  // ---------- expect y test, al estilo de Playwright
+  function fmt(v) { if (v === undefined) return 'undefined'; if (typeof v === 'function') return '[Function]'; try { return JSON.stringify(v, null, 2); } catch (e) { return String(v); } }
+  function igual(a, b) {
+    if (Object.is(a, b)) return true;
+    if (typeof a !== 'object' || typeof b !== 'object' || !a || !b) return false;
+    if (Array.isArray(a) !== Array.isArray(b)) return false;
+    var ka = Object.keys(a), kb = Object.keys(b); if (ka.length !== kb.length) return false;
+    return ka.every(function (k) { return Object.prototype.hasOwnProperty.call(b, k) && igual(a[k], b[k]); });
+  }
+  function Falla(texto) { var e = new Error(texto); e.esExpect = true; return e; }
+  function expect(rec, msg) {
+    var cab = msg ? msg + '\n\n' : '';
+    return {
+      toBe: function (exp) { if (!Object.is(rec, exp)) throw Falla(cab + 'expect(received).toBe(expected)\n\nExpected: ' + fmt(exp) + '\nReceived: ' + fmt(rec)); },
+      toEqual: function (exp) { if (!igual(rec, exp)) throw Falla(cab + 'expect(received).toEqual(expected)\n\nExpected: ' + fmt(exp) + '\nReceived: ' + fmt(rec)); },
+      toContain: function (exp) { if (!(rec && rec.indexOf && rec.indexOf(exp) >= 0)) throw Falla(cab + 'expect(received).toContain(expected)\n\nExpected value: ' + fmt(exp) + '\nReceived array: ' + fmt(rec)); },
+      toThrow: function (exp) {
+        var lanzo = false, err; try { rec(); } catch (e) { lanzo = true; err = e; }
+        if (!lanzo) throw Falla(cab + 'expect(received).toThrow(expected)\n\nExpected substring: ' + fmt(exp) + '\n\nReceived function did not throw');
+        if (exp != null && String(err && err.message).indexOf(exp) < 0) throw Falla(cab + 'expect(received).toThrow(expected)\n\nExpected substring: ' + fmt(exp) + '\nReceived message:   ' + fmt(err && err.message));
+      }
+    };
+  }
+  function limpiar(src) {
+    return src.split('\n').map(function (l) {
+      if (/^\s*import\s/.test(l)) return '';
+      if (/^\s*export\s+(type\s+)?\{[^}]*\}\s*(from\s+['"][^'"]+['"])?\s*;?\s*$/.test(l)) return '';
+      return l.replace(/^(\s*)export\s+(default\s+)?/, '$1');
+    }).join('\n');
+  }
+  function chequeoTipos(r, A) {
+    var errores = [];
+    if (r.id === 'r4') {
+      var sc = function (x) { return x.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, ''); }; var ps = sc(A['PaginaSaldos.ts']), cap = sc(A['capacidades.ts']);
+      var faltan = ['ingresar', 'validarOtp', 'transferir', 'descargarExtracto', 'cambiarClave'].filter(function (m) { return !new RegExp('async\\s+' + m + '\\s*\\(').test(ps); });
+      if (/implements[^{]*\bPaginaDelBanco\b/.test(ps) && faltan.length) errores.push("src/legado/isp/PaginaSaldos.ts: error TS2420: Class 'PaginaSaldos' incorrectly implements interface 'PaginaDelBanco'.\n  Property '" + faltan[0] + "' is missing in type 'PaginaSaldos' but required in type 'PaginaDelBanco'.");
+      ['ConsultaSaldos', 'CierraSesion'].forEach(function (n) { if (new RegExp('\\b' + n + '\\b').test(ps) && !new RegExp('interface\\s+' + n + '\\b').test(cap)) errores.push("src/legado/isp/PaginaSaldos.ts: error TS2304: Cannot find name '" + n + "'."); });
+      if (/implements[^{]*\bPaginaDelBanco\b/.test(ps) && !faltan.length) errores.push('(sin error de tipos, pero PaginaSaldos sigue firmando la interfaz gigante: el reto pide cambiarla por las capacidades)');
+    }
+    if (r.id === 'r5') {
+      var rc = A['ResumenDeCuentas.ts'], cl = A['Cliente.ts'];
+      var cuerpo = cl.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+      if (/this\.cliente\.cuentas\s*\(/.test(rc) && !/cuentas\s*\(\s*\)\s*:/.test(cuerpo)) errores.push("src/legado/dip/ResumenDeCuentas.ts: error TS2339: Property 'cuentas' does not exist on type 'Cliente'.");
+      var sinComent = rc.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+      if (/\bnew\s+ClienteHttp\b/.test(sinComent)) errores.push("src/legado/dip/ResumenDeCuentas.ts: error TS2304: Cannot find name 'ClienteHttp'. (Y además: aquí no debe aparecer la palabra new.)");
+    }
+    return errores;
+  }
+  function correr(r, salida) {
+    var A = estado[r.id].archivos, js = '', partes = [];
+    salida.innerHTML = '';
+    function out(html) { salida.innerHTML += html + '\n'; }
+    var marcas = {};
+    for (var i = 0; i < r.orden.length; i++) {
+      var n = r.orden[i];
+      try { var t = Sucrase.transform(limpiar(A[n]), { transforms: ['typescript'], disableESTransforms: true }).code; js += '\n// ' + n + '\n' + t; }
+      catch (e) {
+        var m = /\((\d+):(\d+)\)/.exec(e.message || ''); if (m) marcas[n] = +m[1];
+        out('<span class="bad">SyntaxError</span> en <b>' + esc(n) + '</b>: ' + esc(e.message) + (m ? '\n<span class="yel">→ Mira la línea ' + m[1] + ', columna ' + m[2] + ' de ' + esc(n) + '. Suele ser una llave { } o un paréntesis de más o de menos.</span>' : ''));
+        return Promise.resolve({ pasaron: 0, total: 0, marcas: marcas });
+      }
+    }
+    var lista = [], pila = [];
+    function test(nombre, fn) { lista.push({ nombre: pila.concat([nombre]).join(' › '), fn: fn }); }
+    test.describe = function (nombre, fn) { pila.push(nombre); fn(); pila.pop(); };
+    try { new Function('test', 'expect', js)(test, expect); }
+    catch (e) { out('<span class="bad">Error al cargar el código:</span> ' + esc(e.name + ': ' + e.message)); return Promise.resolve({ pasaron: 0, total: 0, marcas: marcas }); }
+    var archivoPruebas = r.orden[r.orden.length - 1];
+    out('<span class="dim">$ npx playwright test ' + archivoPruebas.replace('.spec.ts', '') + ' --project=unidad</span>\n\nRunning ' + lista.length + ' tests using 1 worker\n');
+    var pasaron = 0, fallos = [];
+    var cadena = Promise.resolve();
+    lista.forEach(function (t, i) {
+      cadena = cadena.then(function () {
+        var t0 = performance.now();
+        return Promise.race([Promise.resolve().then(t.fn), new Promise(function (_, no) { setTimeout(function () { no(new Error('Test timeout of 3000ms exceeded.')); }, 3000); })])
+          .then(function () { pasaron++; out('  <span class="ok">✓</span>  ' + (i + 1) + ' ' + esc(archivoPruebas) + ' › ' + esc(t.nombre) + ' <span class="dim">(' + Math.max(1, Math.round(performance.now() - t0)) + 'ms)</span>'); },
+                function (e) { fallos.push({ t: t, e: e, i: i }); out('  <span class="bad">✘</span>  ' + (i + 1) + ' ' + esc(archivoPruebas) + ' › ' + esc(t.nombre)); });
+      });
+    });
+    return cadena.then(function () {
+      fallos.forEach(function (f, k) {
+        var msg = f.e && f.e.esExpect ? f.e.message : (f.e && (f.e.name || 'Error') + ': ' + f.e.message);
+        out('\n  <span class="bad">' + (k + 1) + ') ' + esc(f.t.nombre) + '</span>\n\n' + esc(msg).replace(/^/gm, '    '));
+      });
+      out('\n  ' + (fallos.length ? '<span class="bad">' + fallos.length + ' failed</span>\n  ' : '') + (pasaron ? '<span class="ok">' + pasaron + ' passed</span>' : ''));
+      var tipos = chequeoTipos(r, A);
+      if (r.id === 'r4' || r.id === 'r5') {
+        out('\n<span class="dim">$ npm run tipos   (simulado: tsc --noEmit)</span>');
+        out(tipos.length ? tipos.map(function (x) { return '<span class="bad">' + esc(x) + '</span>'; }).join('\n') : '<span class="ok">Sin errores de tipos.</span>');
+      }
+      var ok = !fallos.length && lista.length && !tipos.some(function (x) { return x.indexOf('error') >= 0 || x.indexOf('sigue firmando') >= 0; });
+      if (ok) out('\n<span class="ok">🎉 Reto ' + r.n + ' en verde. Cuéntalo en el chat: «Sala X: reto ' + r.n + ' en verde».</span>');
+      return { pasaron: pasaron, total: lista.length, ok: ok, marcas: marcas };
+    });
+  }
+
+  // ---------- interfaz
+  function pintarTabs() {
+    var c = $('#tabs'); c.innerHTML = '';
+    RETOS.forEach(function (r) {
+      var b = el('button', { role: 'tab', 'aria-selected': String(r.id === actual), class: 'tab' + (get('ok:' + r.id) === '1' ? ' done' : '') },
+        '<span class="l">' + r.letra + '</span><span>Reto ' + r.n + '<br><small>' + esc(r.sugerido) + '</small></span>');
+      b.onclick = function () { actual = r.id; set('reto', r.id); pintarTabs(); pintarReto(); };
+      c.appendChild(b);
+    });
+  }
+  function pintarReto() {
+    var r = RETOS.filter(function (x) { return x.id === actual; })[0], st = estado[r.id];
+    var c = $('#reto'); c.innerHTML = '';
+    var w = el('div', { class: 'reto' });
+    var side = el('div', { class: 'side' });
+    side.appendChild(el('div', { class: 'card mision' }, '<p class="eyebrow">Reto ' + r.n + ' · ' + r.letra + '</p><h2>' + esc(r.titulo) + '</h2><p>' + r.mision + '</p>'));
+    side.appendChild(el('div', { class: 'card' }, '<h3>Lo que hay que hacer</h3><ol>' + r.pasos.map(function (p) { return '<li>' + p + '</li>'; }).join('') + '</ol>'));
+    r.pistas.forEach(function (p, i) { side.appendChild(el('details', { class: 'hint' }, '<summary>Pista ' + (i + 1) + '</summary><div>' + p + '</div>')); });
+    var sol = el('details', { class: 'hint sol' }, '<summary>Ver la solución (último recurso)</summary><div></div>');
+    r.archivos.filter(function (a) { return a.rol === 'editar'; }).forEach(function (a) {
+      var d = el('div', null, '<p style="margin:8px 0 4px"><b>' + esc(a.nombre) + '</b></p><pre>' + esc(a.solucion) + '</pre>');
+      var b = el('button', { class: 'btn', type: 'button', style: 'margin-top:6px' }, 'Poner esta solución en el editor');
+      b.onclick = function () { if (!confirm('¿Reemplazar tu ' + a.nombre + ' por la solución?')) return; st.archivos[a.nombre] = a.solucion; set(r.id + ':' + a.nombre, a.solucion); st.actual = a.nombre; pintarReto(); };
+      d.appendChild(b); $('div', sol).appendChild(d);
+    });
+    side.appendChild(sol);
+    var main = el('div', { class: 'main' });
+    var ft = el('div', { class: 'ftabs', role: 'tablist' });
+    r.archivos.forEach(function (a) {
+      var b = el('button', { class: 'ftab', role: 'tab', 'aria-selected': String(a.nombre === st.actual), type: 'button' }, esc(a.nombre) + ' <span class="badge b-' + a.rol + '">' + ROL[a.rol] + '</span>');
+      b.onclick = function () { st.actual = a.nombre; pintarReto(); };
+      ft.appendChild(b);
+    });
+    main.appendChild(ft);
+    var arch = r.archivos.filter(function (a) { return a.nombre === st.actual; })[0];
+    var editable = arch.rol === 'editar' || arch.rol === 'antes';
+    main.appendChild(el('div', { class: 'ruta' }, '<span>' + esc(arch.ruta) + '</span><span>' + (editable ? (arch.rol === 'antes' ? 'Se puede editar, pero el reto pide no tocarlo' : 'Este archivo se modifica') : 'Solo lectura') + '</span>'));
+    var ed = el('div', { class: 'editor' + (editable ? '' : ' ro') });
+    var gut = el('div', { class: 'gutter', 'aria-hidden': 'true' });
+    var ta = el('textarea', { class: 'code', spellcheck: 'false', wrap: 'off', 'aria-label': 'Código de ' + arch.nombre, autocapitalize: 'off', autocomplete: 'off' });
+    ta.value = st.archivos[arch.nombre]; if (!editable) ta.readOnly = true;
+    ed.appendChild(gut); ed.appendChild(ta); main.appendChild(ed);
+    var bar = el('div', { class: 'bar' });
+    var run = el('button', { class: 'run', type: 'button' }, '▶ Correr pruebas');
+    var rest = el('button', { class: 'btn', type: 'button' }, 'Restaurar archivo');
+    var lin = el('span', { class: 'linea', 'aria-live': 'polite' }, 'Línea 1');
+    bar.appendChild(run); if (editable) bar.appendChild(rest); bar.appendChild(lin); main.appendChild(bar);
+    var term = el('div', { class: 'term', 'aria-live': 'polite' }, '<span class="dim">Toca «Correr pruebas» (o Ctrl + Enter) para ver qué falla.</span>');
+    main.appendChild(term);
+    w.appendChild(side); w.appendChild(main); c.appendChild(w);
+    var errLinea = null;
+    function gutter() {
+      var lines = ta.value.split('\n'), cur = ta.value.slice(0, ta.selectionStart).split('\n').length, h = '';
+      for (var i = 0; i < lines.length; i++) { var cls = (i + 1 === errLinea) ? 'err' : (i + 1 === cur ? 'cur' : (/TODO/.test(lines[i]) ? 'todo' : '')); h += '<div' + (cls ? ' class="' + cls + '"' : '') + '>' + (i + 1) + '</div>'; }
+      gut.innerHTML = h; gut.scrollTop = ta.scrollTop;
+      lin.textContent = 'Línea ' + cur + ' · ' + arch.nombre;
+    }
+    ta.addEventListener('input', function () { errLinea = null; st.archivos[arch.nombre] = ta.value; set(r.id + ':' + arch.nombre, ta.value); gutter(); });
+    ['click', 'keyup', 'select'].forEach(function (ev) { ta.addEventListener(ev, gutter); });
+    ta.addEventListener('scroll', function () { gut.scrollTop = ta.scrollTop; });
+    ta.addEventListener('keydown', function (e) {
+      if (e.key === 'Tab' && !ta.readOnly) { e.preventDefault(); var s = ta.selectionStart; ta.setRangeText('  ', s, ta.selectionEnd, 'end'); ta.dispatchEvent(new Event('input')); }
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run.click(); }
+    });
+    rest.onclick = function () { if (!confirm('¿Volver ' + arch.nombre + ' a como estaba al principio?')) return; st.archivos[arch.nombre] = arch.codigo; set(r.id + ':' + arch.nombre, null); pintarReto(); };
+    run.onclick = function () {
+      run.disabled = true;
+      correr(r, term).then(function (res) {
+        run.disabled = false;
+        set('ok:' + r.id, res.ok ? '1' : null); pintarTabs();
+        if (res.marcas && res.marcas[arch.nombre]) { errLinea = res.marcas[arch.nombre]; gutter(); }
+      });
+    };
+    try { ta.setSelectionRange(0, 0); } catch (e) {}
+    gutter();
+  }
+  pintarTabs(); pintarReto();
+  window.__lab = { RETOS: RETOS, estado: estado, correr: correr };
+})();
+</script>
+</body>
+</html>

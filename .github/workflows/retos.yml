@@ -1,0 +1,45 @@
+# Validación rápida de los retos: corre en cada push de tu copia y en cada pull request.
+# No abre navegador ni el banco: solo las pruebas de unidad de los retos y el chequeo de tipos.
+name: Retos
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  retos:
+    # En el repo del curso, main tiene los retos sin resolver a propósito: allí solo se valida en pull requests.
+    if: github.repository != 'coach1-knotacademy/knot-qa-framework' || github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Tipos (los contratos se cumplen)
+        id: tipos
+        continue-on-error: true
+        run: npm run tipos
+      - name: Retos de la S4 (pruebas de unidad)
+        id: retos
+        continue-on-error: true
+        run: npm run retos:s04
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "## Retos de la S4"
+            echo ""
+            echo "| Paso | Resultado |"
+            echo "|---|---|"
+            echo "| Tipos (\`npm run tipos\`) | ${{ steps.tipos.outcome == 'success' && '✅ en verde' || '❌ en rojo' }} |"
+            echo "| Retos (\`npm run retos:s04\`) | ${{ steps.retos.outcome == 'success' && '✅ en verde' || '❌ en rojo: abre el paso de arriba para ver Expected y Received' }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ steps.tipos.outcome }}" != "success" ] || [ "${{ steps.retos.outcome }}" != "success" ]; then exit 1; fi

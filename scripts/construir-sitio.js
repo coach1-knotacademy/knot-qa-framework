@@ -1,4 +1,4 @@
-// Arma la carpeta sitio/ que se publica en GitHub Pages: la portada, el banco en línea, la calculadora y las evidencias.
+// Arma la carpeta sitio/ que se publica en GitHub Pages: la portada, el banco en línea, la calculadora, el laboratorio de la S4 y las evidencias.
 // El banco en línea no tiene servidor: api-estatica.js hace de servidor dentro del navegador.
 const fs = require('fs');
 const path = require('path');
@@ -24,6 +24,7 @@ fs.writeFileSync(path.join(BANCO, 'comun.js'), fs.readFileSync(path.join(PUBLICO
 fs.writeFileSync(path.join(BANCO, 'reglas.js'),
   `(() => { const module = { exports: {} };\n${fs.readFileSync('banco-demo/reglas.js', 'utf8')}\nwindow.ReglasBanco = module.exports; })();\n`);
 
+if (fs.existsSync(path.join('laboratorio', 'laboratorio_S4.html'))) fs.copyFileSync(path.join('laboratorio', 'laboratorio_S4.html'), path.join(SALIDA, 'laboratorio-s4.html'));
 if (fs.existsSync('evidencias.html')) fs.copyFileSync('evidencias.html', path.join(SALIDA, 'evidencias.html'));
 fs.copyFileSync(path.join('banco-demo', 'calculadora.html'), path.join(SALIDA, 'calculadora.html'));
 fs.copyFileSync(path.join('banco-demo', 'portada.html'), path.join(SALIDA, 'index.html'));
