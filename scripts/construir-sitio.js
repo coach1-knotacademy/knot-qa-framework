@@ -25,6 +25,7 @@ fs.writeFileSync(path.join(BANCO, 'reglas.js'),
   `(() => { const module = { exports: {} };\n${fs.readFileSync('banco-demo/reglas.js', 'utf8')}\nwindow.ReglasBanco = module.exports; })();\n`);
 
 if (fs.existsSync(path.join('laboratorio', 'laboratorio_S4.html'))) fs.copyFileSync(path.join('laboratorio', 'laboratorio_S4.html'), path.join(SALIDA, 'laboratorio-s4.html'));
+if (fs.existsSync(path.join('laboratorio', 'practica_extra_S4.html'))) fs.copyFileSync(path.join('laboratorio', 'practica_extra_S4.html'), path.join(SALIDA, 'practica-extra-s4.html'));
 if (fs.existsSync('evidencias.html')) fs.copyFileSync('evidencias.html', path.join(SALIDA, 'evidencias.html'));
 fs.copyFileSync(path.join('banco-demo', 'calculadora.html'), path.join(SALIDA, 'calculadora.html'));
 fs.copyFileSync(path.join('banco-demo', 'portada.html'), path.join(SALIDA, 'index.html'));

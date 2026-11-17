@@ -12,7 +12,7 @@ Framework de automatización de práctica del **Bootcamp de QA & Automatización
 
 Si la Ruta 1 no funciona en 5 minutos, pasa a la 2. Si GitHub tampoco abre, ve a la 3.
 
-**Laboratorio de la S4, sin instalar nada:** [`laboratorio/laboratorio_S4.html`](laboratorio/laboratorio_S4.html) trae los 5 retos de la S4 con sus pruebas y corre en el navegador (descárgalo y ábrelo con Edge). También está en línea: [laboratorio de la S4](https://coach1-knotacademy.github.io/knot-qa-framework/laboratorio-s4.html).
+**Laboratorio de la S4, sin instalar nada:** [`laboratorio/laboratorio_S4.html`](laboratorio/laboratorio_S4.html) trae los 5 retos de la S4 con sus pruebas y corre en el navegador (descárgalo y ábrelo con Edge). También está en línea: [laboratorio de la S4](https://coach1-knotacademy.github.io/knot-qa-framework/laboratorio-s4.html). Para quien termine: [práctica extra](https://coach1-knotacademy.github.io/knot-qa-framework/practica-extra-s4.html) (archivo `laboratorio/practica_extra_S4.html`).
 
 **Validación automática:** en tu copia (Ruta 2), cada push y cada pull request corre el flujo **Retos** (`npm run tipos` y `npm run retos:s04`, en menos de un minuto). En la pestaña **Actions** ves si quedó en verde.
 
