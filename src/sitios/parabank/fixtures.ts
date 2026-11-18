@@ -51,14 +51,15 @@ export const test = base.extend<PiezasParaBank, PiezasDelWorker>({
     { scope: 'worker' },
   ],
   /**
-   * CORTESÍA con un sitio compartido: 2 segundos de pausa al terminar cada prueba.
-   * Así la suite completa queda por debajo del límite de peticiones de ParaBank.
+   * CORTESÍA con un sitio compartido: 5 segundos de pausa al terminar cada prueba.
+   * Así la suite completa queda por debajo del límite de peticiones de ParaBank, también desde
+   * GitHub Actions, que comparte su dirección de internet con otros usuarios del sitio.
    * Se activa sola (auto: true); ninguna prueba la tiene que pedir.
    */
   cortesiaConElSitio: [
     async ({}, usar) => {
       await usar();
-      await new Promise((listo) => setTimeout(listo, 2_000));
+      await new Promise((listo) => setTimeout(listo, 5_000));
     },
     { auto: true },
   ],

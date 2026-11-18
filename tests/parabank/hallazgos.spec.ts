@@ -10,11 +10,10 @@ import { test, expect } from '../../src/sitios/parabank/fixtures';
 
 test('no deja transferir más de lo que hay en la cuenta', async ({ clienteNuevo, parabank }) => {
   hallazgoEsperado('PB-01', 'ParaBank deja transferir más del saldo y la cuenta queda en negativo');
-  // Dos cuentas propias de esta prueba, con $100 cada una: no tocamos la cuenta principal.
+  // Una cuenta propia de esta prueba, con $100: el sobregiro no daña la cuenta principal.
   const origen = await parabank.abrirCuenta(clienteNuevo.id, 'CHECKING', clienteNuevo.cuentaPrincipal);
-  const destino = await parabank.abrirCuenta(clienteNuevo.id, 'SAVINGS', clienteNuevo.cuentaPrincipal);
 
-  const { estado } = await parabank.transferir(origen.id, destino.id, 10_000);
+  const { estado } = await parabank.transferir(origen.id, clienteNuevo.cuentaPrincipal, 10_000);
 
   expect(estado, 'el banco debería rechazar la transferencia').toBe(400);
   expect(await parabank.saldoDe(origen.id), 'la cuenta no debería quedar en negativo').toBe(100);
@@ -23,10 +22,9 @@ test('no deja transferir más de lo que hay en la cuenta', async ({ clienteNuevo
 test('no acepta transferencias con monto negativo', async ({ clienteNuevo, parabank }) => {
   hallazgoEsperado('PB-02', 'ParaBank acepta montos negativos: la plata se mueve al revés');
   const origen = await parabank.abrirCuenta(clienteNuevo.id, 'CHECKING', clienteNuevo.cuentaPrincipal);
-  const destino = await parabank.abrirCuenta(clienteNuevo.id, 'SAVINGS', clienteNuevo.cuentaPrincipal);
 
-  const { estado } = await parabank.transferir(origen.id, destino.id, -50);
+  const { estado } = await parabank.transferir(origen.id, clienteNuevo.cuentaPrincipal, -50);
 
   expect(estado, 'el banco debería rechazar un monto negativo').toBe(400);
-  expect(await parabank.saldoDe(destino.id)).toBe(100);
+  expect(await parabank.saldoDe(origen.id), 'la cuenta de origen no debería ganar plata').toBe(100);
 });
