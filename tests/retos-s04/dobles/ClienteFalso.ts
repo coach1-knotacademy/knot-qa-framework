@@ -12,14 +12,10 @@ export class ClienteFalso implements Cliente {
   constructor(private readonly cuentasPreparadas: Cuenta[]) {}
 
   async iniciarSesion(usuario: Usuario): Promise<void> {
-    // TODO RETO 5 (paso 3): anota el usuario:  this.sesiones.push(usuario.usuario);
-    // Cuando termines, borra la línea "throw" de abajo.
-    throw new Error('PENDIENTE (S4): completa ClienteFalso.iniciarSesion en tests/retos-s04/dobles/ClienteFalso.ts — ver retos/S04.md, reto 5');
+    this.sesiones.push(usuario.usuario);
   }
 
   async cuentas(): Promise<Cuenta[]> {
-    // TODO RETO 5 (paso 3): devuelve las cuentas que llegaron en el constructor.
-    // Cuando termines, borra la línea "throw" de abajo.
-    throw new Error('PENDIENTE (S4): completa ClienteFalso.cuentas en tests/retos-s04/dobles/ClienteFalso.ts — ver retos/S04.md, reto 5');
+    return this.cuentasPreparadas;
   }
 }

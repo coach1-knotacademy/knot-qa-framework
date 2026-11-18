@@ -25,14 +25,18 @@ export class ReglaCorriente implements ReglaDeCosto {
   readonly tipoCuenta = 'Corriente';
 
   calcular(monto: number): number {
-    // TODO RETO 2 (paso 1): 4x1000 más la comisión fija de $2.000, como en calcularCosto.
-    // Cuando termines, borra la línea "throw" de abajo.
-    throw new Error('PENDIENTE (S4): completa ReglaCorriente.calcular en src/legado/ocp/reglasDeCosto.ts — ver retos/S04.md, reto 2');
+    return cuatroPorMil(monto) + 2_000;
   }
 }
 
-// TODO RETO 2 (paso 3): crea aquí la clase ReglaNomina para el tipo 'Nómina', que no tiene costo.
-// Pista: copia ReglaAhorros, cambia el nombre de la clase, el tipoCuenta y haz que calcular devuelva 0.
+/** Tipo nuevo: se agregó SIN modificar calcularCosto ni las otras reglas. */
+export class ReglaNomina implements ReglaDeCosto {
+  readonly tipoCuenta = 'Nómina';
+
+  calcular(): number {
+    return 0;
+  }
+}
 
 /** Reúne las reglas y elige la que corresponde a cada tipo de cuenta. */
 export class RegistroDeReglas {
@@ -44,16 +48,15 @@ export class RegistroDeReglas {
   }
 
   costo(tipoCuenta: string, monto: number): number {
-    // TODO RETO 2 (paso 2): busca la regla con this.reglas.get(tipoCuenta).
-    //   - Si no existe, lanza el mismo error que calcularCosto: `Tipo de cuenta desconocido: ${tipoCuenta}`
-    //   - Si existe, devuelve regla.calcular(monto)
-    // Cuando termines, borra la línea "throw" de abajo.
-    throw new Error('PENDIENTE (S4): completa RegistroDeReglas.costo en src/legado/ocp/reglasDeCosto.ts — ver retos/S04.md, reto 2');
+    const regla = this.reglas.get(tipoCuenta);
+    if (!regla) {
+      throw new Error(`Tipo de cuenta desconocido: ${tipoCuenta}`);
+    }
+    return regla.calcular(monto);
   }
 }
 
 /** Las reglas que usa el banco. Para un tipo nuevo, agrega una línea .registrar(...) */
 export function reglasDelBanco(): RegistroDeReglas {
-  // TODO RETO 2 (paso 3): registra también la ReglaNomina.
-  return new RegistroDeReglas().registrar(new ReglaAhorros()).registrar(new ReglaCorriente());
+  return new RegistroDeReglas().registrar(new ReglaAhorros()).registrar(new ReglaCorriente()).registrar(new ReglaNomina());
 }

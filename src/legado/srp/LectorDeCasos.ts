@@ -10,11 +10,13 @@ export type Caso = Record<string, string>;
 
 /** Convierte un CSV separado por ";" en una lista de casos. */
 export function leerCasos(texto: string): Caso[] {
-  // TODO RETO 1 (parte A): mueve aquí la lógica de AyudanteTodo.leerCasosCsv, con dos mejoras:
-  //   1. Quita las líneas vacías (por ejemplo, la última línea del archivo).
-  //   2. Quita el "\r" que dejan los archivos guardados en Windows.
-  // Pista: texto.split(/\r?\n/) parte por líneas con o sin "\r", y
-  //        .filter((linea) => linea.trim() !== '') quita las vacías.
-  // Cuando termines, borra la línea "throw" de abajo.
-  throw new Error('PENDIENTE (S4): completa leerCasos en src/legado/srp/LectorDeCasos.ts — ver retos/S04.md, reto 1');
+  const lineas = texto.split(/\r?\n/).filter((linea) => linea.trim() !== '');
+  const [encabezado, ...filas] = lineas;
+  const columnas = encabezado.split(';');
+  return filas.map((fila) => {
+    const valores = fila.split(';');
+    const caso: Caso = {};
+    columnas.forEach((columna, i) => (caso[columna] = valores[i]));
+    return caso;
+  });
 }

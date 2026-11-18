@@ -11,6 +11,5 @@ export type { Cuenta };
 
 export interface Cliente {
   iniciarSesion(usuario: Usuario): Promise<void>;
-  // TODO RETO 5 (paso 1): agrega el método para pedir las cuentas:
-  //   cuentas(): Promise<Cuenta[]>;
+  cuentas(): Promise<Cuenta[]>;
 }
