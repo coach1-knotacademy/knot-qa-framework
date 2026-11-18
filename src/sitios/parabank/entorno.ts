@@ -14,4 +14,10 @@ export const entornoParaBank = {
 
   /** Clave de los clientes que crean las pruebas. Es un sitio público: nunca uses una clave real. */
   clave: 'Clave123',
+
+  /**
+   * Pausa de cortesía al terminar cada prueba, en milisegundos. ParaBank responde HTTP 429 si recibe
+   * demasiadas peticiones seguidas. Es una regla de convivencia con el sitio: vive aquí, una sola vez.
+   */
+  pausaEntrePruebasMs: Number(process.env.PAUSA_PARABANK_MS ?? 5_000),
 };

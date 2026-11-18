@@ -35,6 +35,8 @@ Un framework de automatización separa **qué se prueba** de **cómo se habla co
 | `src/config/` | ¿Dónde está el sistema? | `entorno.urlBase` | Todo valor que cambia entre ambientes sale de aquí, con variables de entorno. |
 | `src/datos/` | ¿Con qué datos? | `usuarios.ana` | Nada de `'Clave123'` regado por las pruebas. |
 | `src/legado/` (S4) | Código heredado para refactorizar | `AyudanteTodo` | Ejemplos de lo que SOLID evita. |
+| `src/screenplay/` (S5) | ¿Quién hace qué, contado como el caso manual? | `Actor`, `Recargar` | Las tareas usan páginas o API por dentro. Opcional. |
+| `src/sitios/parabank/` (S5) | Otro sistema bajo prueba, con la **misma forma** | `PaginaTransferirParaBank` | Cada sitio trae sus páginas, su API, su configuración, su fábrica y sus fixtures. Las capas no cambian. |
 
 ## Por qué así
 
@@ -44,6 +46,35 @@ Compara `tests/antes/espagueti.spec.ts` con `tests/ui/inicio.spec.ts`:
 - **Si cambia el ambiente**, se cambia una variable de entorno y no el código.
 - **Si cambia el servicio** (como la migración a `/api/v2/cuentas`), se ajusta `ClienteBanco` y las pruebas siguen iguales.
 - **Las pruebas se leen como el caso manual**: cualquiera del equipo puede revisarlas.
+
+## Patrones de diseño (S5): el nombre de lo que ya construimos
+
+Las capas de la S3 ya eran patrones; en la S5 les pusimos nombre y reglas. Las fichas completas (problema, partes, sí/no, la frase para tu líder) están en [patrones.md](patrones.md).
+
+| Capa | Patrón | Su regla en una línea |
+|---|---|---|
+| `src/paginas/` | **Page Object** | La página sabe **cómo**; la prueba dice **qué**. Sin `expect` adentro. |
+| `src/datos/` | **Factory** | Datos con nombre de negocio; un objeto nuevo en cada llamada. Nunca datos de producción. |
+| `src/flujos/` → `src/screenplay/` | **Screenplay** | Actor, Habilidad, Tarea y Pregunta. Útil con varios roles (maker-checker). |
+| `src/config/` | **Singleton** | Una sola configuración. El navegador y la sesión, nunca únicos. |
+| `src/soporte/` | **Inyección de dependencias** (la D de SOLID, S4) | La prueba pide sus piezas; los fixtures se las entregan. |
+
+**Trazabilidad:** el ID del caso manual (el del ALM) va en el nombre de la prueba, como `CP-021 · …` en `tests/recargas/recargas.spec.ts`. Así el reporte se cruza con la matriz de casos y se corre solo ese caso con `-g "CP-021"`.
+
+## Cómo crece este framework (y el de ustedes)
+
+| Sesión | Lo que se le agrega | Dónde |
+|---|---|---|
+| S3 | Las capas | `tests/`, `src/` |
+| S4 | SOLID: por qué las capas están así | `src/legado/` (el antes) |
+| S5 | Patrones: Page Object, Factory, Screenplay, Singleton · un sitio real | `src/screenplay/`, `src/sitios/` |
+| S6 | Configuración por ambiente y localizadores robustos | `src/config/`, `src/paginas/` |
+| S7 | BDD: los casos en lenguaje de negocio | sobre los flujos y Screenplay |
+| S8 | Datos externos y reportes (Allure) | `src/datos/`, reportes |
+| S9 | Logging | `src/soporte/` |
+| S10 | Integración continua | `.github/workflows/` |
+
+El proyecto del 3 de diciembre tiene esta misma forma: si alguien abre su repo, debe reconocer cada capa.
 
 ## Programación orientada a objetos en este repo
 

@@ -5,6 +5,7 @@
  */
 import { test as base } from '@playwright/test';
 import { ClienteParaBank, ClienteRegistrado } from './ClienteParaBank';
+import { entornoParaBank } from './entorno';
 import { fabricaDeClientes } from './fabricaDeClientes';
 import { PaginaAbrirCuenta } from './paginas/PaginaAbrirCuenta';
 import { PaginaIngreso } from './paginas/PaginaIngreso';
@@ -51,7 +52,7 @@ export const test = base.extend<PiezasParaBank, PiezasDelWorker>({
     { scope: 'worker' },
   ],
   /**
-   * CORTESÍA con un sitio compartido: 5 segundos de pausa al terminar cada prueba.
+   * CORTESÍA con un sitio compartido: una pausa al terminar cada prueba (5 s, en entornoParaBank).
    * Así la suite completa queda por debajo del límite de peticiones de ParaBank, también desde
    * GitHub Actions, que comparte su dirección de internet con otros usuarios del sitio.
    * Se activa sola (auto: true); ninguna prueba la tiene que pedir.
@@ -59,7 +60,7 @@ export const test = base.extend<PiezasParaBank, PiezasDelWorker>({
   cortesiaConElSitio: [
     async ({}, usar) => {
       await usar();
-      await new Promise((listo) => setTimeout(listo, 5_000));
+      await new Promise((listo) => setTimeout(listo, entornoParaBank.pausaEntrePruebasMs));
     },
     { auto: true },
   ],

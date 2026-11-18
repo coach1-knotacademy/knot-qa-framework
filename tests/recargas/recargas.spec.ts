@@ -25,11 +25,13 @@ test.describe('Recargas por la pantalla', () => {
     await expect(paginaRecargas.saldoDisponible).toHaveText('$1.490.000');
   });
 
-  test('una recarga de más de $50.000 pide código y con el del buzón queda hecha', async ({ paginaRecargas, cliente }) => {
+  // TRAZABILIDAD: el ID del caso manual (el del ALM) va en el nombre. Se corre solo con: -g "CP-021"
+  test('CP-021 · una recarga de más de $50.000 pide código y con el del buzón queda hecha', async ({ paginaRecargas, cliente }) => {
     await paginaRecargas.recargar(fabricaDeRecargas.grande());
     await expect(paginaRecargas.campoCodigo).toBeVisible();
 
-    await paginaRecargas.confirmar(await cliente.leerCodigo(usuarios.ana.usuario));
+    const codigo = await cliente.leerCodigo(usuarios.ana.usuario);
+    await paginaRecargas.confirmar(codigo);
 
     expect(await paginaRecargas.esperarResultado()).toContain('Valor: $60.000');
   });
