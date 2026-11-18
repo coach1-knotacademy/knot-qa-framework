@@ -21,20 +21,17 @@ export const fabricaDeTransferencias = {
 
   /** Paso 1 · La misma transferencia, pero desde la cuenta Corriente. */
   desdeCorriente(cambios: Partial<Transferencia> = {}): Transferencia {
-    // TODO paso 1: llama a valida() con el origen de la cuenta Corriente (cuentas.corriente.numero) y los cambios.
-    //   Mira grande() en fabricaDeRecargas.ts: es la misma forma.
-    throw new Error('PENDIENTE (S5): completa fabricaDeTransferencias.desdeCorriente en src/datos/fabricaDeTransferencias.ts — ver retos/S05.md, reto 1');
+    return fabricaDeTransferencias.valida({ origen: cuentas.corriente.numero, ...cambios });
   },
 
   /** Paso 2 · Por el monto mínimo que acepta el banco: exactamente $1.000. */
   alMontoMinimo(cambios: Partial<Transferencia> = {}): Transferencia {
-    // TODO paso 2: igual al paso 1, pero cambiando el monto a 1_000.
-    throw new Error('PENDIENTE (S5): completa fabricaDeTransferencias.alMontoMinimo en src/datos/fabricaDeTransferencias.ts — ver retos/S05.md, reto 1');
+    return fabricaDeTransferencias.valida({ monto: 1_000, ...cambios });
   },
 
   /** Paso 3 · A la misma cuenta de origen (el banco debe rechazarla). Respeta el origen que pida la prueba. */
   aLaMismaCuenta(cambios: Partial<Transferencia> = {}): Transferencia {
-    // TODO paso 3: arma la base con valida(cambios) y devuelve una copia con destino = base.origen.
-    throw new Error('PENDIENTE (S5): completa fabricaDeTransferencias.aLaMismaCuenta en src/datos/fabricaDeTransferencias.ts — ver retos/S05.md, reto 1');
+    const base = fabricaDeTransferencias.valida(cambios);
+    return { ...base, destino: base.origen };
   },
 };
