@@ -29,6 +29,10 @@ const RETOS = {
     4: 'ISP · interfaces pequeñas',
     5: 'DIP · Cliente y ClienteFalso',
   },
+  S5: {
+    1: 'Factory · fábrica de transferencias',
+    2: 'Screenplay · tarea Recargar (extra)',
+  },
 };
 
 // Bugs sembrados a propósito en el Banco Demo. Las pruebas los esperan: no se corrigen.
@@ -37,15 +41,20 @@ const HALLAZGOS = {
   'BUG-02': { texto: 'desde Corriente no se descuenta el 4x1000 del saldo', necesita: 'reto 4 de la S3' },
   'BUG-03': { texto: '"BLOQUEADO" en mayúsculas puede entrar', necesita: null },
   'MIG-01': { texto: 'en /api/v2/cuentas la cuenta Corriente dice "Ahorros"', necesita: null },
+  'BUG-04': { texto: 'si el operador no responde, igual se descuenta el saldo de la recarga', necesita: null },
 };
 const TODOS = Object.keys(HALLAZGOS);
+// Hasta la S4 no existían las recargas: esas etiquetas no tienen BUG-04.
+const HASTA_S4 = TODOS.filter((id) => id !== 'BUG-04');
 
 // Lo que debe pasar en cada etiqueta del repo.
 const ESTADOS = {
-  's03-inicio': { pendientes: { S3: [1, 2, 3, 4, 5], S4: [] }, retosS04: false, confirmados: ['BUG-03', 'MIG-01'] },
-  's03-solucion': { pendientes: { S3: [], S4: [] }, retosS04: false, confirmados: TODOS },
-  's04-inicio': { pendientes: { S3: [], S4: [1, 2, 3, 4, 5] }, retosS04: true, confirmados: TODOS },
-  's04-solucion': { pendientes: { S3: [], S4: [] }, retosS04: true, confirmados: TODOS },
+  's03-inicio': { pendientes: { S3: [1, 2, 3, 4, 5], S4: [], S5: [] }, retosS04: false, retosS05: false, confirmados: ['BUG-03', 'MIG-01'] },
+  's03-solucion': { pendientes: { S3: [], S4: [], S5: [] }, retosS04: false, retosS05: false, confirmados: HASTA_S4 },
+  's04-inicio': { pendientes: { S3: [], S4: [1, 2, 3, 4, 5], S5: [] }, retosS04: true, retosS05: false, confirmados: HASTA_S4 },
+  's04-solucion': { pendientes: { S3: [], S4: [], S5: [] }, retosS04: true, retosS05: false, confirmados: HASTA_S4 },
+  's05-inicio': { pendientes: { S3: [], S4: [], S5: [1, 2] }, retosS04: true, retosS05: true, confirmados: TODOS },
+  's05-solucion': { pendientes: { S3: [], S4: [], S5: [] }, retosS04: true, retosS05: true, confirmados: TODOS },
 };
 
 // ---------- Argumentos ----------
@@ -117,7 +126,7 @@ function recorrer(suite, archivo) {
         tipo,
         error: error.split('\n').find((l) => l.trim()) || '',
         hallazgo: hallazgo ? hallazgo.description.split(':')[0] : null,
-        sesion: carpeta === 'retos-s03' ? 'S3' : carpeta === 'retos-s04' ? 'S4' : null,
+        sesion: { 'retos-s03': 'S3', 'retos-s04': 'S4', 'retos-s05': 'S5' }[carpeta] || null,
         reto: retoDelArchivo ? Number(retoDelArchivo[1]) : null,
         pendienteDe: pendiente ? { sesion: pendiente[1], reto: Number(pendiente[2]) } : null,
       });
@@ -151,18 +160,19 @@ for (const [archivo, lista] of porArchivo) {
 }
 
 // ---------- 4. Retos ----------
-const pendientesPorSesion = { S3: new Set(), S4: new Set() };
+const pendientesPorSesion = { S3: new Set(), S4: new Set(), S5: new Set() };
 for (const p of pruebas) if (p.pendienteDe) pendientesPorSesion[p.pendienteDe.sesion].add(p.pendienteDe.reto);
 const hayRetosS04 = fs.existsSync(path.join(RAIZ, 'tests', 'retos-s04'));
+const hayRetosS05 = fs.existsSync(path.join(RAIZ, 'tests', 'retos-s05'));
 const corrioSesion = (sesion) => pruebas.some((p) => p.sesion === sesion);
-const resueltosPorSesion = { S3: 0, S4: 0 };
+const resueltosPorSesion = { S3: 0, S4: 0, S5: 0 };
 
-for (const sesion of ['S3', 'S4']) {
+for (const sesion of ['S3', 'S4', 'S5']) {
   console.log('');
   console.log(negrita(`RETOS ${sesion}`));
   linea();
-  if (sesion === 'S4' && !hayRetosS04) {
-    console.log(azul('Todavía no se han publicado (llegan con la etiqueta s04-inicio).'));
+  if ((sesion === 'S4' && !hayRetosS04) || (sesion === 'S5' && !hayRetosS05)) {
+    console.log(azul(`Todavía no se han publicado (llegan con la etiqueta ${sesion.toLowerCase().replace('s', 's0')}-inicio).`));
     continue;
   }
   if (!corrioSesion(sesion)) {
@@ -220,7 +230,8 @@ for (const [id, { texto, necesita }] of Object.entries(HALLAZGOS)) {
 
 // ---------- 6. Estado del repo ----------
 let detectado;
-if (hayRetosS04) detectado = pendientesPorSesion.S4.size ? 's04-inicio' : 's04-solucion';
+if (hayRetosS05) detectado = pendientesPorSesion.S5.size ? 's05-inicio' : 's05-solucion';
+else if (hayRetosS04) detectado = pendientesPorSesion.S4.size ? 's04-inicio' : 's04-solucion';
 else detectado = pendientesPorSesion.S3.size ? 's03-inicio' : 's03-solucion';
 const esperado = pedido || detectado;
 
@@ -230,7 +241,10 @@ if (pedido && corridaCompleta) {
   if (regla.retosS04 !== hayRetosS04) {
     problemas.push(regla.retosS04 ? 'Faltan los retos de la S4 (tests/retos-s04).' : 'Los retos de la S4 no deberían estar todavía.');
   }
-  for (const sesion of ['S3', 'S4']) {
+  if (regla.retosS05 !== hayRetosS05) {
+    problemas.push(regla.retosS05 ? 'Faltan los retos de la S5 (tests/retos-s05).' : 'Los retos de la S5 no deberían estar todavía.');
+  }
+  for (const sesion of ['S3', 'S4', 'S5']) {
     const tiene = lista(pendientesPorSesion[sesion]);
     const debe = lista(regla.pendientes[sesion]);
     if (tiene !== debe) problemas.push(`Retos pendientes de la ${sesion}: hay [${tiene}] y en ${pedido} deben ser [${debe}].`);
@@ -254,6 +268,7 @@ if (corridaCompleta) {
 console.log(`Pruebas: ${pruebas.length} en total · ${cuenta('verde')} en verde · ${cuenta('pendiente')} pendientes · ${cuenta('hallazgo')} hallazgos · ${cuenta('rojo') + cuenta('alerta')} en rojo`);
 if (corrioSesion('S3')) console.log(`Retos S3: ${resueltos('S3')} de 5 resueltos`);
 if (hayRetosS04 && corrioSesion('S4')) console.log(`Retos S4: ${resueltos('S4')} de 5 resueltos`);
+if (hayRetosS05 && corrioSesion('S5')) console.log(`Retos S5: ${resueltos('S5')} de 2 resueltos`);
 console.log(`Hallazgos confirmados: ${confirmados.size} de ${TODOS.length}`);
 console.log('Detalle con pantallazos: npm run evidencias  ·  Reporte completo: npm run reporte');
 console.log('');

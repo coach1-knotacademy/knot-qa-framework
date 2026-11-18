@@ -14,6 +14,7 @@ import { PaginaBuzon } from '../paginas/PaginaBuzon';
 import { PaginaInicio } from '../paginas/PaginaInicio';
 import { PaginaLogin } from '../paginas/PaginaLogin';
 import { PaginaOtp } from '../paginas/PaginaOtp';
+import { PaginaRecargas } from '../paginas/PaginaRecargas';
 import { PaginaTransferir } from '../paginas/PaginaTransferir';
 
 interface Piezas {
@@ -22,6 +23,8 @@ interface Piezas {
   paginaOtp: PaginaOtp;
   paginaInicio: PaginaInicio;
   paginaTransferir: PaginaTransferir;
+  /** S5 · Recargas a celular. */
+  paginaRecargas: PaginaRecargas;
   /** El buzón se abre en su propia pestaña, como en la vida real. */
   paginaBuzon: PaginaBuzon;
   /** Todas las pantallas del ingreso juntas, para flujos/sesion.ts */
@@ -43,6 +46,9 @@ export const test = base.extend<Piezas>({
   },
   paginaTransferir: async ({ page }, usar) => {
     await usar(new PaginaTransferir(page));
+  },
+  paginaRecargas: async ({ page }, usar) => {
+    await usar(new PaginaRecargas(page));
   },
   paginaBuzon: async ({ context }, usar) => {
     const pestana = await context.newPage();

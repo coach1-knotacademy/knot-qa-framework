@@ -1,5 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 import { entorno } from './src/config/entorno';
+import { entornoParaBank } from './src/sitios/parabank/entorno';
 
 /**
  * Configuración de Playwright. Cada carpeta de tests/ es un "proyecto":
@@ -16,8 +17,17 @@ const conNavegador = {
   trace: 'retain-on-failure' as const,
 };
 
-// Las pruebas de unidad no necesitan el banco: si solo corres ese proyecto, no se inicia.
-const soloUnidad = process.argv.includes('--project=unidad') && !process.argv.some((a) => a.startsWith('--project=') && a !== '--project=unidad');
+// Proyectos pedidos en la línea de comandos (--project=ui o --project ui).
+const pedidos = process.argv.flatMap((a, i, todos) => (a.startsWith('--project=') ? [a.slice(10)] : a === '--project' ? [todos[i + 1]] : []));
+
+// ParaBank (S5) es un sitio real en internet: solo corre si se pide (npm run parabank).
+// La marca queda en una variable de entorno para que los procesos de Playwright la vean igual.
+if (pedidos.includes('parabank')) process.env.KNOT_PARABANK = '1';
+const conParaBank = process.env.KNOT_PARABANK === '1';
+
+// Estos proyectos no usan el Banco Demo: si solo corres esos, no se inicia.
+const SIN_BANCO_DEMO = ['unidad', 'retos-s05', 'parabank'];
+const soloUnidad = pedidos.length > 0 && pedidos.every((p) => SIN_BANCO_DEMO.includes(p));
 
 export default defineConfig({
   // Uno a la vez: varias pruebas leen el mismo buzón de SMS y así no se cruzan los códigos.
@@ -47,5 +57,29 @@ export default defineConfig({
     { name: 'retos-s03', testDir: 'tests/retos-s03', use: conNavegador },
     // S4 · Retos de SOLID: pruebas de unidad, sin navegador y sin servidor.
     { name: 'unidad', testDir: 'tests/retos-s04' },
+    // S5 · Recargas a celular: Page Object, Factory y bloqueos reales (código, límite, operador caído).
+    { name: 'recargas', testDir: 'tests/recargas', use: conNavegador },
+    // S5 · Retos de patrones: fábrica de datos y una tarea de Screenplay. Sin navegador ni servidor.
+    { name: 'retos-s05', testDir: 'tests/retos-s05' },
+    // S5 · ParaBank, un banco de práctica real en internet. Se graba todo: video, pantallazos y trace.
+    // Un solo proceso a la vez: el sitio corta a quien hace demasiadas peticiones (HTTP 429).
+    ...(conParaBank
+      ? [{
+          name: 'parabank',
+          testDir: 'tests/parabank',
+          timeout: 60_000,
+          use: {
+            ...devices['Desktop Chrome'],
+            baseURL: entornoParaBank.urlBase,
+            channel: process.env.PW_CHANNEL,
+            screenshot: 'on' as const,
+            trace: 'on' as const,
+            video: 'on' as const,
+            actionTimeout: 15_000,
+            // Más despacio a propósito: el video se puede seguir y no se pasa el límite de peticiones (HTTP 429).
+            launchOptions: { slowMo: 250 },
+          },
+        }]
+      : []),
   ],
 });

@@ -9,12 +9,12 @@ const PUBLICO = path.join('banco-demo', 'public');
 fs.rmSync(SALIDA, { recursive: true, force: true });
 fs.mkdirSync(BANCO, { recursive: true });
 
-const NOMBRES = { login: 'index', otp: 'otp', inicio: 'inicio', transferir: 'transferir', buzon: 'buzon' };
+const NOMBRES = { login: 'index', otp: 'otp', inicio: 'inicio', transferir: 'transferir', recargas: 'recargas', buzon: 'buzon' };
 for (const [origen, destino] of Object.entries(NOMBRES)) {
   const html = fs.readFileSync(path.join(PUBLICO, `${origen}.html`), 'utf8')
     .replace('href="/estilos.css"', 'href="estilos.css"')
     .replace('<script src="/comun.js"></script>', '<script src="reglas.js"></script><script src="api-estatica.js"></script><script src="comun.js"></script>')
-    .replace(/href="\/(otp|inicio|transferir|buzon)"/g, 'href="$1.html"')
+    .replace(/href="\/(otp|inicio|transferir|recargas|buzon)"/g, 'href="$1.html"')
     .replace(/location\.href = '\/(otp|inicio)'/g, "location.href = '$1.html'");
   fs.writeFileSync(path.join(BANCO, `${destino}.html`), html);
 }
@@ -26,6 +26,11 @@ fs.writeFileSync(path.join(BANCO, 'reglas.js'),
 
 if (fs.existsSync(path.join('laboratorio', 'laboratorio_S4.html'))) fs.copyFileSync(path.join('laboratorio', 'laboratorio_S4.html'), path.join(SALIDA, 'laboratorio-s4.html'));
 if (fs.existsSync(path.join('laboratorio', 'practica_extra_S4.html'))) fs.copyFileSync(path.join('laboratorio', 'practica_extra_S4.html'), path.join(SALIDA, 'practica-extra-s4.html'));
+for (const [origen, destino] of [['laboratorio_S5.html', 'laboratorio-s5.html'], ['actividades_S5.html', 'actividades-s5.html']]) {
+  if (fs.existsSync(path.join('laboratorio', origen))) fs.copyFileSync(path.join('laboratorio', origen), path.join(SALIDA, destino));
+}
+// S5 · El reporte de la suite de ParaBank (con videos y traces), si la corrida lo generó.
+if (fs.existsSync(path.join('reporte-parabank', 'index.html'))) fs.cpSync('reporte-parabank', path.join(SALIDA, 'reportes', 'parabank'), { recursive: true });
 if (fs.existsSync('evidencias.html')) fs.copyFileSync('evidencias.html', path.join(SALIDA, 'evidencias.html'));
 fs.copyFileSync(path.join('banco-demo', 'calculadora.html'), path.join(SALIDA, 'calculadora.html'));
 fs.copyFileSync(path.join('banco-demo', 'portada.html'), path.join(SALIDA, 'index.html'));

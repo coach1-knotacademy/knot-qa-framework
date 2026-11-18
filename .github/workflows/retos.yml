@@ -27,19 +27,21 @@ jobs:
         id: tipos
         continue-on-error: true
         run: npm run tipos
-      - name: Retos de la S4 (pruebas de unidad)
+      - name: Retos de la S4 y la S5 (pruebas de unidad)
         id: retos
         continue-on-error: true
-        run: npm run retos:s04
+        run: |
+          npm run retos:s04
+          npm run retos:s05
       - name: Resumen
         if: always()
         run: |
           {
-            echo "## Retos de la S4"
+            echo "## Retos de la S4 y la S5"
             echo ""
             echo "| Paso | Resultado |"
             echo "|---|---|"
             echo "| Tipos (\`npm run tipos\`) | ${{ steps.tipos.outcome == 'success' && '✅ en verde' || '❌ en rojo' }} |"
-            echo "| Retos (\`npm run retos:s04\`) | ${{ steps.retos.outcome == 'success' && '✅ en verde' || '❌ en rojo: abre el paso de arriba para ver Expected y Received' }} |"
+            echo "| Retos (\`npm run retos:s04\` y \`retos:s05\`) | ${{ steps.retos.outcome == 'success' && '✅ en verde' || '❌ en rojo: abre el paso de arriba para ver Expected y Received' }} |"
           } >> "$GITHUB_STEP_SUMMARY"
           if [ "${{ steps.tipos.outcome }}" != "success" ] || [ "${{ steps.retos.outcome }}" != "success" ]; then exit 1; fi

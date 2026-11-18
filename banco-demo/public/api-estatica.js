@@ -1,6 +1,6 @@
 // Versión en línea: el "servidor" corre dentro de tu navegador. Ningún dato sale de tu equipo.
 window.apiEstatica = (() => {
-  const { calcularGmf, validarTransferencia } = window.ReglasBanco;
+  const { calcularGmf, validarTransferencia, validarRecarga, hacerRecarga, RECARGA_CON_CODIGO } = window.ReglasBanco;
   const USUARIOS = {
     ana: { clave: 'Clave123', nombre: 'Ana Pérez' },
     luis: { clave: 'Clave123', nombre: 'Luis Gómez' },
@@ -63,6 +63,29 @@ window.apiEstatica = (() => {
       cuenta.saldo -= cuenta.tipo === 'Corriente' ? monto : monto + gmf;
       guardar('sesion:' + token, sesion);
       return r(201, { comprobante: azar(), monto, gmf, total: monto + gmf, saldo: cuenta.saldo });
+    }
+    if (camino === '/api/recargas' || camino === '/api/recargas/confirmar') {
+      let recarga = cuerpo;
+      if (camino === '/api/recargas') {
+        const error = validarRecarga({ ...recarga, saldo: sesion.cuentas[0].saldo, recargadoHoy: sesion.recargadoHoy || 0 });
+        if (error) return r(400, { error });
+        if (recarga.monto > RECARGA_CON_CODIGO) {
+          const idDesafio = azar();
+          const codigo = azar();
+          guardar('recarga:' + idDesafio, { token, codigo, recarga });
+          guardar('buzon:' + sesion.usuario, [{ codigo, mensaje: `Banco Demo: tu código para la recarga es ${codigo}` }, ...leer('buzon:' + sesion.usuario, [])].slice(0, 5));
+          return r(202, { idDesafio, requiereCodigo: true });
+        }
+      } else {
+        const desafio = leer('recarga:' + cuerpo.idDesafio, null);
+        if (!desafio || desafio.token !== token || desafio.codigo !== String(cuerpo.codigo)) return r(401, { error: 'Código incorrecto' });
+        localStorage.removeItem('demo:recarga:' + cuerpo.idDesafio);
+        recarga = desafio.recarga;
+      }
+      const { estado, demora, datos } = hacerRecarga(sesion, recarga, azar());
+      guardar('sesion:' + token, sesion);
+      await new Promise((listo) => setTimeout(listo, demora));
+      return r(estado, datos);
     }
     return r(404, { error: 'No existe' });
   };

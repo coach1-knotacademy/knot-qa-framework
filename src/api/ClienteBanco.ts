@@ -1,4 +1,5 @@
 import { APIRequestContext } from '@playwright/test';
+import { Recarga } from '../datos/fabricaDeRecargas';
 import { Usuario } from '../datos/usuarios';
 
 /** Lo que responde el servicio: el código HTTP (200, 401...) y el JSON. */
@@ -28,6 +29,21 @@ export interface Comprobante {
   gmf?: number;
   total?: number;
   saldo?: number;
+  error?: string;
+}
+
+/**
+ * Lo que responde el banco al recargar (S5).
+ * 201: recarga hecha · 202: pide código (viene idDesafio) · 400/401/504: viene "error".
+ */
+export interface ResultadoRecarga {
+  comprobante?: number;
+  operador?: string;
+  numero?: string;
+  monto?: number;
+  saldo?: number;
+  idDesafio?: string;
+  requiereCodigo?: boolean;
   error?: string;
 }
 
@@ -95,6 +111,24 @@ export class ClienteBanco {
       headers: this.encabezados(),
     });
     return { estado: respuesta.status(), datos: await respuesta.json() };
+  }
+
+  /** POST /api/recargas. Si el monto es alto, responde 202 y envía un código al buzón. */
+  async recargar(recarga: Recarga): Promise<Respuesta<ResultadoRecarga>> {
+    const respuesta = await this.request.post('/api/recargas', { data: recarga, headers: this.encabezados() });
+    return { estado: respuesta.status(), datos: await respuesta.json() };
+  }
+
+  /** POST /api/recargas/confirmar con el código que llegó al buzón. */
+  async confirmarRecarga(idDesafio: string, codigo: string): Promise<Respuesta<ResultadoRecarga>> {
+    const respuesta = await this.request.post('/api/recargas/confirmar', { data: { idDesafio, codigo }, headers: this.encabezados() });
+    return { estado: respuesta.status(), datos: await respuesta.json() };
+  }
+
+  /** Saldo de la cuenta de Ahorros, de donde salen las recargas. */
+  async saldoDeAhorros(): Promise<number> {
+    const { datos } = await this.cuentas();
+    return datos.find((c) => c.tipo === 'Ahorros')?.saldo ?? NaN;
   }
 
   /** Arma el encabezado Authorization con el token guardado. Solo lo usa esta clase. */

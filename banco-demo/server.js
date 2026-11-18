@@ -5,13 +5,13 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { calcularGmf, validarTransferencia } = require('./reglas');
+const { calcularGmf, validarTransferencia, validarRecarga, hacerRecarga, RECARGA_CON_CODIGO } = require('./reglas');
 
 const PUERTO = Number(process.env.PUERTO_DEMO || 4000);
 const PUBLICO = path.join(__dirname, 'public');
 const PAGINAS = {
   '/': 'login.html', '/otp': 'otp.html', '/inicio': 'inicio.html',
-  '/transferir': 'transferir.html', '/buzon': 'buzon.html',
+  '/transferir': 'transferir.html', '/recargas': 'recargas.html', '/buzon': 'buzon.html',
   '/estilos.css': 'estilos.css', '/comun.js': 'comun.js',
 };
 const USUARIOS = {
@@ -27,6 +27,7 @@ const PRODUCTOS_V2 = { Ahorros: 'Ahorros', Corriente: 'Ahorros' };
 const desafios = new Map();
 const sesiones = new Map();
 const buzon = new Map();
+const desafiosDeRecarga = new Map();
 
 function responder(res, estado, cuerpo) {
   res.writeHead(estado, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -39,6 +40,10 @@ function leerJson(req) {
     req.on('data', (parte) => { datos += parte; });
     req.on('end', () => { try { resolve(JSON.parse(datos || '{}')); } catch { resolve(null); } });
   });
+}
+
+function enviarAlBuzon(usuario, codigo, mensaje) {
+  buzon.set(usuario, [{ codigo, mensaje, fecha: new Date().toISOString() }, ...(buzon.get(usuario) || [])].slice(0, 5));
 }
 
 function sesionDe(req) {
@@ -107,7 +112,35 @@ async function api(req, res, url) {
     return responder(res, 201, { comprobante: crypto.randomInt(100000, 1000000), monto, gmf, total: monto + gmf, saldo: cuenta.saldo });
   }
 
+  if (req.method === 'POST' && url.pathname === '/api/recargas') {
+    const recarga = (await leerJson(req)) || {};
+    const error = validarRecarga({ ...recarga, saldo: sesion.cuentas[0].saldo, recargadoHoy: sesion.recargadoHoy || 0 });
+    if (error) return responder(res, 400, { error });
+    if (recarga.monto > RECARGA_CON_CODIGO) {
+      // Monto alto: como en las billeteras reales, se pide un código extra antes de recargar.
+      const idDesafio = crypto.randomUUID();
+      const codigo = String(crypto.randomInt(100000, 1000000));
+      desafiosDeRecarga.set(idDesafio, { sesion, codigo, recarga });
+      enviarAlBuzon(sesion.usuario, codigo, `Banco Demo: tu código para la recarga es ${codigo}`);
+      return responder(res, 202, { idDesafio, requiereCodigo: true });
+    }
+    return recargar(res, sesion, recarga);
+  }
+
+  if (req.method === 'POST' && url.pathname === '/api/recargas/confirmar') {
+    const { idDesafio, codigo } = (await leerJson(req)) || {};
+    const desafio = desafiosDeRecarga.get(idDesafio);
+    if (!desafio || desafio.sesion !== sesion || desafio.codigo !== String(codigo)) return responder(res, 401, { error: 'Código incorrecto' });
+    desafiosDeRecarga.delete(idDesafio);
+    return recargar(res, sesion, desafio.recarga);
+  }
+
   return responder(res, 404, { error: 'No existe' });
+}
+
+function recargar(res, sesion, recarga) {
+  const { estado, demora, datos } = hacerRecarga(sesion, recarga, crypto.randomInt(100000, 1000000));
+  setTimeout(() => responder(res, estado, datos), demora);
 }
 
 const TIPOS = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8' };

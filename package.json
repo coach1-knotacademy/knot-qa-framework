@@ -2,7 +2,7 @@
   "name": "knot-qa-framework",
   "version": "1.0.0",
   "private": true,
-  "description": "Framework de automatización de práctica (Bootcamp QA, sesiones 3 y 4): capas, programación orientada a objetos y SOLID con Playwright y TypeScript sobre el Banco Demo.",
+  "description": "Framework de automatización de práctica (Bootcamp QA, sesiones 3 a 5): capas, programación orientada a objetos, SOLID y patrones con Playwright y TypeScript sobre el Banco Demo y ParaBank.",
   "license": "UNLICENSED",
   "engines": {
     "node": ">=20"
@@ -14,6 +14,10 @@
     "evidencias": "node scripts/evidencias.js",
     "retos:s03": "playwright test --project=retos-s03",
     "retos:s04": "playwright test --project=unidad --pass-with-no-tests",
+    "retos:s05": "playwright test --project=retos-s05 --pass-with-no-tests",
+    "recargas": "playwright test --project=recargas",
+    "parabank": "playwright test --project=parabank --workers=1",
+    "parabank:ver": "playwright test --project=parabank --workers=1 --headed",
     "verificar-clase": "node scripts/verificar-clase.js",
     "reporte": "playwright show-report",
     "tipos": "tsc --noEmit"

@@ -41,6 +41,15 @@ jobs:
         with:
           path: evidencias.html
           archive: false
+      # S5 · Solo en el repo del curso, cuando el coach publica (push a main o ejecución manual).
+      # Va de a una prueba: ParaBank bloquea 5 minutos a quien hace demasiadas peticiones (HTTP 429).
+      - name: ParaBank, un sitio real en internet (no bloquea la publicación)
+        if: always() && github.repository == 'coach1-knotacademy/knot-qa-framework'
+        continue-on-error: true
+        env:
+          PLAYWRIGHT_HTML_OUTPUT_DIR: reporte-parabank
+          PLAYWRIGHT_HTML_OPEN: never
+        run: npx playwright test --project=parabank --workers=1 --reporter=list,html
       - name: Preparar la publicación
         if: always() && github.repository == 'coach1-knotacademy/knot-qa-framework'
         run: node scripts/construir-sitio.js
