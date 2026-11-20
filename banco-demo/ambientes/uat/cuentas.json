@@ -1,0 +1,10 @@
+{
+  "ambiente": "UAT",
+  "cliente": "Ana Pérez (usuario de prueba)",
+  "cuentas": [
+    { "numero": "3000000011", "tipo": "Ahorros", "saldo": 820000 },
+    { "numero": "3000000012", "tipo": "Corriente", "saldo": 75000 },
+    { "numero": "3000000013", "tipo": "Nómina", "saldo": 2100000 }
+  ],
+  "nota": "Un ambiente también se distingue por sus datos: en UAT, Ana tiene otras cuentas, otros saldos y una cuenta Nómina que en QA no existe."
+}

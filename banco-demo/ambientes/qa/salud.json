@@ -1,0 +1,7 @@
+{
+  "ambiente": "QA",
+  "version": "2.7.0-qa.3",
+  "estado": "ok",
+  "datos": "Datos de prueba que el equipo de QA recarga cada lunes",
+  "aviso": "Ambiente FICTICIO de práctica del Bootcamp QA (Knot Academy). No es un banco real: no tiene datos reales ni recibe nada."
+}

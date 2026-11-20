@@ -5,6 +5,7 @@ import { entornoParaBank } from './src/sitios/parabank/entorno';
 /**
  * Configuración de Playwright. Cada carpeta de tests/ es un "proyecto":
  *   npx playwright test --project=ui
+ * Cada proyecto dice su carpeta (testDir): plantilla/ (S6) es un framework aparte y no entra aquí.
  */
 
 // Lo que comparten las pruebas que abren navegador.
@@ -26,8 +27,10 @@ if (pedidos.includes('parabank')) process.env.KNOT_PARABANK = '1';
 const conParaBank = process.env.KNOT_PARABANK === '1';
 
 // Estos proyectos no usan el Banco Demo: si solo corres esos, no se inicia.
-const SIN_BANCO_DEMO = ['unidad', 'retos-s05', 'parabank'];
+const SIN_BANCO_DEMO = ['unidad', 'retos-s05', 'retos-s06', 'parabank'];
 const soloUnidad = pedidos.length > 0 && pedidos.every((p) => SIN_BANCO_DEMO.includes(p));
+// S6 · Fuera de "local" (AMBIENTE=qa o uat) el sistema ya existe en otro lado: no se inicia el Banco Demo.
+const sinServidorLocal = soloUnidad || entorno.nombre !== 'local';
 
 export default defineConfig({
   // Uno a la vez: varias pruebas leen el mismo buzón de SMS y así no se cruzan los códigos.
@@ -35,9 +38,11 @@ export default defineConfig({
   // Una prueba en rojo es un hallazgo o un error de la prueba: no se reintenta.
   retries: 0,
   reporter: [['list'], ['html', { open: 'never' }], ['json', { outputFile: 'resultados.json' }]],
+  // S6 · El reporte dice contra qué ambiente se corrió. Nunca la clave: el reporte se comparte.
+  metadata: { ambiente: entorno.nombre, 'dirección': entorno.urlBase },
 
   // Banco Demo: se inicia solo y no necesita internet.
-  webServer: soloUnidad
+  webServer: sinServidorLocal
     ? undefined
     : {
         command: 'node banco-demo/server.js',
@@ -61,6 +66,10 @@ export default defineConfig({
     { name: 'recargas', testDir: 'tests/recargas', use: conNavegador },
     // S5 · Retos de patrones: fábrica de datos y una tarea de Screenplay. Sin navegador ni servidor.
     { name: 'retos-s05', testDir: 'tests/retos-s05' },
+    // S6 · Reto 1, ambientes: pruebas de unidad de la configuración. Sin navegador ni servidor.
+    { name: 'retos-s06', testDir: 'tests/retos-s06', testIgnore: /reto2-/ },
+    // S6 · Reto 2, localizadores robustos: con navegador, contra Recargas de hoy y la del rediseño.
+    { name: 'retos-s06-ui', testDir: 'tests/retos-s06', testMatch: /reto2-.*\.spec\.ts/, use: conNavegador },
     // S5 · ParaBank, un banco de práctica real en internet. Se graba todo: video, pantallazos y trace.
     // Un solo proceso a la vez: el sitio corta a quien hace demasiadas peticiones (HTTP 429).
     ...(conParaBank

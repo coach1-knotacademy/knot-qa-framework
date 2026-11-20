@@ -1,0 +1,9 @@
+{
+  "ambiente": "QA",
+  "cliente": "Ana Pérez (usuario de prueba)",
+  "cuentas": [
+    { "numero": "1000000001", "tipo": "Ahorros", "saldo": 1500000 },
+    { "numero": "1000000002", "tipo": "Corriente", "saldo": 250000 }
+  ],
+  "nota": "Un ambiente también se distingue por sus datos: en QA, Ana tiene los saldos con que arranca el Banco Demo."
+}

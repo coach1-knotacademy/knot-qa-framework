@@ -1,4 +1,5 @@
-// Arma la carpeta sitio/ que se publica en GitHub Pages: la portada, el banco en línea, la calculadora, el laboratorio de la S4 y las evidencias.
+// Arma la carpeta sitio/ que se publica en GitHub Pages: la portada, el banco en línea, la calculadora, los laboratorios y actividades,
+// las evidencias y (S6) los ambientes de práctica para Postman y la plantilla del framework.
 // El banco en línea no tiene servidor: api-estatica.js hace de servidor dentro del navegador.
 const fs = require('fs');
 const path = require('path');
@@ -26,9 +27,16 @@ fs.writeFileSync(path.join(BANCO, 'reglas.js'),
 
 if (fs.existsSync(path.join('laboratorio', 'laboratorio_S4.html'))) fs.copyFileSync(path.join('laboratorio', 'laboratorio_S4.html'), path.join(SALIDA, 'laboratorio-s4.html'));
 if (fs.existsSync(path.join('laboratorio', 'practica_extra_S4.html'))) fs.copyFileSync(path.join('laboratorio', 'practica_extra_S4.html'), path.join(SALIDA, 'practica-extra-s4.html'));
-for (const [origen, destino] of [['laboratorio_S5.html', 'laboratorio-s5.html'], ['actividades_S5.html', 'actividades-s5.html']]) {
+for (const [origen, destino] of [
+  ['laboratorio_S5.html', 'laboratorio-s5.html'], ['actividades_S5.html', 'actividades-s5.html'],
+  ['laboratorio_S6.html', 'laboratorio-s6.html'], ['actividades_S6.html', 'actividades-s6.html'], ['plantilla.html', 'plantilla.html'],
+]) {
   if (fs.existsSync(path.join('laboratorio', origen))) fs.copyFileSync(path.join('laboratorio', origen), path.join(SALIDA, destino));
 }
+// S6 · Dos "ambientes" de práctica (QA y UAT) como archivos fijos: el mismo pedido de Postman, datos distintos.
+// Sin servidor, sin datos reales y sin límite de peticiones. Y la colección y los ambientes para importar en Postman.
+fs.cpSync(path.join('banco-demo', 'ambientes'), path.join(SALIDA, 'ambientes'), { recursive: true });
+fs.cpSync(path.join('banco-demo', 'postman'), path.join(SALIDA, 'postman'), { recursive: true });
 // S5 · El reporte de la suite de ParaBank (con videos y traces), si la corrida lo generó.
 if (fs.existsSync(path.join('reporte-parabank', 'index.html'))) fs.cpSync('reporte-parabank', path.join(SALIDA, 'reportes', 'parabank'), { recursive: true });
 if (fs.existsSync('evidencias.html')) fs.copyFileSync('evidencias.html', path.join(SALIDA, 'evidencias.html'));

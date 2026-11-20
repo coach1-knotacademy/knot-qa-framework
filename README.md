@@ -16,6 +16,8 @@ Si la Ruta 1 no funciona en 5 minutos, pasa a la 2. Si GitHub tampoco abre, ve a
 
 **S5 · Patrones y un sitio real:** [`retos/S05.md`](retos/S05.md). Laboratorio sin instalar nada: [laboratorio de la S5](https://coach1-knotacademy.github.io/knot-qa-framework/laboratorio-s5.html) y [actividades de la clase](https://coach1-knotacademy.github.io/knot-qa-framework/actividades-s5.html). Las fichas de los cuatro patrones (qué problema resuelven, sus partes, cuándo sí y cuándo no): [`docs/patrones.md`](docs/patrones.md). Lo que escribió la IA con y sin el repo, y qué pasó al correrlo: [`docs/ia-s5/`](docs/ia-s5/README.md). La suite de ParaBank corre en GitHub Actions cada vez que se publica y deja su reporte con videos y traces: [reporte de ParaBank](https://coach1-knotacademy.github.io/knot-qa-framework/reportes/parabank/index.html).
 
+**S6 · Configuración, ambientes y localizadores robustos:** [`retos/S06.md`](retos/S06.md). Recargas tiene ahora un **rediseño** (`/recargas?rediseno=1`) para probar si los localizadores aguantan. Para Postman, dos ambientes de práctica (QA y UAT) con su colección en la [portada](https://coach1-knotacademy.github.io/knot-qa-framework/). Y una [`plantilla/`](plantilla/README.md) para arrancar tu propio framework, con el prompt para tu Copilot ([`plantilla/PROMPT.md`](plantilla/PROMPT.md)).
+
 **Validación automática:** en tu copia (Ruta 2), cada push y cada pull request corre el flujo **Retos** (`npm run tipos` y `npm run retos:s04`, en menos de un minuto). En la pestaña **Actions** ves si quedó en verde.
 
 ## Comandos
@@ -23,10 +25,10 @@ Si la Ruta 1 no funciona en 5 minutos, pasa a la 2. Si GitHub tampoco abre, ve a
 | Comando | Qué hace |
 |---|---|
 | `npm test` | Corre todas las pruebas (el Banco Demo se inicia solo) |
-| `npm run retos:s03` · `npm run retos:s04` · `npm run retos:s05` | Corre solo los retos de esa sesión |
+| `npm run retos:s03` · `npm run retos:s04` · `npm run retos:s05` · `npm run retos:s06` | Corre solo los retos de esa sesión |
 | `npm run recargas` | S5 · Recargas a celular en el Banco Demo (Page Object, Factory y bloqueos reales) |
 | `npm run parabank` · `npm run parabank:ver` | S5 · La suite de ParaBank, en internet (`:ver` abre el navegador). Va de a una prueba: el sitio bloquea 5 minutos a quien hace demasiadas peticiones (HTTP 429) |
-| `npm run verificar-clase` | Revisa todo y muestra una tabla: pruebas base, retos y hallazgos. Con `-- s03-inicio` (o `s03-solucion`, `s04-inicio`, `s04-solucion`) exige exactamente el estado de esa etiqueta |
+| `npm run verificar-clase` | Revisa todo y muestra una tabla: pruebas base, retos y hallazgos. Con `-- s06-inicio` (o `s03-inicio`, `s05-solucion`, `s06-solucion`…) exige exactamente el estado de esa etiqueta |
 | `npm run evidencias` | Crea `evidencias.html` con los resultados y pantallazos |
 | `npm run demo` | Abre el Banco Demo para explorarlo a mano en http://127.0.0.1:4000 |
 | `npm run grabar` | Graba pasos con codegen (antes, deja `npm run demo` abierto en otra ventana) |
@@ -42,7 +44,7 @@ En Windows PowerShell escribe `npm.cmd` en lugar de `npm`.
 | `src/flujos/` | ¿Qué pasos de negocio se repiten? | `iniciarSesionPorUi`, `abrirConSesion` |
 | `src/paginas/` | ¿Cómo se usa cada pantalla? | `PaginaLogin.ingresar()` |
 | `src/api/` | ¿Cómo se llama a cada servicio? | `ClienteBanco.cuentas()` |
-| `src/config/` · `src/datos/` | ¿Dónde está el sistema y con qué datos? | `entorno.urlBase`, `usuarios.ana`, `fabricaDeRecargas.grande()` |
+| `src/config/` · `src/datos/` | ¿Dónde está el sistema y con qué datos? | `entorno.urlBase`, `usuarios.ana`, `fabricaDeRecargas.grande()` · S6: `AMBIENTE=qa` y `ambientes.ts` |
 | `src/screenplay/` | S5 · ¿Cómo se cuenta la prueba como un caso manual? | `Actor`, `Recargar`, `SaldoDisponible` |
 | `src/sitios/parabank/` | S5 · Las mismas capas, para otro sitio | páginas, API, fábrica, fixtures y tareas de ParaBank |
 

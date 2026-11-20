@@ -1,0 +1,17 @@
+{
+  "name": "mi-framework-qa",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plantilla de un framework de automatización propio (Bootcamp QA, S6): capas, ambientes y localizadores robustos con Playwright y TypeScript.",
+  "license": "UNLICENSED",
+  "scripts": {
+    "test": "playwright test",
+    "ver": "playwright test --headed",
+    "reporte": "playwright show-report",
+    "tipos": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "typescript": "^5.9.3"
+  }
+}

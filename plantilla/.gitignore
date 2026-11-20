@@ -1,0 +1,8 @@
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+# Las claves y variables de cada quien viven en .env y NUNCA se suben. El modelo sin valores sí.
+.env
+.env.*
+!.env.ejemplo

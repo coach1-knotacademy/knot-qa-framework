@@ -15,6 +15,7 @@ import { PaginaInicio } from '../paginas/PaginaInicio';
 import { PaginaLogin } from '../paginas/PaginaLogin';
 import { PaginaOtp } from '../paginas/PaginaOtp';
 import { PaginaRecargas } from '../paginas/PaginaRecargas';
+import { PaginaRecargasHeredada } from '../paginas/heredadas/PaginaRecargasHeredada';
 import { PaginaTransferir } from '../paginas/PaginaTransferir';
 
 interface Piezas {
@@ -25,6 +26,8 @@ interface Piezas {
   paginaTransferir: PaginaTransferir;
   /** S5 · Recargas a celular. */
   paginaRecargas: PaginaRecargas;
+  /** S6 · El Page Object heredado de otro equipo (reto 2: localizadores robustos). */
+  paginaRecargasHeredada: PaginaRecargasHeredada;
   /** El buzón se abre en su propia pestaña, como en la vida real. */
   paginaBuzon: PaginaBuzon;
   /** Todas las pantallas del ingreso juntas, para flujos/sesion.ts */
@@ -49,6 +52,9 @@ export const test = base.extend<Piezas>({
   },
   paginaRecargas: async ({ page }, usar) => {
     await usar(new PaginaRecargas(page));
+  },
+  paginaRecargasHeredada: async ({ page }, usar) => {
+    await usar(new PaginaRecargasHeredada(page));
   },
   paginaBuzon: async ({ context }, usar) => {
     const pestana = await context.newPage();

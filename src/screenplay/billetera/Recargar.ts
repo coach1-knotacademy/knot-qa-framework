@@ -1,6 +1,6 @@
 import { fabricaDeRecargas } from '../../datos/fabricaDeRecargas';
 import { Actor, Tarea } from '../Actor';
-import { UsarLaBilletera } from './UsarLaBilletera';
+import { ResultadoDeBilletera, UsarLaBilletera } from './UsarLaBilletera';
 
 /**
  * TAREA: recargar un celular.
@@ -23,11 +23,9 @@ export class Recargar implements Tarea {
   }
 
   async realizadaPor(actor: Actor): Promise<void> {
-    // TODO reto 2 (extra), en tres líneas. Modelo: SaldoDisponible.ts y la tarea Transferir de ParaBank.
-    //   1. Arma la recarga: fabricaDeRecargas.valida({ numero: this.numero, monto: this.monto })
-    //   2. Pídesela a la billetera del actor: await actor.usa(UsarLaBilletera).billetera.recargar(recarga)
-    //   3. Si el estado no es 201, lanza el error: `${actor.nombre} no pudo recargar: ${resultado.error}`
-    // Cuando termines, borra la línea "throw" de abajo.
-    throw new Error(`PENDIENTE (S5): completa Recargar.realizadaPor en src/screenplay/billetera/Recargar.ts — ver retos/S05.md, reto 2 (${actor.nombre})`);
+    const recarga = fabricaDeRecargas.valida({ numero: this.numero, monto: this.monto });
+    const resultado: ResultadoDeBilletera = await actor.usa(UsarLaBilletera).billetera.recargar(recarga);
+    actor.recuerda('ultimaRecarga', resultado);
+    if (resultado.estado !== 201) throw new Error(`${actor.nombre} no pudo recargar: ${resultado.error}`);
   }
 }

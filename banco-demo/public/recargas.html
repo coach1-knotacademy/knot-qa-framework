@@ -2,60 +2,113 @@
 <div class="practica">Sitio de práctica de un curso. No es un banco real: no escribas datos reales.</div>
 <header><strong>🏦 Banco Demo</strong><span><span id="nombre"></span><a href="/inicio">Mis cuentas</a><a href="/transferir">Transferir</a><button id="salir">Salir</button></span></header>
 <main><h1>Recargar celular</h1>
-<p class="ayuda">Se descuenta de tu cuenta de Ahorros. Saldo disponible: <strong id="saldo">…</strong></p>
+<p class="ayuda">Se descuenta de tu cuenta de Ahorros. Saldo disponible: <strong id="saldo" data-testid="saldo-disponible">…</strong></p>
 <form id="f" novalidate>
 <label for="operador">Operador</label>
-<select id="operador"><option value="">Elige uno</option><option>Claro</option><option>Movistar</option><option>Tigo</option><option>WOM</option></select>
-<label for="numero">Número de celular</label><input id="numero" inputmode="numeric" autocomplete="off">
-<label for="valor">Valor de la recarga</label><input id="valor" inputmode="numeric" autocomplete="off">
+<select id="operador" class="campo campo-operador"><option value="">Elige uno</option><option>Claro</option><option>Movistar</option><option>Tigo</option><option>WOM</option></select>
+<label for="numero">Número de celular</label><input id="numero" class="campo campo-numero" inputmode="numeric" autocomplete="off">
+<label for="valor">Valor de la recarga</label><input id="valor" class="campo campo-valor" inputmode="numeric" autocomplete="off">
 <button class="principal" id="recargar">Recargar</button>
 </form>
 <form id="fc" novalidate hidden>
 <p>Por seguridad, las recargas de más de $50.000 piden un código. Te lo enviamos al celular registrado (en este banco de práctica, al buzón de SMS).</p>
-<label for="codigo">Código de seguridad</label><input id="codigo" inputmode="numeric" autocomplete="one-time-code">
+<label for="codigo">Código de seguridad</label><input id="codigo" class="campo campo-codigo" inputmode="numeric" autocomplete="one-time-code">
 <button class="principal">Confirmar recarga</button>
 </form>
 <div id="error" class="error" role="alert" hidden></div>
 <div id="comprobante" class="exito" role="status" hidden></div>
 <p class="ayuda">Límites: mínimo $1.000, máximo $100.000 por recarga y $200.000 al día.</p></main>
+<!--
+  S6 · EL REDISEÑO (se ve con ?rediseno=1, por ejemplo /recargas?rediseno=1).
+  El equipo de desarrollo "rediseñó" la pantalla: cambiaron los id, las clases, el orden de los campos
+  y los contenedores. Lo que ve el usuario NO cambió: las etiquetas, los roles, los textos de los botones
+  y el data-testid="saldo-disponible", que se pactó con el equipo de pruebas.
+  Un localizador que lee lo que ve el usuario aguanta el rediseño; uno que lee el HTML por dentro, no.
+-->
+<template id="plantilla-rediseno">
+<main class="rd-pantalla">
+<style>
+.rd-pantalla{max-width:720px}.rd-encabezado{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;border-bottom:2px solid #e4e7f2;padding-bottom:12px}
+.rd-encabezado h1{margin:0}.rd-saldo{background:#eef1ff;border-radius:10px;padding:8px 14px;font-size:14px}.rd-saldo strong{display:block;font-size:22px;color:#27306b}
+.rd-tarjeta{margin-top:18px}.rd-fila{display:grid;grid-template-columns:1fr 1fr;gap:14px}.rd-campo label{margin-top:12px}
+.rd-control{background:#fbfcff}.rd-acciones{display:flex;justify-content:flex-end}.rd-boton{margin-top:18px;background:#0f7b6c;color:#fff;border:0;border-radius:999px;padding:12px 28px;font-size:16px;cursor:pointer}
+.rd-aviso{border-radius:10px;padding:12px;margin-top:14px}.rd-aviso-error{background:#ffe3e3;color:#a61e1e}.rd-aviso-ok{background:#d3f9d8;color:#1b5e20}
+</style>
+<section class="rd-encabezado">
+<h1>Recargar celular</h1>
+<div class="rd-saldo">Saldo disponible en Ahorros <strong id="rd-saldo-ahorros" data-testid="saldo-disponible">…</strong></div>
+</section>
+<section class="rd-tarjeta">
+<form id="rd-form-recarga" class="rd-formulario" novalidate>
+<div class="rd-fila">
+<div class="rd-campo"><label for="rd-celular">Número de celular</label><input id="rd-celular" class="rd-control" inputmode="numeric" autocomplete="off"></div>
+<div class="rd-campo"><label for="rd-operador">Operador</label><select id="rd-operador" class="rd-control"><option value="">Elige uno</option><option>Claro</option><option>Movistar</option><option>Tigo</option><option>WOM</option></select></div>
+</div>
+<div class="rd-campo"><label for="rd-monto">Valor de la recarga</label><input id="rd-monto" class="rd-control" inputmode="numeric" autocomplete="off"></div>
+<div class="rd-acciones"><button class="rd-boton rd-boton-primario" id="rd-enviar">Recargar</button></div>
+</form>
+<form id="rd-form-codigo" class="rd-formulario" novalidate hidden>
+<p>Por seguridad, las recargas de más de $50.000 piden un código. Te lo enviamos al celular registrado (en este banco de práctica, al buzón de SMS).</p>
+<div class="rd-campo"><label for="rd-codigo">Código de seguridad</label><input id="rd-codigo" class="rd-control" inputmode="numeric" autocomplete="one-time-code"></div>
+<div class="rd-acciones"><button class="rd-boton rd-boton-primario">Confirmar recarga</button></div>
+</form>
+<div id="rd-aviso-error" class="rd-aviso rd-aviso-error" role="alert" hidden></div>
+<div id="rd-aviso-ok" class="rd-aviso rd-aviso-ok" role="status" hidden></div>
+</section>
+<p class="ayuda">Límites: mínimo $1.000, máximo $100.000 por recarga y $200.000 al día.</p>
+</main>
+</template>
 <script>
+// S6 · Con ?rediseno=1 se cambia la pantalla por la versión rediseñada, antes de que corra el resto.
+// Si el servidor se inició con REDISENO=1, el rediseño sale siempre (y ?rediseno=0 muestra la de hoy).
+const pedidoRediseno = new URLSearchParams(location.search).get('rediseno');
+const REDISENO = pedidoRediseno === '1' || (pedidoRediseno !== '0' && window.REDISENO_POR_DEFECTO === true);
+if (REDISENO) document.querySelector('main').replaceWith(document.getElementById('plantilla-rediseno').content.cloneNode(true));
+// Los id de cada versión. La lógica es la misma: solo cambia cómo se llaman las cosas por dentro.
+const ID = REDISENO
+  ? { saldo: 'rd-saldo-ahorros', form: 'rd-form-recarga', operador: 'rd-operador', numero: 'rd-celular', valor: 'rd-monto', boton: 'rd-enviar',
+      formCodigo: 'rd-form-codigo', codigo: 'rd-codigo', comprobante: 'rd-aviso-ok', numeroComprobante: 'rd-comprobante-numero', valorRecargado: 'rd-comprobante-valor' }
+  : { saldo: 'saldo', form: 'f', operador: 'operador', numero: 'numero', valor: 'valor', boton: 'recargar',
+      formCodigo: 'fc', codigo: 'codigo', comprobante: 'comprobante', numeroComprobante: 'numeroComprobante', valorRecargado: 'valorRecargado' };
+const el = (clave) => document.getElementById(ID[clave]);
+
 exigirSesion();
 let idDesafio = null;
 const saldo = () => api('/api/cuentas').then(({ estado, datos }) => {
-  document.getElementById('saldo').textContent = estado === 200 ? pesos(datos[0].saldo) : 'no disponible';
-}).catch(() => { document.getElementById('saldo').textContent = 'no disponible'; });
+  el('saldo').textContent = estado === 200 ? pesos(datos[0].saldo) : 'no disponible';
+}).catch(() => { el('saldo').textContent = 'no disponible'; });
 saldo();
 function mostrar(estado, datos) {
-  const boton = document.getElementById('recargar');
+  const boton = el('boton');
   boton.disabled = false; boton.textContent = 'Recargar';
   if (estado === 202) {
     idDesafio = datos.idDesafio;
-    document.getElementById('f').hidden = true;
-    document.getElementById('fc').hidden = false;
+    el('form').hidden = true;
+    el('formCodigo').hidden = false;
     return;
   }
-  document.getElementById('f').hidden = false;
-  document.getElementById('fc').hidden = true;
+  el('form').hidden = false;
+  el('formCodigo').hidden = true;
   saldo();
   if (estado !== 201) return pintarError(datos.error || 'No pudimos hacer la recarga. Intenta más tarde.');
-  const c = document.getElementById('comprobante');
-  c.innerHTML = `<strong>Recarga exitosa</strong><br>Comprobante: <span id="numeroComprobante">${datos.comprobante}</span><br>${datos.operador} · ${datos.numero}<br>Valor: <span id="valorRecargado">${pesos(datos.monto)}</span>`;
+  const c = el('comprobante');
+  c.innerHTML = `<strong>Recarga exitosa</strong><br>Comprobante: <span id="${ID.numeroComprobante}">${datos.comprobante}</span><br>${datos.operador} · ${datos.numero}<br>Valor: <span id="${ID.valorRecargado}">${pesos(datos.monto)}</span>`;
   c.hidden = false;
 }
-document.getElementById('f').onsubmit = async (e) => {
-  e.preventDefault(); pintarError(''); document.getElementById('comprobante').hidden = true;
-  const boton = document.getElementById('recargar');
+el('form').onsubmit = async (e) => {
+  e.preventDefault(); pintarError(''); el('comprobante').hidden = true;
+  const boton = el('boton');
   boton.disabled = true; boton.textContent = 'Recargando…';
   const { estado, datos } = await api('/api/recargas', { method: 'POST', body: JSON.stringify({
-    operador: document.getElementById('operador').value,
-    numero: document.getElementById('numero').value.trim(),
-    monto: Number(document.getElementById('valor').value.trim()),
+    operador: el('operador').value,
+    numero: el('numero').value.trim(),
+    monto: Number(el('valor').value.trim()),
   }) }).catch(() => ({ estado: 0, datos: {} }));
   mostrar(estado, datos);
 };
-document.getElementById('fc').onsubmit = async (e) => {
+el('formCodigo').onsubmit = async (e) => {
   e.preventDefault(); pintarError('');
-  const { estado, datos } = await api('/api/recargas/confirmar', { method: 'POST', body: JSON.stringify({ idDesafio, codigo: document.getElementById('codigo').value.trim() }) })
+  const { estado, datos } = await api('/api/recargas/confirmar', { method: 'POST', body: JSON.stringify({ idDesafio, codigo: el('codigo').value.trim() }) })
     .catch(() => ({ estado: 0, datos: {} }));
   if (estado === 401) return pintarError(datos.error);
   mostrar(estado, datos);

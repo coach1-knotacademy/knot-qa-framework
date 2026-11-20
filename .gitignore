@@ -13,3 +13,12 @@ Thumbs.db
 .vscode/
 reporte-parabank/
 __pycache__/
+# S6 · Las claves y variables de cada quien viven en .env y NUNCA se suben. El modelo sin valores sí: .env.ejemplo
+.env
+.env.*
+!.env.ejemplo
+# S6 · Las soluciones de los retos no se publican en main (salen en la etiqueta s06-solucion).
+laboratorio/generar/s06_solucion/
+plantilla/node_modules/
+plantilla/test-results/
+plantilla/playwright-report/

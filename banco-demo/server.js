@@ -8,6 +8,11 @@ const crypto = require('crypto');
 const { calcularGmf, validarTransferencia, validarRecarga, hacerRecarga, RECARGA_CON_CODIGO } = require('./reglas');
 
 const PUERTO = Number(process.env.PUERTO_DEMO || 4000);
+// S6 · Con REDISENO=1, Recargas sale rediseñada para todos: "desarrollo publicó el rediseño".
+// Las pruebas no se enteran de nada: si sus localizadores leen lo que ve el usuario, siguen en verde.
+//   $env:REDISENO = '1'
+//   npm.cmd run demo        (y en otra terminal: npm.cmd run recargas)
+const REDISENO = process.env.REDISENO === '1';
 const PUBLICO = path.join(__dirname, 'public');
 const PAGINAS = {
   '/': 'login.html', '/otp': 'otp.html', '/inicio': 'inicio.html',
@@ -151,5 +156,8 @@ http.createServer((req, res) => {
   const archivo = PAGINAS[url.pathname];
   if (!archivo) { res.writeHead(404); return res.end('No existe'); }
   res.writeHead(200, { 'Content-Type': TIPOS[path.extname(archivo)] });
+  if (REDISENO && archivo === 'recargas.html') {
+    return res.end(fs.readFileSync(path.join(PUBLICO, archivo), 'utf8').replace('</head>', '<script>window.REDISENO_POR_DEFECTO = true;</script></head>'));
+  }
   fs.createReadStream(path.join(PUBLICO, archivo)).pipe(res);
-}).listen(PUERTO, '127.0.0.1', () => console.log(`Banco Demo en http://127.0.0.1:${PUERTO}`));
+}).listen(PUERTO, '127.0.0.1', () => console.log(`Banco Demo en http://127.0.0.1:${PUERTO}${REDISENO ? ' (Recargas con el rediseño)' : ''}`));

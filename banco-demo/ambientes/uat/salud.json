@@ -1,0 +1,7 @@
+{
+  "ambiente": "UAT",
+  "version": "2.6.4",
+  "estado": "ok",
+  "datos": "Copia enmascarada que el negocio usa para aceptar la versión",
+  "aviso": "Ambiente FICTICIO de práctica del Bootcamp QA (Knot Academy). No es un banco real: no tiene datos reales ni recibe nada."
+}
