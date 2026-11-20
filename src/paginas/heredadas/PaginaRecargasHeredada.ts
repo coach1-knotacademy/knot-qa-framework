@@ -26,15 +26,15 @@ export type VersionDeRecargas = 'hoy' | 'rediseño';
 export class PaginaRecargasHeredada extends PaginaBase {
   readonly ruta = '/recargas';
 
-  /** Paso 1 · FRÁGIL (clase CSS): la clase es para pintar, no para encontrar. Si cambia el estilo, se cae. */
+  /** Paso 1 · ROBUSTO: por su etiqueta (antes: la clase CSS input.campo-valor). */
   readonly campoValor: Locator;
-  /** Paso 2 · FRÁGIL (nth-child): "el cuarto hijo del primer formulario". Si mueven un campo, apunta a otro. */
+  /** Paso 2 · ROBUSTO: por su etiqueta (antes: nth-child, la posición dentro del formulario). */
   readonly campoNumero: Locator;
-  /** Paso 3 · FRÁGIL (XPath absoluto): la ruta completa desde <html>. Cualquier contenedor nuevo la rompe. */
+  /** Paso 3 · ROBUSTO: por su etiqueta (antes: el XPath absoluto desde <html>). */
   readonly listaOperador: Locator;
-  /** Paso 4 · FRÁGIL (id): el id lo pone desarrollo y lo puede cambiar sin avisar. */
+  /** Paso 4 · ROBUSTO: por el data-testid pactado con desarrollo (antes: el id #saldo). */
   readonly saldoDisponible: Locator;
-  /** Paso 5 · FRÁGIL (texto parcial con CSS): el texto está bien, pero amarrado a "un botón hijo directo de un form". */
+  /** Paso 5 · ROBUSTO: por su rol y su nombre (antes: texto parcial amarrado a "form > button"). */
   readonly botonRecargar: Locator;
 
   /** Lo único que el equipo anterior escribió bien: el comprobante por su rol (role="status"). */
@@ -42,16 +42,11 @@ export class PaginaRecargasHeredada extends PaginaBase {
 
   constructor(page: Page) {
     super(page);
-    // TODO paso 1: el campo tiene la etiqueta "Valor de la recarga".
-    this.campoValor = page.locator('input.campo-valor');
-    // TODO paso 2: el campo tiene la etiqueta "Número de celular".
-    this.campoNumero = page.locator('main > form:first-of-type > :nth-child(4)');
-    // TODO paso 3: la lista tiene la etiqueta "Operador".
-    this.listaOperador = page.locator('xpath=/html/body/main/form[1]/select');
-    // TODO paso 4: el saldo no tiene etiqueta ni rol propio. Desarrollo pactó con nosotros data-testid="saldo-disponible".
-    this.saldoDisponible = page.locator('#saldo');
-    // TODO paso 5: es un botón (rol "button") que se llama "Recargar".
-    this.botonRecargar = page.locator('form > button:has-text("Recargar")');
+    this.campoValor = page.getByLabel('Valor de la recarga');
+    this.campoNumero = page.getByLabel('Número de celular');
+    this.listaOperador = page.getByLabel('Operador');
+    this.saldoDisponible = page.getByTestId('saldo-disponible');
+    this.botonRecargar = page.getByRole('button', { name: 'Recargar' });
     this.comprobante = page.getByRole('status');
   }
 

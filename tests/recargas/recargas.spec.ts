@@ -73,7 +73,8 @@ test.describe('Lo que no controlas también se prueba', () => {
     await paginaRecargas.abrir();
 
     await expect(paginaRecargas.saldoDisponible).toHaveText('no disponible');
-    await expect(page.getByRole('button', { name: 'Recargar' })).toBeEnabled();
+    // S6 · Antes: page.getByRole('button', ...) aquí mismo, un localizador que se escapó del Page Object.
+    await expect(paginaRecargas.botonRecargar).toBeEnabled();
   });
 });
 

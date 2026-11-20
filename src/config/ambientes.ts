@@ -61,19 +61,13 @@ export function leer(variables: Variables, nombre: string): string | undefined {
  * quedan bloqueados, sin tener que adivinar cómo lo va a escribir alguien (acuérdate del BUG-03).
  */
 export function elegirAmbiente(nombre: string): NombreDeAmbiente {
-  if (nombre === 'local') return 'local';
-  // TODO paso 3: si el nombre está en el catálogo (Object.keys(catalogoDeAmbientes)), devuélvelo.
-  //   Si no, lanza: new Error(`Ambiente "${nombre}" bloqueado. Este framework no corre contra producción ni contra ambientes que no conoce. Usa local, qa o uat.`)
-  // Cuando termines, borra la línea "throw" de abajo.
-  throw new Error(`PENDIENTE (S6): completa elegirAmbiente en src/config/ambientes.ts (pediste "${nombre}") — ver retos/S06.md, reto 1`);
+  if (Object.keys(catalogoDeAmbientes).includes(nombre)) return nombre as NombreDeAmbiente;
+  throw new Error(`Ambiente "${nombre}" bloqueado. Este framework no corre contra producción ni contra ambientes que no conoce. Usa local, qa o uat.`);
 }
 
 /** Paso 1 · La dirección del ambiente: la del catálogo, salvo que la terminal traiga URL_BANCO. */
 export function urlDelAmbiente(nombre: NombreDeAmbiente, variables: Variables): string {
-  if (nombre === 'local') return leer(variables, 'URL_BANCO') ?? catalogoDeAmbientes.local.urlBase;
-  // TODO paso 1: para qa y uat es lo mismo que la línea de arriba, pero con catalogoDeAmbientes[nombre].
-  //   (Si te queda igual para los tres ambientes, puedes dejar una sola línea y borrar el "if".)
-  throw new Error(`PENDIENTE (S6): completa urlDelAmbiente en src/config/ambientes.ts para el ambiente ${nombre} — ver retos/S06.md, reto 1`);
+  return leer(variables, 'URL_BANCO') ?? catalogoDeAmbientes[nombre].urlBase;
 }
 
 /**
@@ -82,10 +76,9 @@ export function urlDelAmbiente(nombre: NombreDeAmbiente, variables: Variables): 
  */
 export function claveDelAmbiente(nombre: NombreDeAmbiente, variables: Variables): string {
   if (nombre === 'local') return leer(variables, 'CLAVE_BANCO') ?? CLAVE_DE_PRACTICA;
-  // TODO paso 2: lee CLAVE_BANCO con leer(variables, 'CLAVE_BANCO').
-  //   Si no está, lanza: new Error(`Falta CLAVE_BANCO para el ambiente ${nombre}. Defínela en la terminal: $env:CLAVE_BANCO = '...'`)
-  //   Si está, devuélvela.
-  throw new Error(`PENDIENTE (S6): completa claveDelAmbiente en src/config/ambientes.ts para el ambiente ${nombre} — ver retos/S06.md, reto 1`);
+  const clave = leer(variables, 'CLAVE_BANCO');
+  if (!clave) throw new Error(`Falta CLAVE_BANCO para el ambiente ${nombre}. Defínela en la terminal: $env:CLAVE_BANCO = '...'`);
+  return clave;
 }
 
 /**
@@ -94,8 +87,7 @@ export function claveDelAmbiente(nombre: NombreDeAmbiente, variables: Variables)
  * Object.freeze() lo impide: intentar cambiarla lanza un error en el momento, no un rojo misterioso después.
  */
 export function congelar(config: Ambiente): Readonly<Ambiente> {
-  // TODO paso 4: devuelve Object.freeze(config) en lugar de config.
-  return config;
+  return Object.freeze(config);
 }
 
 /**
