@@ -85,9 +85,51 @@ IA_INFO = [
    '<b>Rojo a propósito.</b> Vio que la app respondía «total $100.400» pero el saldo bajaba solo $100.000, y no quiso fijar el defecto como correcto (BUG-02 del 4x1000).'),
 ]
 ia_cols = ''.join(
-    f'<div class="card {cls}"><p class="paso">{tag}</p><p>{recibio}</p>'
-    f'<details><summary>Ver el código, tal cual</summary>{codigo(cod)}</details></div>'
-    for (tag, cls, recibio, _), cod in zip(IA_INFO, IA))
+    f'<div class="card {cls}"><p class="paso">{tag}</p><p>{recibio}</p></div>'
+    for (tag, cls, recibio, _) in IA_INFO)
+
+def codigo_marcado(texto, marcas):
+    """Código numerado, con las líneas que importan resaltadas y una insignia (1, 2, A, ✓) al final."""
+    salida = []
+    for l in texto.rstrip('\n').split('\n'):
+        marca = next(((n, c) for sub, n, c in marcas if sub in l), None)
+        linea = html.escape(l) or ' '
+        if marca:
+            n, c = marca
+            salida.append(f'<span class="ln m-{c}">{linea} <b class="insignia i-{c}">{n}</b></span>')
+        else:
+            salida.append(f'<span class="ln">{linea}</span>')
+    return '<pre class="code num comparar">' + ''.join(salida) + '</pre>'
+
+MARCAS_1 = [
+  ("const BASE_URL = 'http", 'A', 'ambar'), ("const CLAVE = 'Clave123'", 'A', 'ambar'),
+  ("const texto = await buzon.locator('body').innerText();", '1', 'rojo'),
+  ("await page.getByRole('button', { name: 'Validar' }).click();", '2', 'rojo'),
+  ("return codigos[codigos.length - 1];", '3', 'rojo'),
+  ("await page.goto(BASE_URL + '/');", '4', 'rojo'),
+]
+MARCAS_2 = [
+  ("await abrirConSesion(page, cliente, usuarios.ana);", '✓', 'verde'),
+  ("const recarga = fabricaDeRecargas.grande(", '✓', 'verde'),
+  ("const codigo = await paginaBuzon.leerUltimoCodigo(", '1', 'rojo'),
+  ("await expect(paginaRecargas.saldoDisponible).toHaveText('$1.440.000');", '✓', 'verde'),
+]
+LEYENDA_1 = ('<ol class="leyenda">'
+  '<li><b class="insignia i-rojo">1</b> Lee el buzón con <code>innerText()</code> justo después de «Buscar», sin esperar a que lleguen los mensajes → «No se encontró un código». <i>Esperas.</i></li>'
+  '<li><b class="insignia i-rojo">2</b> Pulsa «Validar» y sigue sin esperar a que termine el ingreso: el <code>goto</code> a Recargas llega antes y el banco lo devuelve al login. <i>Esperas.</i></li>'
+  '<li><b class="insignia i-rojo">3</b> Supone que el código más nuevo es el último del buzón; sale primero → usa el código viejo.</li>'
+  '<li><b class="insignia i-rojo">4</b> Busca el saldo en <code>/</code>, que es la pantalla de ingreso.</li>'
+  '<li><b class="insignia i-ambar">A</b> URL y clave escritas en la prueba: si cambia el ambiente, hay que tocar todas.</li></ol>'
+  '<p class="nota">Se encontraron de a uno: al corregir una línea aparecía la siguiente.</p>')
+LEYENDA_2 = ('<ol class="leyenda">'
+  '<li><b class="insignia i-verde">✓</b> Reutiliza la sesión, la fábrica y el Page Object. Sin URL ni clave en la prueba: salen de <code>entorno</code>.</li>'
+  '<li><b class="insignia i-rojo">1</b> <code>leerUltimoCodigo</code> promete «el último código», pero solo busca mensajes de «código de seguridad»; el de la recarga dice «código para la recarga» → «Código incorrecto». <b>El defecto es del framework</b> (<code>src/paginas/PaginaBuzon.ts</code>).</li></ol>'
+  '<p class="nota">¿Cómo lo arreglarían? Con una regla más amplia (<code>/código/</code>) o con un nombre que diga la verdad (<code>leerCodigoDeIngreso</code>).</p>')
+comparacion = (
+  '<h3>Dónde falló cada una</h3><div class="grid2 comparacion">'
+  f'<div><p class="paso">1 · el CP completo, sin el repo</p>{codigo_marcado(IA[0], MARCAS_1)}{LEYENDA_1}</div>'
+  f'<div><p class="paso">2 · el mismo CP, dentro del repo</p>{codigo_marcado(IA[1], MARCAS_2)}{LEYENDA_2}</div></div>'
+  f'<details><summary>Ver el código de la 3, tal cual</summary>{codigo(IA[2])}</details>')
 ia_res = '<ol class="lista">' + ''.join(f'<li><b>{tag}:</b> {res}</li>' for tag, _, _, res in IA_INFO) + '</ol>'
 INVENTO = [
   'Las esperas: ¿espera a que la pantalla responda o lee de una vez (<code>innerText()</code>, <code>goto</code> sin esperar)?',
@@ -276,6 +318,12 @@ section { margin:30px 0; scroll-margin-top:110px; }
 @media (max-width:820px) { .grid2, .grid3 { grid-template-columns:minmax(0,1fr); } }
 code { font-family:var(--f-mono); font-size:.88em; background:#efece3; border-radius:5px; padding:1px 5px; overflow-wrap:anywhere; }
 pre.code { max-width:100%; overflow-wrap:normal; font:13px/1.55 var(--f-mono); background:#1f2331; color:#e8ebf2; border:2px solid var(--ink); border-radius:12px; padding:14px; overflow:auto; margin:10px 0; }
+pre.comparar { white-space:pre-wrap; overflow-wrap:anywhere; font-size:12.5px; }
+pre.comparar .ln { padding:0 4px; border-radius:4px; } pre.comparar .ln::before { content:none; }
+pre.comparar .m-rojo { background:#5a1f2a; } pre.comparar .m-ambar { background:#4d3d12; } pre.comparar .m-verde { background:#173f2a; }
+.insignia { display:inline-grid; place-items:center; min-width:1.5em; height:1.5em; padding:0 4px; border-radius:999px; font:800 12px/1 var(--f-body); text-indent:0; vertical-align:middle; }
+.i-rojo { background:#ff8a8a; color:#2a0b10; } .i-ambar { background:#ffd36b; color:#2b2000; } .i-verde { background:#8be3a8; color:#06240f; }
+ol.leyenda { list-style:none; padding:0; margin:8px 0; } ol.leyenda li { margin:6px 0; } ol.leyenda .insignia { margin-right:6px; }
 pre.num { counter-reset:l; } pre.num .ln { display:block; } pre.num .ln::before { counter-increment:l; content:counter(l); display:inline-block; width:2.4em; color:#8c93a8; }
 table { width:100%; border-collapse:collapse; } td, th { border-top:2px solid var(--ink); padding:10px 8px; vertical-align:top; text-align:left; }
 th { font-weight:800; font-size:14px; color:var(--muted); }
@@ -427,7 +475,7 @@ HTML = f'''<!doctype html>
 <p>El jueves no alcanzamos a verlo. Le pedimos tres pruebas a una IA y las corrimos contra el Banco Demo, sin corregirlas. <b>Antes de ver los resultados: ¿cuál de las 3 pasa?</b> En el chat, un número.</p>
 </div>
 <div class="grid3">{ia_cols}</div>
-{revelar('ia-res', 'Ver qué pasó al correrlas', ia_res + '<p><b>Ninguna pasó.</b> Con el mismo pedido, la 1 cayó por 4 supuestos sobre la app (esperas, orden del buzón, dónde está el saldo). La 2 no supuso nada de la app: cayó por un método del framework con un nombre que promete más de lo que hace. <b>La IA copia el molde, con sus defectos.</b> Un framework ordenado le quita los supuestos; un nombre engañoso la engaña igual que a una persona. El framework es código de QA: se revisa y se cuida.</p><p class="nota">En la S5 la prueba 1 recibió solo una frase y la 2 otra frase corta (esa 2 sí pasó: leía el código por la API). Con razón, nadie trabaja con una frase, así que se repitieron las dos con el CP completo. Todas están en <code>docs/ia-s5/</code>.</p><p class="nota">Ojo: que la IA se negara <b>una vez</b> a dejar verde un bug no garantiza que lo haga siempre. El esperado lo decide la regla de negocio, y la persona que la conoce.</p>')}
+{revelar('ia-res', 'Ver qué pasó al correrlas', ia_res + comparacion + '<p><b>Ninguna pasó.</b> Con el mismo pedido, la 1 cayó por 4 supuestos sobre la app (esperas, orden del buzón, dónde está el saldo). La 2 no supuso nada de la app: cayó por un método del framework con un nombre que promete más de lo que hace. <b>La IA copia el molde, con sus defectos.</b> Un framework ordenado le quita los supuestos; un nombre engañoso la engaña igual que a una persona. El framework es código de QA: se revisa y se cuida.</p><p class="nota">En la S5 la prueba 1 recibió solo una frase y la 2 otra frase corta (esa 2 sí pasó: leía el código por la API). Con razón, nadie trabaja con una frase, así que se repitieron las dos con el CP completo. Todas están en <code>docs/ia-s5/</code>.</p><p class="nota">Ojo: que la IA se negara <b>una vez</b> a dejar verde un bug no garantiza que lo haga siempre. El esperado lo decide la regla de negocio, y la persona que la conoce.</p>')}
 <div class="card">
 <p class="paso">en vivo · el mismo CP, sin y con el framework</p>
 <p>El instructor le pide esto a un asistente, primero solo y después con el prompt de la plantilla. Hoy no se corre: lo leemos como revisores.</p>

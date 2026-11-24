@@ -34,6 +34,12 @@ section { margin:30px 0; scroll-margin-top:110px; }
 @media (max-width:820px) { .grid2, .grid3 { grid-template-columns:minmax(0,1fr); } }
 code { font-family:var(--f-mono); font-size:.88em; background:#efece3; border-radius:5px; padding:1px 5px; overflow-wrap:anywhere; }
 pre.code { max-width:100%; overflow-wrap:normal; font:13px/1.55 var(--f-mono); background:#1f2331; color:#e8ebf2; border:2px solid var(--ink); border-radius:12px; padding:14px; overflow:auto; margin:10px 0; }
+pre.comparar { white-space:pre-wrap; overflow-wrap:anywhere; font-size:12.5px; }
+pre.comparar .ln { padding:0 4px; border-radius:4px; } pre.comparar .ln::before { content:none; }
+pre.comparar .m-rojo { background:#5a1f2a; } pre.comparar .m-ambar { background:#4d3d12; } pre.comparar .m-verde { background:#173f2a; }
+.insignia { display:inline-grid; place-items:center; min-width:1.5em; height:1.5em; padding:0 4px; border-radius:999px; font:800 12px/1 var(--f-body); text-indent:0; vertical-align:middle; }
+.i-rojo { background:#ff8a8a; color:#2a0b10; } .i-ambar { background:#ffd36b; color:#2b2000; } .i-verde { background:#8be3a8; color:#06240f; }
+ol.leyenda { list-style:none; padding:0; margin:8px 0; } ol.leyenda li { margin:6px 0; } ol.leyenda .insignia { margin-right:6px; }
 pre.num { counter-reset:l; } pre.num .ln { display:block; } pre.num .ln::before { counter-increment:l; content:counter(l); display:inline-block; width:2.4em; color:#8c93a8; }
 table { width:100%; border-collapse:collapse; } td, th { border-top:2px solid var(--ink); padding:10px 8px; vertical-align:top; text-align:left; }
 th { font-weight:800; font-size:14px; color:var(--muted); }
@@ -102,118 +108,8 @@ ol.escalera { list-style:none; padding:0; margin:12px 0; }
 <div class="meta"><span class="chip">5:50 · voluntario · 10 min</span><span class="chip">respondan a la vez: escriban sin enviar · «3, 2, 1, envíen»</span></div>
 <p>El jueves no alcanzamos a verlo. Le pedimos tres pruebas a una IA y las corrimos contra el Banco Demo, sin corregirlas. <b>Antes de ver los resultados: ¿cuál de las 3 pasa?</b> En el chat, un número.</p>
 </div>
-<div class="grid3"><div class="card c-peach"><p class="paso">1 · el CP completo, sin el repo</p><p>El CP-102 tal como lo pegaría un tester: URL, usuario y clave, cómo se lee el código en el buzón, pasos y resultado esperado. Sin ver el repo ni la pantalla.</p><details><summary>Ver el código, tal cual</summary><pre class="code">import { test, expect, Page } from &#x27;@playwright/test&#x27;;
-
-const BASE_URL = &#x27;http://127.0.0.1:4000&#x27;;
-const USUARIO = &#x27;ana&#x27;;
-const CLAVE = &#x27;Clave123&#x27;;
-
-// Lee el último código de seguridad (6 dígitos) del buzón de SMS de pruebas.
-async function leerCodigoDelBuzon(page: Page, usuario: string): Promise&lt;string&gt; {
-  const buzon = await page.context().newPage();
-  await buzon.goto(`${BASE_URL}/buzon`);
-  await buzon.getByRole(&#x27;textbox&#x27;).fill(usuario);
-  await buzon.getByRole(&#x27;button&#x27;, { name: &#x27;Buscar&#x27; }).click();
-  const texto = await buzon.locator(&#x27;body&#x27;).innerText();
-  const codigos = texto.match(/\b\d{4,8}\b/g);
-  await buzon.close();
-  if (!codigos || codigos.length === 0) {
-    throw new Error(&#x27;No se encontró un código de seguridad en el buzón&#x27;);
-  }
-  return codigos[codigos.length - 1];
-}
-
-async function iniciarSesion(page: Page) {
-  await page.goto(BASE_URL);
-  await page.getByLabel(/usuario/i).fill(USUARIO);
-  await page.getByLabel(/clave/i).fill(CLAVE);
-  await page.getByRole(&#x27;button&#x27;, { name: /ingresar|iniciar sesión/i }).click();
-
-  await expect(page.getByLabel(&#x27;Código de seguridad&#x27;)).toBeVisible();
-  const codigo = await leerCodigoDelBuzon(page, USUARIO);
-  await page.getByLabel(&#x27;Código de seguridad&#x27;).fill(codigo);
-  await page.getByRole(&#x27;button&#x27;, { name: &#x27;Validar&#x27; }).click();
-}
-
-test.describe(&#x27;Recargas&#x27;, () =&gt; {
-  test(&#x27;CP-102 · Recarga de más de $50.000 con código&#x27;, async ({ page }) =&gt; {
-    // Precondición: Ana inició sesión
-    await iniciarSesion(page);
-
-    // Paso 1
-    await page.goto(`${BASE_URL}/recargas`);
-
-    // Paso 2
-    await page.getByLabel(/operador/i).selectOption({ label: &#x27;Claro&#x27; });
-    await page.getByLabel(/celular/i).fill(&#x27;3001234567&#x27;);
-    await page.getByLabel(/valor/i).fill(&#x27;60000&#x27;);
-
-    // Paso 3
-    await page.getByRole(&#x27;button&#x27;, { name: &#x27;Recargar&#x27; }).click();
-
-    // Esperado 1: antes de recargar, pide el código de seguridad
-    const campoCodigo = page.getByLabel(&#x27;Código de seguridad&#x27;);
-    await expect(campoCodigo).toBeVisible();
-
-    // Paso 4: nuevo código desde el buzón
-    const codigo = await leerCodigoDelBuzon(page, USUARIO);
-    await campoCodigo.fill(codigo);
-    await page.getByRole(&#x27;button&#x27;, { name: &#x27;Confirmar recarga&#x27; }).click();
-
-    // Esperado 2: comprobante
-    await expect(page.getByText(&#x27;Recarga exitosa&#x27;)).toBeVisible();
-    await expect(page.getByText(&#x27;Valor: $60.000&#x27;)).toBeVisible();
-
-    // Esperado 3: saldo de Ahorros = $1.440.000
-    await page.goto(BASE_URL + &#x27;/&#x27;);
-    await expect(page.getByText(&#x27;$1.440.000&#x27;)).toBeVisible();
-  });
-});</pre></details></div><div class="card c-lime"><p class="paso">2 · el mismo CP, dentro del repo</p><p>Exactamente el mismo pedido que la 1, pero leyó <code>.github/copilot-instructions.md</code> y el código de <code>src/</code>.</p><details><summary>Ver el código, tal cual</summary><pre class="code">/**
- * CP-102 · Recarga de más de $50.000 con código de seguridad (OTP).
- *
- * Precondición: Ana inició sesión y Ahorros tiene $1.500.000.
- * El ingreso NO es el objetivo de esta prueba, así que la sesión se abre por API
- * (abrirConSesion) y la prueba se enfoca en la recarga.
- */
-import { abrirConSesion } from &#x27;../../src/flujos/sesion&#x27;;
-import { fabricaDeRecargas } from &#x27;../../src/datos/fabricaDeRecargas&#x27;;
-import { cuentas, usuarios } from &#x27;../../src/datos/usuarios&#x27;;
-import { test, expect } from &#x27;../../src/soporte/fixtures&#x27;;
-
-test.describe(&#x27;CP-102 · Recarga de más de $50.000&#x27;, () =&gt; {
-  test(&#x27;CP-102 · pide código de seguridad y con el del buzón queda hecha y descuenta de Ahorros&#x27;, async ({
-    page,
-    cliente,
-    paginaRecargas,
-    paginaBuzon,
-  }) =&gt; {
-    // Precondición: Ana con sesión abierta y saldo inicial de Ahorros conocido.
-    await abrirConSesion(page, cliente, usuarios.ana);
-
-    // Paso 1: ir a «Recargar celular».
-    await paginaRecargas.abrir();
-    await expect(paginaRecargas.saldoDisponible).toHaveText(&#x27;$1.500.000&#x27;); // saldo de partida de Ahorros
-
-    // Pasos 2 y 3: Claro, 3001234567, $60.000 (la fábrica &quot;grande&quot; ya trae estos datos) y «Recargar».
-    const recarga = fabricaDeRecargas.grande({ operador: &#x27;Claro&#x27; });
-    await paginaRecargas.recargar(recarga);
-
-    // Resultado esperado 1: antes de recargar, el banco pide el «Código de seguridad».
-    await expect(paginaRecargas.campoCodigo).toBeVisible();
-
-    // Paso 4: leer el NUEVO código en el buzón (solo después de que el banco lo pidió) y confirmar.
-    const codigo = await paginaBuzon.leerUltimoCodigo(usuarios.ana.usuario);
-    await paginaRecargas.confirmar(codigo);
-
-    // Resultado esperado 2: comprobante con «Recarga exitosa» y «Valor: $60.000».
-    await expect(paginaRecargas.comprobante).toContainText(&#x27;Recarga exitosa&#x27;);
-    await expect(paginaRecargas.comprobante).toContainText(&#x27;Valor: $60.000&#x27;);
-
-    // Resultado esperado 3: Ahorros queda en $1.500.000 - $60.000 = $1.440.000.
-    expect(cuentas.ahorros.saldoInicial - recarga.monto).toBe(1_440_000);
-    await expect(paginaRecargas.saldoDisponible).toHaveText(&#x27;$1.440.000&#x27;);
-  });
-});</pre></details></div><div class="card c-yel"><p class="paso">3 · «déjamela en verde»</p><p>Exploró la app (sin ver el código) con el pedido «déjame la prueba en verde».</p><details><summary>Ver el código, tal cual</summary><pre class="code">import { test, expect } from &#x27;@playwright/test&#x27;;
+<div class="grid3"><div class="card c-peach"><p class="paso">1 · el CP completo, sin el repo</p><p>El CP-102 tal como lo pegaría un tester: URL, usuario y clave, cómo se lee el código en el buzón, pasos y resultado esperado. Sin ver el repo ni la pantalla.</p></div><div class="card c-lime"><p class="paso">2 · el mismo CP, dentro del repo</p><p>Exactamente el mismo pedido que la 1, pero leyó <code>.github/copilot-instructions.md</code> y el código de <code>src/</code>.</p></div><div class="card c-yel"><p class="paso">3 · «déjamela en verde»</p><p>Exploró la app (sin ver el código) con el pedido «déjame la prueba en verde».</p></div></div>
+<p><button type="button" class="grande" data-revelar="ia-res">Ver qué pasó al correrlas</button></p><div id="ia-res" hidden><ol class="lista"><li><b>1 · el CP completo, sin el repo:</b> <b>Rojo.</b> Tenía toda la información y aun así: leyó el buzón sin esperar a que cargaran los mensajes; pasó a Recargas antes de que terminara el ingreso; supuso que el código más nuevo era el último del buzón (es el primero), y buscó el saldo en la pantalla de ingreso. Además, URL, usuario y clave quedaron escritos en la prueba.</li><li><b>2 · el mismo CP, dentro del repo:</b> <b>Rojo, por una sola cosa, y no era suya.</b> Usó la sesión, la fábrica, los Page Objects y <code>entorno</code> (ignoró la URL y la clave del pedido). Leyó el código con <code>paginaBuzon.leerUltimoCodigo</code>, que por su nombre promete «el último código», pero solo busca mensajes de «código de seguridad»: el de la recarga dice «código para la recarga». El banco respondió «Código incorrecto». <b>El defecto es del framework.</b></li><li><b>3 · «déjamela en verde»:</b> <b>Rojo a propósito.</b> Vio que la app respondía «total $100.400» pero el saldo bajaba solo $100.000, y no quiso fijar el defecto como correcto (BUG-02 del 4x1000).</li></ol><h3>Dónde falló cada una</h3><div class="grid2 comparacion"><div><p class="paso">1 · el CP completo, sin el repo</p><pre class="code num comparar"><span class="ln">import { test, expect, Page } from &#x27;@playwright/test&#x27;;</span><span class="ln"> </span><span class="ln m-ambar">const BASE_URL = &#x27;http://127.0.0.1:4000&#x27;; <b class="insignia i-ambar">A</b></span><span class="ln">const USUARIO = &#x27;ana&#x27;;</span><span class="ln m-ambar">const CLAVE = &#x27;Clave123&#x27;; <b class="insignia i-ambar">A</b></span><span class="ln"> </span><span class="ln">// Lee el último código de seguridad (6 dígitos) del buzón de SMS de pruebas.</span><span class="ln">async function leerCodigoDelBuzon(page: Page, usuario: string): Promise&lt;string&gt; {</span><span class="ln">  const buzon = await page.context().newPage();</span><span class="ln">  await buzon.goto(`${BASE_URL}/buzon`);</span><span class="ln">  await buzon.getByRole(&#x27;textbox&#x27;).fill(usuario);</span><span class="ln">  await buzon.getByRole(&#x27;button&#x27;, { name: &#x27;Buscar&#x27; }).click();</span><span class="ln m-rojo">  const texto = await buzon.locator(&#x27;body&#x27;).innerText(); <b class="insignia i-rojo">1</b></span><span class="ln">  const codigos = texto.match(/\b\d{4,8}\b/g);</span><span class="ln">  await buzon.close();</span><span class="ln">  if (!codigos || codigos.length === 0) {</span><span class="ln">    throw new Error(&#x27;No se encontró un código de seguridad en el buzón&#x27;);</span><span class="ln">  }</span><span class="ln m-rojo">  return codigos[codigos.length - 1]; <b class="insignia i-rojo">3</b></span><span class="ln">}</span><span class="ln"> </span><span class="ln">async function iniciarSesion(page: Page) {</span><span class="ln">  await page.goto(BASE_URL);</span><span class="ln">  await page.getByLabel(/usuario/i).fill(USUARIO);</span><span class="ln">  await page.getByLabel(/clave/i).fill(CLAVE);</span><span class="ln">  await page.getByRole(&#x27;button&#x27;, { name: /ingresar|iniciar sesión/i }).click();</span><span class="ln"> </span><span class="ln">  await expect(page.getByLabel(&#x27;Código de seguridad&#x27;)).toBeVisible();</span><span class="ln">  const codigo = await leerCodigoDelBuzon(page, USUARIO);</span><span class="ln">  await page.getByLabel(&#x27;Código de seguridad&#x27;).fill(codigo);</span><span class="ln m-rojo">  await page.getByRole(&#x27;button&#x27;, { name: &#x27;Validar&#x27; }).click(); <b class="insignia i-rojo">2</b></span><span class="ln">}</span><span class="ln"> </span><span class="ln">test.describe(&#x27;Recargas&#x27;, () =&gt; {</span><span class="ln">  test(&#x27;CP-102 · Recarga de más de $50.000 con código&#x27;, async ({ page }) =&gt; {</span><span class="ln">    // Precondición: Ana inició sesión</span><span class="ln">    await iniciarSesion(page);</span><span class="ln"> </span><span class="ln">    // Paso 1</span><span class="ln">    await page.goto(`${BASE_URL}/recargas`);</span><span class="ln"> </span><span class="ln">    // Paso 2</span><span class="ln">    await page.getByLabel(/operador/i).selectOption({ label: &#x27;Claro&#x27; });</span><span class="ln">    await page.getByLabel(/celular/i).fill(&#x27;3001234567&#x27;);</span><span class="ln">    await page.getByLabel(/valor/i).fill(&#x27;60000&#x27;);</span><span class="ln"> </span><span class="ln">    // Paso 3</span><span class="ln">    await page.getByRole(&#x27;button&#x27;, { name: &#x27;Recargar&#x27; }).click();</span><span class="ln"> </span><span class="ln">    // Esperado 1: antes de recargar, pide el código de seguridad</span><span class="ln">    const campoCodigo = page.getByLabel(&#x27;Código de seguridad&#x27;);</span><span class="ln">    await expect(campoCodigo).toBeVisible();</span><span class="ln"> </span><span class="ln">    // Paso 4: nuevo código desde el buzón</span><span class="ln">    const codigo = await leerCodigoDelBuzon(page, USUARIO);</span><span class="ln">    await campoCodigo.fill(codigo);</span><span class="ln">    await page.getByRole(&#x27;button&#x27;, { name: &#x27;Confirmar recarga&#x27; }).click();</span><span class="ln"> </span><span class="ln">    // Esperado 2: comprobante</span><span class="ln">    await expect(page.getByText(&#x27;Recarga exitosa&#x27;)).toBeVisible();</span><span class="ln">    await expect(page.getByText(&#x27;Valor: $60.000&#x27;)).toBeVisible();</span><span class="ln"> </span><span class="ln">    // Esperado 3: saldo de Ahorros = $1.440.000</span><span class="ln m-rojo">    await page.goto(BASE_URL + &#x27;/&#x27;); <b class="insignia i-rojo">4</b></span><span class="ln">    await expect(page.getByText(&#x27;$1.440.000&#x27;)).toBeVisible();</span><span class="ln">  });</span><span class="ln">});</span></pre><ol class="leyenda"><li><b class="insignia i-rojo">1</b> Lee el buzón con <code>innerText()</code> justo después de «Buscar», sin esperar a que lleguen los mensajes → «No se encontró un código». <i>Esperas.</i></li><li><b class="insignia i-rojo">2</b> Pulsa «Validar» y sigue sin esperar a que termine el ingreso: el <code>goto</code> a Recargas llega antes y el banco lo devuelve al login. <i>Esperas.</i></li><li><b class="insignia i-rojo">3</b> Supone que el código más nuevo es el último del buzón; sale primero → usa el código viejo.</li><li><b class="insignia i-rojo">4</b> Busca el saldo en <code>/</code>, que es la pantalla de ingreso.</li><li><b class="insignia i-ambar">A</b> URL y clave escritas en la prueba: si cambia el ambiente, hay que tocar todas.</li></ol><p class="nota">Se encontraron de a uno: al corregir una línea aparecía la siguiente.</p></div><div><p class="paso">2 · el mismo CP, dentro del repo</p><pre class="code num comparar"><span class="ln">/**</span><span class="ln"> * CP-102 · Recarga de más de $50.000 con código de seguridad (OTP).</span><span class="ln"> *</span><span class="ln"> * Precondición: Ana inició sesión y Ahorros tiene $1.500.000.</span><span class="ln"> * El ingreso NO es el objetivo de esta prueba, así que la sesión se abre por API</span><span class="ln"> * (abrirConSesion) y la prueba se enfoca en la recarga.</span><span class="ln"> */</span><span class="ln">import { abrirConSesion } from &#x27;../../src/flujos/sesion&#x27;;</span><span class="ln">import { fabricaDeRecargas } from &#x27;../../src/datos/fabricaDeRecargas&#x27;;</span><span class="ln">import { cuentas, usuarios } from &#x27;../../src/datos/usuarios&#x27;;</span><span class="ln">import { test, expect } from &#x27;../../src/soporte/fixtures&#x27;;</span><span class="ln"> </span><span class="ln">test.describe(&#x27;CP-102 · Recarga de más de $50.000&#x27;, () =&gt; {</span><span class="ln">  test(&#x27;CP-102 · pide código de seguridad y con el del buzón queda hecha y descuenta de Ahorros&#x27;, async ({</span><span class="ln">    page,</span><span class="ln">    cliente,</span><span class="ln">    paginaRecargas,</span><span class="ln">    paginaBuzon,</span><span class="ln">  }) =&gt; {</span><span class="ln">    // Precondición: Ana con sesión abierta y saldo inicial de Ahorros conocido.</span><span class="ln m-verde">    await abrirConSesion(page, cliente, usuarios.ana); <b class="insignia i-verde">✓</b></span><span class="ln"> </span><span class="ln">    // Paso 1: ir a «Recargar celular».</span><span class="ln">    await paginaRecargas.abrir();</span><span class="ln">    await expect(paginaRecargas.saldoDisponible).toHaveText(&#x27;$1.500.000&#x27;); // saldo de partida de Ahorros</span><span class="ln"> </span><span class="ln">    // Pasos 2 y 3: Claro, 3001234567, $60.000 (la fábrica &quot;grande&quot; ya trae estos datos) y «Recargar».</span><span class="ln m-verde">    const recarga = fabricaDeRecargas.grande({ operador: &#x27;Claro&#x27; }); <b class="insignia i-verde">✓</b></span><span class="ln">    await paginaRecargas.recargar(recarga);</span><span class="ln"> </span><span class="ln">    // Resultado esperado 1: antes de recargar, el banco pide el «Código de seguridad».</span><span class="ln">    await expect(paginaRecargas.campoCodigo).toBeVisible();</span><span class="ln"> </span><span class="ln">    // Paso 4: leer el NUEVO código en el buzón (solo después de que el banco lo pidió) y confirmar.</span><span class="ln m-rojo">    const codigo = await paginaBuzon.leerUltimoCodigo(usuarios.ana.usuario); <b class="insignia i-rojo">1</b></span><span class="ln">    await paginaRecargas.confirmar(codigo);</span><span class="ln"> </span><span class="ln">    // Resultado esperado 2: comprobante con «Recarga exitosa» y «Valor: $60.000».</span><span class="ln">    await expect(paginaRecargas.comprobante).toContainText(&#x27;Recarga exitosa&#x27;);</span><span class="ln">    await expect(paginaRecargas.comprobante).toContainText(&#x27;Valor: $60.000&#x27;);</span><span class="ln"> </span><span class="ln">    // Resultado esperado 3: Ahorros queda en $1.500.000 - $60.000 = $1.440.000.</span><span class="ln">    expect(cuentas.ahorros.saldoInicial - recarga.monto).toBe(1_440_000);</span><span class="ln m-verde">    await expect(paginaRecargas.saldoDisponible).toHaveText(&#x27;$1.440.000&#x27;); <b class="insignia i-verde">✓</b></span><span class="ln">  });</span><span class="ln">});</span></pre><ol class="leyenda"><li><b class="insignia i-verde">✓</b> Reutiliza la sesión, la fábrica y el Page Object. Sin URL ni clave en la prueba: salen de <code>entorno</code>.</li><li><b class="insignia i-rojo">1</b> <code>leerUltimoCodigo</code> promete «el último código», pero solo busca mensajes de «código de seguridad»; el de la recarga dice «código para la recarga» → «Código incorrecto». <b>El defecto es del framework</b> (<code>src/paginas/PaginaBuzon.ts</code>).</li></ol><p class="nota">¿Cómo lo arreglarían? Con una regla más amplia (<code>/código/</code>) o con un nombre que diga la verdad (<code>leerCodigoDeIngreso</code>).</p></div></div><details><summary>Ver el código de la 3, tal cual</summary><pre class="code">import { test, expect } from &#x27;@playwright/test&#x27;;
 
 const BASE = &#x27;http://127.0.0.1:4000&#x27;;
 const ORIGEN = &#x27;1000000002&#x27;;  // Corriente
@@ -259,8 +155,7 @@ test(&#x27;Transferencia de $100.000 desde Corriente: respuesta y saldo final&#x
   const saldoFinal = await saldoCorriente();
   expect(body.saldo).toBe(saldoFinal);
   expect(saldoFinal).toBe(saldoInicial - body.total);
-});</pre></details></div></div>
-<p><button type="button" class="grande" data-revelar="ia-res">Ver qué pasó al correrlas</button></p><div id="ia-res" hidden><ol class="lista"><li><b>1 · el CP completo, sin el repo:</b> <b>Rojo.</b> Tenía toda la información y aun así: leyó el buzón sin esperar a que cargaran los mensajes; pasó a Recargas antes de que terminara el ingreso; supuso que el código más nuevo era el último del buzón (es el primero), y buscó el saldo en la pantalla de ingreso. Además, URL, usuario y clave quedaron escritos en la prueba.</li><li><b>2 · el mismo CP, dentro del repo:</b> <b>Rojo, por una sola cosa, y no era suya.</b> Usó la sesión, la fábrica, los Page Objects y <code>entorno</code> (ignoró la URL y la clave del pedido). Leyó el código con <code>paginaBuzon.leerUltimoCodigo</code>, que por su nombre promete «el último código», pero solo busca mensajes de «código de seguridad»: el de la recarga dice «código para la recarga». El banco respondió «Código incorrecto». <b>El defecto es del framework.</b></li><li><b>3 · «déjamela en verde»:</b> <b>Rojo a propósito.</b> Vio que la app respondía «total $100.400» pero el saldo bajaba solo $100.000, y no quiso fijar el defecto como correcto (BUG-02 del 4x1000).</li></ol><p><b>Ninguna pasó.</b> Con el mismo pedido, la 1 cayó por 4 supuestos sobre la app (esperas, orden del buzón, dónde está el saldo). La 2 no supuso nada de la app: cayó por un método del framework con un nombre que promete más de lo que hace. <b>La IA copia el molde, con sus defectos.</b> Un framework ordenado le quita los supuestos; un nombre engañoso la engaña igual que a una persona. El framework es código de QA: se revisa y se cuida.</p><p class="nota">En la S5 la prueba 1 recibió solo una frase y la 2 otra frase corta (esa 2 sí pasó: leía el código por la API). Con razón, nadie trabaja con una frase, así que se repitieron las dos con el CP completo. Todas están en <code>docs/ia-s5/</code>.</p><p class="nota">Ojo: que la IA se negara <b>una vez</b> a dejar verde un bug no garantiza que lo haga siempre. El esperado lo decide la regla de negocio, y la persona que la conoce.</p></div>
+});</pre></details><p><b>Ninguna pasó.</b> Con el mismo pedido, la 1 cayó por 4 supuestos sobre la app (esperas, orden del buzón, dónde está el saldo). La 2 no supuso nada de la app: cayó por un método del framework con un nombre que promete más de lo que hace. <b>La IA copia el molde, con sus defectos.</b> Un framework ordenado le quita los supuestos; un nombre engañoso la engaña igual que a una persona. El framework es código de QA: se revisa y se cuida.</p><p class="nota">En la S5 la prueba 1 recibió solo una frase y la 2 otra frase corta (esa 2 sí pasó: leía el código por la API). Con razón, nadie trabaja con una frase, así que se repitieron las dos con el CP completo. Todas están en <code>docs/ia-s5/</code>.</p><p class="nota">Ojo: que la IA se negara <b>una vez</b> a dejar verde un bug no garantiza que lo haga siempre. El esperado lo decide la regla de negocio, y la persona que la conoce.</p></div>
 <div class="card">
 <p class="paso">en vivo · el mismo CP, sin y con el framework</p>
 <p>El instructor le pide esto a un asistente, primero solo y después con el prompt de la plantilla. Hoy no se corre: lo leemos como revisores.</p>
