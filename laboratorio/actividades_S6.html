@@ -102,45 +102,73 @@ ol.escalera { list-style:none; padding:0; margin:12px 0; }
 <div class="meta"><span class="chip">5:50 · voluntario · 10 min</span><span class="chip">respondan a la vez: escriban sin enviar · «3, 2, 1, envíen»</span></div>
 <p>El jueves no alcanzamos a verlo. Le pedimos tres pruebas a una IA y las corrimos contra el Banco Demo, sin corregirlas. <b>Antes de ver los resultados: ¿cuál de las 3 pasa?</b> En el chat, un número.</p>
 </div>
-<div class="grid3"><div class="card c-peach"><p class="paso">1 · sin ver el repo</p><p>Solo el pedido del tester.</p><details><summary>Ver el código, tal cual</summary><pre class="code">import { test, expect } from &#x27;@playwright/test&#x27;;
+<div class="grid3"><div class="card c-peach"><p class="paso">1 · el CP completo, sin el repo</p><p>El CP-102 tal como lo pegaría un tester: URL, usuario y clave, cómo se lee el código en el buzón, pasos y resultado esperado. Sin ver el repo ni la pantalla.</p><details><summary>Ver el código, tal cual</summary><pre class="code">import { test, expect, Page } from &#x27;@playwright/test&#x27;;
 
-const BASE = &#x27;http://127.0.0.1:4000&#x27;;
+const BASE_URL = &#x27;http://127.0.0.1:4000&#x27;;
+const USUARIO = &#x27;ana&#x27;;
+const CLAVE = &#x27;Clave123&#x27;;
 
-test(&#x27;recarga exitosa descuenta el saldo&#x27;, async ({ page, context }) =&gt; {
-  // Login
-  await page.goto(`${BASE}/login`);
-  await page.getByLabel(&#x27;Usuario&#x27;).fill(&#x27;ana&#x27;);
-  await page.getByLabel(&#x27;Clave&#x27;).fill(&#x27;Clave123&#x27;);
-  await page.getByRole(&#x27;button&#x27;, { name: &#x27;Ingresar&#x27; }).click();
-
-  // OTP: se lee del buzón de pruebas en otra pestaña
-  const buzon = await context.newPage();
-  await buzon.goto(`${BASE}/buzon`);
-  const textoBuzon = await buzon.locator(&#x27;body&#x27;).innerText();
-  const otp = textoBuzon.match(/\b\d{6}\b/)?.[0];   // supuesto: código de 6 dígitos
-  expect(otp, &#x27;No se encontró el OTP en el buzón&#x27;).toBeTruthy();
+// Lee el último código de seguridad (6 dígitos) del buzón de SMS de pruebas.
+async function leerCodigoDelBuzon(page: Page, usuario: string): Promise&lt;string&gt; {
+  const buzon = await page.context().newPage();
+  await buzon.goto(`${BASE_URL}/buzon`);
+  await buzon.getByRole(&#x27;textbox&#x27;).fill(usuario);
+  await buzon.getByRole(&#x27;button&#x27;, { name: &#x27;Buscar&#x27; }).click();
+  const texto = await buzon.locator(&#x27;body&#x27;).innerText();
+  const codigos = texto.match(/\b\d{4,8}\b/g);
   await buzon.close();
+  if (!codigos || codigos.length === 0) {
+    throw new Error(&#x27;No se encontró un código de seguridad en el buzón&#x27;);
+  }
+  return codigos[codigos.length - 1];
+}
 
-  await page.getByLabel(/código|otp/i).fill(otp!);
-  await page.getByRole(&#x27;button&#x27;, { name: /verificar|continuar|ingresar/i }).click();
+async function iniciarSesion(page: Page) {
+  await page.goto(BASE_URL);
+  await page.getByLabel(/usuario/i).fill(USUARIO);
+  await page.getByLabel(/clave/i).fill(CLAVE);
+  await page.getByRole(&#x27;button&#x27;, { name: /ingresar|iniciar sesión/i }).click();
 
-  // Recargas
-  await page.goto(`${BASE}/recargas`);
-  const saldoLocator = page.getByTestId(&#x27;saldo&#x27;);   // supuesto
-  const saldoAntes = Number((await saldoLocator.innerText()).replace(/\D/g, &#x27;&#x27;));
+  await expect(page.getByLabel(&#x27;Código de seguridad&#x27;)).toBeVisible();
+  const codigo = await leerCodigoDelBuzon(page, USUARIO);
+  await page.getByLabel(&#x27;Código de seguridad&#x27;).fill(codigo);
+  await page.getByRole(&#x27;button&#x27;, { name: &#x27;Validar&#x27; }).click();
+}
 
-  await page.getByLabel(&#x27;Operador&#x27;).selectOption({ label: &#x27;Claro&#x27; });
-  await page.getByLabel(&#x27;Celular&#x27;).fill(&#x27;3001234567&#x27;);
-  await page.getByLabel(&#x27;Valor&#x27;).fill(&#x27;60000&#x27;);
-  await page.getByRole(&#x27;button&#x27;, { name: &#x27;Recargar&#x27; }).click();
+test.describe(&#x27;Recargas&#x27;, () =&gt; {
+  test(&#x27;CP-102 · Recarga de más de $50.000 con código&#x27;, async ({ page }) =&gt; {
+    // Precondición: Ana inició sesión
+    await iniciarSesion(page);
 
-  // Validaciones
-  await expect(page.getByText(/recarga exitosa/i)).toBeVisible();
-  await expect(async () =&gt; {
-    const saldoDespues = Number((await saldoLocator.innerText()).replace(/\D/g, &#x27;&#x27;));
-    expect(saldoDespues).toBe(saldoAntes - 60000);
-  }).toPass();
-});</pre></details></div><div class="card c-lime"><p class="paso">2 · dentro del repo</p><p>El mismo pedido, pero leyó <code>.github/copilot-instructions.md</code> y los Page Objects.</p><details><summary>Ver el código, tal cual</summary><pre class="code">import { cuentas, usuarios } from &#x27;../../src/datos/usuarios&#x27;;
+    // Paso 1
+    await page.goto(`${BASE_URL}/recargas`);
+
+    // Paso 2
+    await page.getByLabel(/operador/i).selectOption({ label: &#x27;Claro&#x27; });
+    await page.getByLabel(/celular/i).fill(&#x27;3001234567&#x27;);
+    await page.getByLabel(/valor/i).fill(&#x27;60000&#x27;);
+
+    // Paso 3
+    await page.getByRole(&#x27;button&#x27;, { name: &#x27;Recargar&#x27; }).click();
+
+    // Esperado 1: antes de recargar, pide el código de seguridad
+    const campoCodigo = page.getByLabel(&#x27;Código de seguridad&#x27;);
+    await expect(campoCodigo).toBeVisible();
+
+    // Paso 4: nuevo código desde el buzón
+    const codigo = await leerCodigoDelBuzon(page, USUARIO);
+    await campoCodigo.fill(codigo);
+    await page.getByRole(&#x27;button&#x27;, { name: &#x27;Confirmar recarga&#x27; }).click();
+
+    // Esperado 2: comprobante
+    await expect(page.getByText(&#x27;Recarga exitosa&#x27;)).toBeVisible();
+    await expect(page.getByText(&#x27;Valor: $60.000&#x27;)).toBeVisible();
+
+    // Esperado 3: saldo de Ahorros = $1.440.000
+    await page.goto(BASE_URL + &#x27;/&#x27;);
+    await expect(page.getByText(&#x27;$1.440.000&#x27;)).toBeVisible();
+  });
+});</pre></details></div><div class="card c-lime"><p class="paso">2 · dentro del repo</p><p>Un pedido equivalente, pero leyó <code>.github/copilot-instructions.md</code> y los Page Objects.</p><details><summary>Ver el código, tal cual</summary><pre class="code">import { cuentas, usuarios } from &#x27;../../src/datos/usuarios&#x27;;
 import { fabricaDeRecargas } from &#x27;../../src/datos/fabricaDeRecargas&#x27;;
 import { iniciarSesionPorUi } from &#x27;../../src/flujos/sesion&#x27;;
 import { test, expect } from &#x27;../../src/soporte/fixtures&#x27;;
@@ -221,13 +249,13 @@ test(&#x27;Transferencia de $100.000 desde Corriente: respuesta y saldo final&#x
   expect(body.saldo).toBe(saldoFinal);
   expect(saldoFinal).toBe(saldoInicial - body.total);
 });</pre></details></div></div>
-<p><button type="button" class="grande" data-revelar="ia-res">Ver qué pasó al correrlas</button></p><div id="ia-res" hidden><ol class="lista"><li><b>1 · sin ver el repo:</b> <b>Rojo al primer paso.</b> Inventó la ruta <code>/login</code>, que no existe, y se quedó esperando el campo Usuario. URL, clave y datos a mano, localizadores dentro de la prueba, y no sabía que $60.000 pide código.</li><li><b>2 · dentro del repo:</b> <b>Verde.</b> Usó el flujo de ingreso, la fábrica y el Page Object. Agregó sola el paso del código: lo encontró en la regla de negocio.</li><li><b>3 · «déjamela en verde»:</b> <b>Rojo a propósito.</b> Vio que la app respondía «total $100.400» pero el saldo bajaba solo $100.000, y no quiso fijar el defecto como correcto (BUG-02 del 4x1000).</li></ol><p><b>Solo pasó la 2.</b> La diferencia no fue la IA, fue el contexto: con un framework ordenado y alguien que decide el resultado esperado, la IA copia el molde; darle solo el sitio no basta para que salgan los casos.</p><p class="nota">Ojo: que la IA se negara <b>una vez</b> a dejar verde un bug no garantiza que lo haga siempre. El esperado lo decide la regla de negocio, y la persona que la conoce.</p></div>
+<p><button type="button" class="grande" data-revelar="ia-res">Ver qué pasó al correrlas</button></p><div id="ia-res" hidden><ol class="lista"><li><b>1 · el CP completo, sin el repo:</b> <b>Rojo.</b> Tenía toda la información y aun así: leyó el buzón sin esperar a que cargaran los mensajes; pasó a Recargas antes de que terminara el ingreso; supuso que el código más nuevo era el último del buzón (es el primero), y buscó el saldo en la pantalla de ingreso. Además, URL, usuario y clave quedaron escritos en la prueba.</li><li><b>2 · dentro del repo:</b> <b>Verde.</b> Usó el flujo de ingreso, la fábrica y el Page Object. Agregó sola el paso del código: lo encontró en la regla de negocio.</li><li><b>3 · «déjamela en verde»:</b> <b>Rojo a propósito.</b> Vio que la app respondía «total $100.400» pero el saldo bajaba solo $100.000, y no quiso fijar el defecto como correcto (BUG-02 del 4x1000).</li></ol><p><b>Solo pasó la 2.</b> La 1 tenía el CP completo: no le faltó información del caso, le faltó lo que el framework ya resolvió (cómo esperar, cómo leer el código, dónde está el saldo, de dónde sale la clave). Con un framework ordenado y alguien que decide el resultado esperado, la IA copia el molde.</p><p class="nota">En la S5 la prueba 1 recibió solo una frase. Con razón, eso no es como trabaja un tester, así que se repitió con el CP completo. Las dos están en <code>docs/ia-s5/</code>.</p><p class="nota">Ojo: que la IA se negara <b>una vez</b> a dejar verde un bug no garantiza que lo haga siempre. El esperado lo decide la regla de negocio, y la persona que la conoce.</p></div>
 <div class="card">
-<p class="paso">en vivo · el mismo pedido, sin y con contexto</p>
+<p class="paso">en vivo · el mismo CP, sin y con el framework</p>
 <p>El instructor le pide esto a un asistente, primero solo y después con el prompt de la plantilla. Hoy no se corre: lo leemos como revisores.</p>
-<p style="background:var(--yellow);border:2px solid var(--ink);border-radius:10px;padding:10px 12px"><i>«Escribe una prueba de Playwright con TypeScript para el Banco Demo: Ana entra con su usuario, recarga $10.000 a Claro al celular 3001234567 y el saldo de Ahorros baja $10.000.»</i></p>
+<p style="background:var(--yellow);border:2px solid var(--ink);border-radius:10px;padding:10px 12px"><i>«Escribe una prueba de Playwright con TypeScript para este caso del Banco Demo (ambiente de pruebas local). URL: http://127.0.0.1:4000; la raíz es el ingreso. Usuario: ana; la clave está en la variable de entorno CLAVE_BANCO. Al ingresar pide un «Código de seguridad» que se lee en http://127.0.0.1:4000/buzon (escribir el usuario y pulsar «Buscar»). CP-101 · Recarga normal: ir a «Recargar celular» (/recargas), elegir Claro, celular 3001234567, valor $10.000 y pulsar «Recargar». Esperado: «Recarga exitosa» y el saldo de Ahorros pasa de $1.500.000 a $1.490.000.»</i></p>
 <h3>Mientras responde: ¿qué inventó?</h3>
-<ul class="checks"><li><label class="check"><input type="checkbox"> <span>La dirección del sitio: ¿la escribió a mano o la sacó de la configuración?</span></label></li><li><label class="check"><input type="checkbox"> <span>Las rutas y las pantallas: ¿existen de verdad (por ejemplo, <code>/login</code>)?</span></label></li><li><label class="check"><input type="checkbox"> <span>Los localizadores: ¿son de la pantalla real o supuestos (<code>getByTestId('saldo')</code>)?</span></label></li><li><label class="check"><input type="checkbox"> <span>Los datos y la clave: ¿a mano o de la fábrica y del entorno?</span></label></li><li><label class="check"><input type="checkbox"> <span>El resultado esperado: ¿sale de la regla (más de $50.000 pide código) o de lo que imaginó?</span></label></li></ul>
+<ul class="checks"><li><label class="check"><input type="checkbox"> <span>Las esperas: ¿espera a que la pantalla responda o lee de una vez (<code>innerText()</code>, <code>goto</code> sin esperar)?</span></label></li><li><label class="check"><input type="checkbox"> <span>Lo que supuso de la app: ¿en qué orden salen los mensajes del buzón?, ¿en qué pantalla está el saldo?</span></label></li><li><label class="check"><input type="checkbox"> <span>Los localizadores: ¿son de la pantalla real o supuestos?</span></label></li><li><label class="check"><input type="checkbox"> <span>La dirección, los datos y la clave: ¿escritos en la prueba o tomados de la configuración, la fábrica y el entorno?</span></label></li><li><label class="check"><input type="checkbox"> <span>El resultado esperado: ¿sale de la regla del CP o de lo que imaginó?</span></label></li></ul>
 <p class="nota"><b>Regla de uso:</b> solo el asistente que su empresa aprobó. A la IA solo va código de práctica o de un sitio público: nunca pantallas, datos, logs ni casos del banco. Todo lo de esta página está en <code>docs/ia-s5/</code> del repo.</p>
 </div>
 </section>

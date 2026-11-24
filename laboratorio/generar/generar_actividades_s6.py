@@ -35,12 +35,12 @@ def sin_comentarios_de_cabecera(texto):
     while lineas and lineas[0].startswith('//'):
         lineas.pop(0)
     s = '\n'.join(lineas)
-    s = re.split(r'\n// Nota de la IA|\n/\* Lo que explicó la IA', s)[0]
+    s = re.split(r'\n// Nota de la IA|\n/\* Lo que explicó la IA|\n// Supuestos que declaró la IA', s)[0]
     return s.strip()
 
 # ---------- Código real del repo ----------
 IA = [sin_comentarios_de_cabecera(leer(f'docs/ia-s5/{f}')) for f in
-      ('1_sin_contexto.spec.ts', '2_con_contexto.spec.ts', '3_regresion_bug_4x1000.spec.ts')]
+      ('1b_cp_completo_sin_repo.spec.ts', '2_con_contexto.spec.ts', '3_regresion_bug_4x1000.spec.ts')]
 s = leer('src/config/entorno.ts')
 ENTORNO_HOY = s[s.index('export const entorno'):].strip()
 N_ESCAPADA, LINEA_ESCAPADA = linea_escapada(RAIZ)
@@ -77,9 +77,9 @@ F = {f['id']: f for f in FICHAS}
 
 # ---------- 5:50 · La IA de la S5 ----------
 IA_INFO = [
-  ('1 · sin ver el repo', 'c-peach', 'Solo el pedido del tester.',
-   '<b>Rojo al primer paso.</b> Inventó la ruta <code>/login</code>, que no existe, y se quedó esperando el campo Usuario. URL, clave y datos a mano, localizadores dentro de la prueba, y no sabía que $60.000 pide código.'),
-  ('2 · dentro del repo', 'c-lime', 'El mismo pedido, pero leyó <code>.github/copilot-instructions.md</code> y los Page Objects.',
+  ('1 · el CP completo, sin el repo', 'c-peach', 'El CP-102 tal como lo pegaría un tester: URL, usuario y clave, cómo se lee el código en el buzón, pasos y resultado esperado. Sin ver el repo ni la pantalla.',
+   '<b>Rojo.</b> Tenía toda la información y aun así: leyó el buzón sin esperar a que cargaran los mensajes; pasó a Recargas antes de que terminara el ingreso; supuso que el código más nuevo era el último del buzón (es el primero), y buscó el saldo en la pantalla de ingreso. Además, URL, usuario y clave quedaron escritos en la prueba.'),
+  ('2 · dentro del repo', 'c-lime', 'Un pedido equivalente, pero leyó <code>.github/copilot-instructions.md</code> y los Page Objects.',
    '<b>Verde.</b> Usó el flujo de ingreso, la fábrica y el Page Object. Agregó sola el paso del código: lo encontró en la regla de negocio.'),
   ('3 · «déjamela en verde»', 'c-yel', 'Exploró la app (sin ver el código) con el pedido «déjame la prueba en verde».',
    '<b>Rojo a propósito.</b> Vio que la app respondía «total $100.400» pero el saldo bajaba solo $100.000, y no quiso fijar el defecto como correcto (BUG-02 del 4x1000).'),
@@ -90,15 +90,14 @@ ia_cols = ''.join(
     for (tag, cls, recibio, _), cod in zip(IA_INFO, IA))
 ia_res = '<ol class="lista">' + ''.join(f'<li><b>{tag}:</b> {res}</li>' for tag, _, _, res in IA_INFO) + '</ol>'
 INVENTO = [
-  'La dirección del sitio: ¿la escribió a mano o la sacó de la configuración?',
-  'Las rutas y las pantallas: ¿existen de verdad (por ejemplo, <code>/login</code>)?',
-  'Los localizadores: ¿son de la pantalla real o supuestos (<code>getByTestId(\'saldo\')</code>)?',
-  'Los datos y la clave: ¿a mano o de la fábrica y del entorno?',
-  'El resultado esperado: ¿sale de la regla (más de $50.000 pide código) o de lo que imaginó?',
+  'Las esperas: ¿espera a que la pantalla responda o lee de una vez (<code>innerText()</code>, <code>goto</code> sin esperar)?',
+  'Lo que supuso de la app: ¿en qué orden salen los mensajes del buzón?, ¿en qué pantalla está el saldo?',
+  'Los localizadores: ¿son de la pantalla real o supuestos?',
+  'La dirección, los datos y la clave: ¿escritos en la prueba o tomados de la configuración, la fábrica y el entorno?',
+  'El resultado esperado: ¿sale de la regla del CP o de lo que imaginó?',
 ]
 invento_html = ''.join(f'<li><label class="check"><input type="checkbox"> <span>{t}</span></label></li>' for t in INVENTO)
-PEDIDO = ('Escribe una prueba de Playwright con TypeScript para el Banco Demo: Ana entra con su usuario, '
-          'recarga $10.000 a Claro al celular 3001234567 y el saldo de Ahorros baja $10.000.')
+PEDIDO = 'Escribe una prueba de Playwright con TypeScript para este caso del Banco Demo (ambiente de pruebas local). URL: http://127.0.0.1:4000; la raíz es el ingreso. Usuario: ana; la clave está en la variable de entorno CLAVE_BANCO. Al ingresar pide un «Código de seguridad» que se lee en http://127.0.0.1:4000/buzon (escribir el usuario y pulsar «Buscar»). CP-101 · Recarga normal: ir a «Recargar celular» (/recargas), elegir Claro, celular 3001234567, valor $10.000 y pulsar «Recargar». Esperado: «Recarga exitosa» y el saldo de Ahorros pasa de $1.500.000 a $1.490.000.'
 
 # ---------- 6:02 · Repaso de la S5 ----------
 b5_items, b5_resp = boleto(BOLETO_S5)
@@ -428,9 +427,9 @@ HTML = f'''<!doctype html>
 <p>El jueves no alcanzamos a verlo. Le pedimos tres pruebas a una IA y las corrimos contra el Banco Demo, sin corregirlas. <b>Antes de ver los resultados: ¿cuál de las 3 pasa?</b> En el chat, un número.</p>
 </div>
 <div class="grid3">{ia_cols}</div>
-{revelar('ia-res', 'Ver qué pasó al correrlas', ia_res + '<p><b>Solo pasó la 2.</b> La diferencia no fue la IA, fue el contexto: con un framework ordenado y alguien que decide el resultado esperado, la IA copia el molde; darle solo el sitio no basta para que salgan los casos.</p><p class="nota">Ojo: que la IA se negara <b>una vez</b> a dejar verde un bug no garantiza que lo haga siempre. El esperado lo decide la regla de negocio, y la persona que la conoce.</p>')}
+{revelar('ia-res', 'Ver qué pasó al correrlas', ia_res + '<p><b>Solo pasó la 2.</b> La 1 tenía el CP completo: no le faltó información del caso, le faltó lo que el framework ya resolvió (cómo esperar, cómo leer el código, dónde está el saldo, de dónde sale la clave). Con un framework ordenado y alguien que decide el resultado esperado, la IA copia el molde.</p><p class="nota">En la S5 la prueba 1 recibió solo una frase. Con razón, eso no es como trabaja un tester, así que se repitió con el CP completo. Las dos están en <code>docs/ia-s5/</code>.</p><p class="nota">Ojo: que la IA se negara <b>una vez</b> a dejar verde un bug no garantiza que lo haga siempre. El esperado lo decide la regla de negocio, y la persona que la conoce.</p>')}
 <div class="card">
-<p class="paso">en vivo · el mismo pedido, sin y con contexto</p>
+<p class="paso">en vivo · el mismo CP, sin y con el framework</p>
 <p>El instructor le pide esto a un asistente, primero solo y después con el prompt de la plantilla. Hoy no se corre: lo leemos como revisores.</p>
 <p style="background:var(--yellow);border:2px solid var(--ink);border-radius:10px;padding:10px 12px"><i>«{html.escape(PEDIDO)}»</i></p>
 <h3>Mientras responde: ¿qué inventó?</h3>
