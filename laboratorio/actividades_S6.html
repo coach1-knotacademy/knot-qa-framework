@@ -168,39 +168,50 @@ test.describe(&#x27;Recargas&#x27;, () =&gt; {
     await page.goto(BASE_URL + &#x27;/&#x27;);
     await expect(page.getByText(&#x27;$1.440.000&#x27;)).toBeVisible();
   });
-});</pre></details></div><div class="card c-lime"><p class="paso">2 · dentro del repo</p><p>Un pedido equivalente, pero leyó <code>.github/copilot-instructions.md</code> y los Page Objects.</p><details><summary>Ver el código, tal cual</summary><pre class="code">import { cuentas, usuarios } from &#x27;../../src/datos/usuarios&#x27;;
+});</pre></details></div><div class="card c-lime"><p class="paso">2 · el mismo CP, dentro del repo</p><p>Exactamente el mismo pedido que la 1, pero leyó <code>.github/copilot-instructions.md</code> y el código de <code>src/</code>.</p><details><summary>Ver el código, tal cual</summary><pre class="code">/**
+ * CP-102 · Recarga de más de $50.000 con código de seguridad (OTP).
+ *
+ * Precondición: Ana inició sesión y Ahorros tiene $1.500.000.
+ * El ingreso NO es el objetivo de esta prueba, así que la sesión se abre por API
+ * (abrirConSesion) y la prueba se enfoca en la recarga.
+ */
+import { abrirConSesion } from &#x27;../../src/flujos/sesion&#x27;;
 import { fabricaDeRecargas } from &#x27;../../src/datos/fabricaDeRecargas&#x27;;
-import { iniciarSesionPorUi } from &#x27;../../src/flujos/sesion&#x27;;
+import { cuentas, usuarios } from &#x27;../../src/datos/usuarios&#x27;;
 import { test, expect } from &#x27;../../src/soporte/fixtures&#x27;;
 
-const pesos = (valor: number): string =&gt; `$${valor.toLocaleString(&#x27;es-CO&#x27;)}`;
-
-test.describe(&#x27;Recarga de celular con ingreso completo por la pantalla&#x27;, () =&gt; {
-  test(&#x27;Ana recarga $60.000 a Claro con código de seguridad y el saldo de Ahorros baja&#x27;, async ({
-    paginas,
-    paginaRecargas,
+test.describe(&#x27;CP-102 · Recarga de más de $50.000&#x27;, () =&gt; {
+  test(&#x27;CP-102 · pide código de seguridad y con el del buzón queda hecha y descuenta de Ahorros&#x27;, async ({
+    page,
     cliente,
+    paginaRecargas,
+    paginaBuzon,
   }) =&gt; {
-    // Ingreso por la UI: login, OTP leído del buzón y llegada al inicio.
-    await iniciarSesionPorUi(paginas, usuarios.ana);
+    // Precondición: Ana con sesión abierta y saldo inicial de Ahorros conocido.
+    await abrirConSesion(page, cliente, usuarios.ana);
 
+    // Paso 1: ir a «Recargar celular».
     await paginaRecargas.abrir();
-    await expect(paginaRecargas.saldoDisponible).toHaveText(pesos(cuentas.ahorros.saldoInicial));
+    await expect(paginaRecargas.saldoDisponible).toHaveText(&#x27;$1.500.000&#x27;); // saldo de partida de Ahorros
 
-    // Claro, 3001234567 y $60.000 salen de la fábrica (recarga &quot;grande&quot;).
-    const recarga = fabricaDeRecargas.grande();
+    // Pasos 2 y 3: Claro, 3001234567, $60.000 (la fábrica &quot;grande&quot; ya trae estos datos) y «Recargar».
+    const recarga = fabricaDeRecargas.grande({ operador: &#x27;Claro&#x27; });
     await paginaRecargas.recargar(recarga);
 
-    // Más de $50.000: el banco pide un segundo código, que llega al buzón.
+    // Resultado esperado 1: antes de recargar, el banco pide el «Código de seguridad».
     await expect(paginaRecargas.campoCodigo).toBeVisible();
-    await paginaRecargas.confirmar(await cliente.leerCodigo(usuarios.ana.usuario));
 
-    const comprobante = await paginaRecargas.esperarResultado();
-    expect(comprobante).toContain(&#x27;Recarga exitosa&#x27;);
-    expect(comprobante).toContain(`Valor: ${pesos(recarga.monto)}`);
+    // Paso 4: leer el NUEVO código en el buzón (solo después de que el banco lo pidió) y confirmar.
+    const codigo = await paginaBuzon.leerUltimoCodigo(usuarios.ana.usuario);
+    await paginaRecargas.confirmar(codigo);
 
-    // El saldo esperado sale de la regla: saldo inicial menos el valor de la recarga.
-    await expect(paginaRecargas.saldoDisponible).toHaveText(pesos(cuentas.ahorros.saldoInicial - recarga.monto));
+    // Resultado esperado 2: comprobante con «Recarga exitosa» y «Valor: $60.000».
+    await expect(paginaRecargas.comprobante).toContainText(&#x27;Recarga exitosa&#x27;);
+    await expect(paginaRecargas.comprobante).toContainText(&#x27;Valor: $60.000&#x27;);
+
+    // Resultado esperado 3: Ahorros queda en $1.500.000 - $60.000 = $1.440.000.
+    expect(cuentas.ahorros.saldoInicial - recarga.monto).toBe(1_440_000);
+    await expect(paginaRecargas.saldoDisponible).toHaveText(&#x27;$1.440.000&#x27;);
   });
 });</pre></details></div><div class="card c-yel"><p class="paso">3 · «déjamela en verde»</p><p>Exploró la app (sin ver el código) con el pedido «déjame la prueba en verde».</p><details><summary>Ver el código, tal cual</summary><pre class="code">import { test, expect } from &#x27;@playwright/test&#x27;;
 
@@ -249,7 +260,7 @@ test(&#x27;Transferencia de $100.000 desde Corriente: respuesta y saldo final&#x
   expect(body.saldo).toBe(saldoFinal);
   expect(saldoFinal).toBe(saldoInicial - body.total);
 });</pre></details></div></div>
-<p><button type="button" class="grande" data-revelar="ia-res">Ver qué pasó al correrlas</button></p><div id="ia-res" hidden><ol class="lista"><li><b>1 · el CP completo, sin el repo:</b> <b>Rojo.</b> Tenía toda la información y aun así: leyó el buzón sin esperar a que cargaran los mensajes; pasó a Recargas antes de que terminara el ingreso; supuso que el código más nuevo era el último del buzón (es el primero), y buscó el saldo en la pantalla de ingreso. Además, URL, usuario y clave quedaron escritos en la prueba.</li><li><b>2 · dentro del repo:</b> <b>Verde.</b> Usó el flujo de ingreso, la fábrica y el Page Object. Agregó sola el paso del código: lo encontró en la regla de negocio.</li><li><b>3 · «déjamela en verde»:</b> <b>Rojo a propósito.</b> Vio que la app respondía «total $100.400» pero el saldo bajaba solo $100.000, y no quiso fijar el defecto como correcto (BUG-02 del 4x1000).</li></ol><p><b>Solo pasó la 2.</b> La 1 tenía el CP completo: no le faltó información del caso, le faltó lo que el framework ya resolvió (cómo esperar, cómo leer el código, dónde está el saldo, de dónde sale la clave). Con un framework ordenado y alguien que decide el resultado esperado, la IA copia el molde.</p><p class="nota">En la S5 la prueba 1 recibió solo una frase. Con razón, eso no es como trabaja un tester, así que se repitió con el CP completo. Las dos están en <code>docs/ia-s5/</code>.</p><p class="nota">Ojo: que la IA se negara <b>una vez</b> a dejar verde un bug no garantiza que lo haga siempre. El esperado lo decide la regla de negocio, y la persona que la conoce.</p></div>
+<p><button type="button" class="grande" data-revelar="ia-res">Ver qué pasó al correrlas</button></p><div id="ia-res" hidden><ol class="lista"><li><b>1 · el CP completo, sin el repo:</b> <b>Rojo.</b> Tenía toda la información y aun así: leyó el buzón sin esperar a que cargaran los mensajes; pasó a Recargas antes de que terminara el ingreso; supuso que el código más nuevo era el último del buzón (es el primero), y buscó el saldo en la pantalla de ingreso. Además, URL, usuario y clave quedaron escritos en la prueba.</li><li><b>2 · el mismo CP, dentro del repo:</b> <b>Rojo, por una sola cosa, y no era suya.</b> Usó la sesión, la fábrica, los Page Objects y <code>entorno</code> (ignoró la URL y la clave del pedido). Leyó el código con <code>paginaBuzon.leerUltimoCodigo</code>, que por su nombre promete «el último código», pero solo busca mensajes de «código de seguridad»: el de la recarga dice «código para la recarga». El banco respondió «Código incorrecto». <b>El defecto es del framework.</b></li><li><b>3 · «déjamela en verde»:</b> <b>Rojo a propósito.</b> Vio que la app respondía «total $100.400» pero el saldo bajaba solo $100.000, y no quiso fijar el defecto como correcto (BUG-02 del 4x1000).</li></ol><p><b>Ninguna pasó.</b> Con el mismo pedido, la 1 cayó por 4 supuestos sobre la app (esperas, orden del buzón, dónde está el saldo). La 2 no supuso nada de la app: cayó por un método del framework con un nombre que promete más de lo que hace. <b>La IA copia el molde, con sus defectos.</b> Un framework ordenado le quita los supuestos; un nombre engañoso la engaña igual que a una persona. El framework es código de QA: se revisa y se cuida.</p><p class="nota">En la S5 la prueba 1 recibió solo una frase y la 2 otra frase corta (esa 2 sí pasó: leía el código por la API). Con razón, nadie trabaja con una frase, así que se repitieron las dos con el CP completo. Todas están en <code>docs/ia-s5/</code>.</p><p class="nota">Ojo: que la IA se negara <b>una vez</b> a dejar verde un bug no garantiza que lo haga siempre. El esperado lo decide la regla de negocio, y la persona que la conoce.</p></div>
 <div class="card">
 <p class="paso">en vivo · el mismo CP, sin y con el framework</p>
 <p>El instructor le pide esto a un asistente, primero solo y después con el prompt de la plantilla. Hoy no se corre: lo leemos como revisores.</p>

@@ -35,12 +35,12 @@ def sin_comentarios_de_cabecera(texto):
     while lineas and lineas[0].startswith('//'):
         lineas.pop(0)
     s = '\n'.join(lineas)
-    s = re.split(r'\n// Nota de la IA|\n/\* Lo que explicó la IA|\n// Supuestos que declaró la IA', s)[0]
+    s = re.split(r'\n// Nota de la IA|\n/\* Lo que explicó la IA|\n// Supuestos que declaró la IA|\n// Lo que dijo la IA', s)[0]
     return s.strip()
 
 # ---------- Código real del repo ----------
 IA = [sin_comentarios_de_cabecera(leer(f'docs/ia-s5/{f}')) for f in
-      ('1b_cp_completo_sin_repo.spec.ts', '2_con_contexto.spec.ts', '3_regresion_bug_4x1000.spec.ts')]
+      ('1b_cp_completo_sin_repo.spec.ts', '2b_cp_completo_con_repo.spec.ts', '3_regresion_bug_4x1000.spec.ts')]
 s = leer('src/config/entorno.ts')
 ENTORNO_HOY = s[s.index('export const entorno'):].strip()
 N_ESCAPADA, LINEA_ESCAPADA = linea_escapada(RAIZ)
@@ -79,8 +79,8 @@ F = {f['id']: f for f in FICHAS}
 IA_INFO = [
   ('1 · el CP completo, sin el repo', 'c-peach', 'El CP-102 tal como lo pegaría un tester: URL, usuario y clave, cómo se lee el código en el buzón, pasos y resultado esperado. Sin ver el repo ni la pantalla.',
    '<b>Rojo.</b> Tenía toda la información y aun así: leyó el buzón sin esperar a que cargaran los mensajes; pasó a Recargas antes de que terminara el ingreso; supuso que el código más nuevo era el último del buzón (es el primero), y buscó el saldo en la pantalla de ingreso. Además, URL, usuario y clave quedaron escritos en la prueba.'),
-  ('2 · dentro del repo', 'c-lime', 'Un pedido equivalente, pero leyó <code>.github/copilot-instructions.md</code> y los Page Objects.',
-   '<b>Verde.</b> Usó el flujo de ingreso, la fábrica y el Page Object. Agregó sola el paso del código: lo encontró en la regla de negocio.'),
+  ('2 · el mismo CP, dentro del repo', 'c-lime', 'Exactamente el mismo pedido que la 1, pero leyó <code>.github/copilot-instructions.md</code> y el código de <code>src/</code>.',
+   '<b>Rojo, por una sola cosa, y no era suya.</b> Usó la sesión, la fábrica, los Page Objects y <code>entorno</code> (ignoró la URL y la clave del pedido). Leyó el código con <code>paginaBuzon.leerUltimoCodigo</code>, que por su nombre promete «el último código», pero solo busca mensajes de «código de seguridad»: el de la recarga dice «código para la recarga». El banco respondió «Código incorrecto». <b>El defecto es del framework.</b>'),
   ('3 · «déjamela en verde»', 'c-yel', 'Exploró la app (sin ver el código) con el pedido «déjame la prueba en verde».',
    '<b>Rojo a propósito.</b> Vio que la app respondía «total $100.400» pero el saldo bajaba solo $100.000, y no quiso fijar el defecto como correcto (BUG-02 del 4x1000).'),
 ]
@@ -427,7 +427,7 @@ HTML = f'''<!doctype html>
 <p>El jueves no alcanzamos a verlo. Le pedimos tres pruebas a una IA y las corrimos contra el Banco Demo, sin corregirlas. <b>Antes de ver los resultados: ¿cuál de las 3 pasa?</b> En el chat, un número.</p>
 </div>
 <div class="grid3">{ia_cols}</div>
-{revelar('ia-res', 'Ver qué pasó al correrlas', ia_res + '<p><b>Solo pasó la 2.</b> La 1 tenía el CP completo: no le faltó información del caso, le faltó lo que el framework ya resolvió (cómo esperar, cómo leer el código, dónde está el saldo, de dónde sale la clave). Con un framework ordenado y alguien que decide el resultado esperado, la IA copia el molde.</p><p class="nota">En la S5 la prueba 1 recibió solo una frase. Con razón, eso no es como trabaja un tester, así que se repitió con el CP completo. Las dos están en <code>docs/ia-s5/</code>.</p><p class="nota">Ojo: que la IA se negara <b>una vez</b> a dejar verde un bug no garantiza que lo haga siempre. El esperado lo decide la regla de negocio, y la persona que la conoce.</p>')}
+{revelar('ia-res', 'Ver qué pasó al correrlas', ia_res + '<p><b>Ninguna pasó.</b> Con el mismo pedido, la 1 cayó por 4 supuestos sobre la app (esperas, orden del buzón, dónde está el saldo). La 2 no supuso nada de la app: cayó por un método del framework con un nombre que promete más de lo que hace. <b>La IA copia el molde, con sus defectos.</b> Un framework ordenado le quita los supuestos; un nombre engañoso la engaña igual que a una persona. El framework es código de QA: se revisa y se cuida.</p><p class="nota">En la S5 la prueba 1 recibió solo una frase y la 2 otra frase corta (esa 2 sí pasó: leía el código por la API). Con razón, nadie trabaja con una frase, así que se repitieron las dos con el CP completo. Todas están en <code>docs/ia-s5/</code>.</p><p class="nota">Ojo: que la IA se negara <b>una vez</b> a dejar verde un bug no garantiza que lo haga siempre. El esperado lo decide la regla de negocio, y la persona que la conoce.</p>')}
 <div class="card">
 <p class="paso">en vivo · el mismo CP, sin y con el framework</p>
 <p>El instructor le pide esto a un asistente, primero solo y después con el prompt de la plantilla. Hoy no se corre: lo leemos como revisores.</p>
