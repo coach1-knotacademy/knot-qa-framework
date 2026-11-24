@@ -18,7 +18,7 @@ Tres fichas que construyen sobre las capas de la S3 (ver [arquitectura.md](arqui
 | **La idea, en una frase** | Un ambiente es un **control**, no solo una URL. La prueba es la misma en QA y en UAT. Lo que cambia (dirección, usuario, clave y **datos**) vive en **un solo lugar**, **congelado** y **sin secretos en el código**. |
 | **Sus partes, en el repo** | `src/config/ambientes.ts`: el catálogo `local | qa | uat` y `configurarAmbiente(nombre, variables)` · `src/config/entorno.ts`: el resultado, congelado con `Object.freeze` · las variables de la terminal: `$env:AMBIENTE = 'qa'` y `$env:CLAVE_BANCO = '...'` · `.env.ejemplo`: los nombres de las variables, sin valores. |
 | **Sí, cuando** | Todo lo que cambia entre QA, UAT y preproducción: dirección, usuarios, claves, tiempos y los datos de cada ambiente. Es el *environment* de Postman, pero para todo el framework. |
-| **No, cuando** | Una clave escrita en el código o en el *initial value* de Postman, que se sincroniza con la nube. Un objeto de configuración que una prueba puede modificar, porque daña a la siguiente. Y **nunca** un ambiente `produccion` en el catálogo. |
+| **No, cuando** | Una clave escrita en el código o en un valor compartido de Postman, que se sincroniza con la nube. Un objeto de configuración que una prueba puede modificar, porque daña a la siguiente. Y **nunca** un ambiente `produccion` en el catálogo. |
 | **La frase para tu líder** | «Las pruebas no pueden correr contra producción por error. Si falta una clave, se nota en el primer segundo. Y ningún secreto queda en el repo.» |
 | **Cómo pedírselo a la IA** | «La dirección y las claves salen de `entorno`. No las escribas en la prueba ni inventes una URL.» |
 
@@ -114,11 +114,11 @@ Traducción completa del CP-101:
 - Ambientes de práctica (archivos estáticos en Pages): QA `https://coach1-knotacademy.github.io/knot-qa-framework/ambientes/qa` y UAT `https://coach1-knotacademy.github.io/knot-qa-framework/ambientes/uat`, cada uno con `salud.json` y `cuentas.json`.
 - Colección y ambientes para importar: `https://coach1-knotacademy.github.io/knot-qa-framework/postman/Bootcamp-S6.postman_collection.json`, `https://coach1-knotacademy.github.io/knot-qa-framework/postman/QA.postman_environment.json`, `https://coach1-knotacademy.github.io/knot-qa-framework/postman/UAT.postman_environment.json`.
 - Variables: `urlBase`, `nombreAmbiente` y `clave` (secreta, vacía).
-- Reglas: un workspace aparte (nunca el del equipo) y la clave solo en *current value*: el *initial value* se sincroniza con la nube.
+- Reglas: un workspace aparte (nunca el del equipo) y la clave solo como valor local, sin compartir: lo compartido (la nube ☁ en Postman nuevo, el *initial value* en el anterior) se sincroniza.
 
 ## Fuentes
 
 - Playwright, «Locators» y «Best practices» (playwright.dev/docs/locators, playwright.dev/docs/best-practices): prioridad de `getByRole` y de los atributos que ve el usuario.
 - Playwright, «Auto-waiting» (playwright.dev/docs/actionability) y «Assertions» (playwright.dev/docs/test-assertions): 5 s por `expect`; «Timeouts»: 30 s por prueba. La documentación de `page.waitForTimeout` dice que no se use en pruebas reales porque son inestables.
-- Postman, «Variables» y «Managing environments» (learning.postman.com): *initial value* se comparte; *current value* es local.
+- Postman, «Variables» y «Share variable values» (learning.postman.com): el valor local no se sincroniza; el compartido (antes *initial value*) sí.
 - OWASP, «Secrets Management Cheat Sheet»: los secretos fuera del código y del control de versiones.

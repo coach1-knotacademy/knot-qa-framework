@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "6b3f0c1e-5a52-4c3e-9d0b-2b6f2f0a0601",
     "name": "Bootcamp S6 · Un pedido, dos ambientes",
-    "description": "Sesión 6 del Bootcamp QA (Knot Academy). El MISMO pedido contra dos ambientes de práctica (QA y UAT), publicados como archivos fijos en GitHub Pages: no hay servidor, ni datos reales, ni límite de peticiones.\n\nImporta también los ambientes QA y UAT, elige uno arriba a la derecha y pulsa Send. Cambia de ambiente y vuelve a pulsar Send: la petición no cambió, cambió el ambiente.\n\nLa variable «clave» está vacía a propósito: si la llenas, hazlo solo en la columna Current value (no se comparte ni se exporta). Trabaja en un workspace aparte, nunca en el del banco.",
+    "description": "Sesión 6 del Bootcamp QA (Knot Academy). El MISMO pedido contra dos ambientes de práctica (QA y UAT), publicados como archivos fijos en GitHub Pages: no hay servidor, ni datos reales, ni límite de peticiones.\n\nImporta también los ambientes QA y UAT, elige uno arriba a la derecha y pulsa Send. Cambia de ambiente y vuelve a pulsar Send: la petición no cambió, cambió el ambiente.\n\nLa variable «clave» está vacía a propósito: si la llenas, déjala solo como valor local, sin compartir (Postman nuevo: columna Value sin la nube; anterior: Current value). Trabaja en un workspace aparte, nunca en el del banco.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [

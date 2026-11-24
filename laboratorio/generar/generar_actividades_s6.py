@@ -147,9 +147,9 @@ PASOS_POSTMAN = [
   ('Cambiar a UAT y enviar el mismo pedido',
    'En el mismo menú, elijan <b>UAT</b>. No toquen el pedido: pulsen <b>Send</b> otra vez. Luego prueben el pedido de cuentas en los dos.',
    'El mismo pedido, ahora con <code>"ambiente": "UAT"</code>. Las cuentas traen <b>datos distintos</b> en cada ambiente.'),
-  ('La clave, solo en <i>current value</i>',
-   'Abran el ambiente UAT. La variable <code>clave</code> es de tipo <i>secret</i> y está vacía. Escriban una clave inventada <b>solo</b> en la columna <b>Current value</b>. Dejen <b>Initial value</b> vacío.',
-   'El <i>initial value</i> se sincroniza con la nube y lo ve quien comparta el workspace. El <i>current value</i> se queda en su equipo. Si su versión de Postman usa otros nombres, la regla es la misma: la clave va en la columna que <b>no</b> se comparte.'),
+  ('La clave, solo local (sin compartir)',
+   'Abran el ambiente UAT. La variable <code>clave</code> es de tipo <i>secret</i> y está vacía. Escriban una clave inventada como valor <b>local</b>. <b>Postman nuevo</b> (una sola columna <b>Value</b>): escríbanla ahí y <b>no</b> la compartan; a su lado no debe aparecer la nube ☁. <b>Postman anterior</b> (dos columnas): en <b>Current value</b>, con <b>Initial value</b> vacío.',
+   'Lo compartido (la nube ☁ en Postman nuevo, el <i>initial value</i> en el anterior) se sincroniza y lo ve quien comparta el workspace. Lo local se queda en su equipo. Para comprobar en Postman nuevo: <b>⋯ → Shared value</b>; el de <code>clave</code> debe estar vacío.'),
 ]
 pasos_postman = ''.join(f'<li><p><b>{t}.</b> {q}</p><p class="ves"><b>Lo que ven:</b> {v}</p></li>' for t, q, v in PASOS_POSTMAN)
 PLAN_B_POSTMAN = (f'<p><b>¿No deja importar por enlace?</b> Creen todo a mano, en 2 minutos: <b>Environments → +</b>, nombre <code>QA</code>, '
@@ -492,7 +492,7 @@ HTML = f'''<!doctype html>
 <div class="card">
 <p class="paso">comprobación · a la vez</p>
 <p><b>1.</b> ¿Qué capa del framework cambia si cambio de ambiente? · <b>2.</b> ¿En qué columna pusieron la clave?</p>
-{revelar('postman-resp', 'Ver las respuestas', '<p><b>1.</b> Solo la configuración: <code>src/config/</code>. Las pruebas, las páginas y las fábricas no cambian. <b>2.</b> En <i>current value</i>, la que se queda en su equipo. Nunca en <i>initial value</i>, y nunca en el workspace del equipo.</p>')}
+{revelar('postman-resp', 'Ver las respuestas', '<p><b>1.</b> Solo la configuración: <code>src/config/</code>. Las pruebas, las páginas y las fábricas no cambian. <b>2.</b> Local, sin compartir: se queda en su equipo (Postman nuevo: <i>Value</i> sin ☁; anterior: <i>current value</i>). Nunca compartida, y nunca en el workspace del equipo.</p>')}
 </div>
 </section>
 
@@ -706,11 +706,11 @@ md += ['', '## Postman: un pedido, dos ambientes', '',
        f'- Ambientes de práctica (archivos estáticos en Pages): QA `{AMBIENTES["QA"]}` y UAT `{AMBIENTES["UAT"]}`, cada uno con `salud.json` y `cuentas.json`.',
        f'- Colección y ambientes para importar: `{POSTMAN["coleccion"]}`, `{POSTMAN["QA"]}`, `{POSTMAN["UAT"]}`.',
        '- Variables: `urlBase`, `nombreAmbiente` y `clave` (secreta, vacía).',
-       '- Reglas: un workspace aparte (nunca el del equipo) y la clave solo en *current value*: el *initial value* se sincroniza con la nube.', '',
+       '- Reglas: un workspace aparte (nunca el del equipo) y la clave solo como valor local, sin compartir: lo compartido (la nube ☁ en Postman nuevo, el *initial value* en el anterior) se sincroniza.', '',
        '## Fuentes', '',
        '- Playwright, «Locators» y «Best practices» (playwright.dev/docs/locators, playwright.dev/docs/best-practices): prioridad de `getByRole` y de los atributos que ve el usuario.',
        '- Playwright, «Auto-waiting» (playwright.dev/docs/actionability) y «Assertions» (playwright.dev/docs/test-assertions): 5 s por `expect`; «Timeouts»: 30 s por prueba. La documentación de `page.waitForTimeout` dice que no se use en pruebas reales porque son inestables.',
-       '- Postman, «Variables» y «Managing environments» (learning.postman.com): *initial value* se comparte; *current value* es local.',
+       '- Postman, «Variables» y «Share variable values» (learning.postman.com): el valor local no se sincroniza; el compartido (antes *initial value*) sí.',
        '- OWASP, «Secrets Management Cheat Sheet»: los secretos fuera del código y del control de versiones.', '']
 (RAIZ / 'docs' / 'configuracion-y-localizadores.md').write_text('\n'.join(md), encoding='utf-8')
 print(f'actividades_S6.html y docs/configuracion-y-localizadores.md listos (localizador escapado en la línea {N_ESCAPADA})')
