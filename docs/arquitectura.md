@@ -81,10 +81,10 @@ El ambiente y la dirección salen en el reporte de Playwright (`metadata`); la c
 | S4 | SOLID: por qué las capas están así | `src/legado/` (el antes) |
 | S5 | Patrones: Page Object, Factory, Screenplay, Singleton · un sitio real | `src/screenplay/`, `src/sitios/` |
 | S6 | Ambientes (`local`, `qa`, `uat`; producción bloqueada; clave por la terminal; configuración congelada) y localizadores robustos · tu CP convertido en prueba · la plantilla de tu framework | `src/config/ambientes.ts`, `src/paginas/heredadas/`, `plantilla/` |
-| S7 | Gherkin/BDD: tu CP de la S6 con otra sintaxis, sobre las tareas de Screenplay | sobre `src/flujos/` y `src/screenplay/` |
-| S8 | Data Driven sobre las fábricas y reportería (reporte HTML con evidencias; Allure solo demo) | `src/datos/`, reportes |
-| S9 | Logging, manejo de errores, reutilizables e integración continua | `src/soporte/`, `.github/workflows/` |
-| S10 | Presentaciones: tu framework o tu revisión | tu repo, con estas mismas capas |
+| S7 | Gherkin: tu CP como escenario (Dado, Cuando, Entonces) con el ID en la etiqueta; cada paso es un `test.step` que llama a una tarea de Screenplay, y la tarea usa el Page Object por dentro · el revisor de escenarios · el kit del proyecto | `especificaciones/`, `src/screenplay/recargas/`, `tests/recargas/CP-101-gherkin.spec.ts` |
+| S8 | Una prueba, muchos datos: el Esquema del escenario y sus Ejemplos ↔ un `for` sobre la fábrica, con título único por caso · el reporte HTML como evidencia (Allure solo en una captura) | `src/datos/`, reportes |
+| S9 | ¿Rojo del sistema, del script o del ambiente? El trace, los reintentos (*flaky*) y `test.info().attach` como registro · los reutilizables (los fixtures, con su nombre) · la integración continua leída en `pruebas.yml` · el ensayo de la presentación | `src/soporte/`, `.github/workflows/` |
+| S10 | Presentaciones: tu framework, tu revisión o tu diseño (ver el [kit del proyecto](https://coach1-knotacademy.github.io/knot-qa-framework/proyecto.html)) | tu repo, con estas mismas capas |
 
 El framework que presentan en la S10 tiene esta misma forma: si alguien abre su repo, debe reconocer cada capa. Para arrancarlo: [`plantilla/`](../plantilla/README.md).
 

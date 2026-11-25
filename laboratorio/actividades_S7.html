@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Actividades S7 Gherkin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=Nunito:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>:root { --bg:#f7f6f2; --surface:#fff; --ink:#1d2130; --muted:#454a58; --morado:#8b55f6; --morado-osc:#5b34c9; --neon:#8be000;
+  --lav:#e7defe; --lime:#e2f7c9; --peach:#ffdccf; --cyan:#d3f4f7; --yellow:#fffccb; --ok:#2f7d32; --bad:#c62828;
+  --f-display:"Archivo Black","Arial Black",Impact,sans-serif; --f-body:"Nunito","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",Consolas,"Cascadia Mono",Menlo,monospace; color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin:0; background-color:var(--bg); background-image:radial-gradient(#d9d6cc 1.2px, transparent 1.2px); background-size:22px 22px; color:var(--ink); font:16px/1.5 var(--f-body); }
+.wrap { max-width:1100px; margin:0 auto; padding:0 16px 48px; }
+.knot-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 0 0; font:800 14px var(--f-body); flex-wrap:wrap; }
+.knot-bar span { display:flex; align-items:center; gap:8px; } .knot-bar img { height:26px; } .knot-bar small { font-weight:600; color:var(--muted); }
+h1, h2, h3 { font-family:var(--f-display); font-weight:400; letter-spacing:-.01em; line-height:1.15; text-wrap:balance; }
+h1 { font-size:clamp(28px,5vw,44px); margin:22px 0 6px; } h1 .acc, h2 .acc { color:var(--morado-osc); }
+h2 { font-size:clamp(22px,3.4vw,30px); margin:0 0 6px; } h3 { font-size:19px; margin:14px 0 6px; }
+.lead { font-size:18px; max-width:760px; }
+nav.top { position:sticky; top:0; z-index:5; background:var(--bg); padding:10px 0; display:flex; gap:8px; flex-wrap:wrap; border-bottom:2px solid var(--ink); margin-bottom:18px; }
+nav.top a { color:var(--ink); text-decoration:none; border:2px solid var(--ink); border-radius:999px; padding:4px 12px; font-weight:800; font-size:14px; background:var(--surface); }
+nav.top a:hover { background:var(--lav); }
+@media (max-width:820px) { nav.top { position:static; } }
+section { margin:30px 0; scroll-margin-top:110px; }
+.card { background:var(--surface); border:2px solid var(--ink); border-radius:14px; box-shadow:5px 5px 0 var(--ink); padding:18px 20px; margin:14px 0; min-width:0; overflow-wrap:anywhere; }
+@media (max-width:480px) { .card { padding:14px 14px; } }
+.c-lav { background:var(--lav); } .c-lime { background:var(--lime); } .c-peach { background:var(--peach); } .c-cyan { background:var(--cyan); } .c-yel { background:var(--yellow); }
+.meta { display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 10px; }
+.chip code { background:none; padding:0; }
+.chip { border:2px solid var(--ink); border-radius:999px; padding:3px 10px; font-weight:800; font-size:13px; background:var(--surface); }
+.grid2, .grid3 { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; } .grid3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.grid2 > *, .grid3 > * { min-width:0; } .grid3 > .card { margin:0; }
+@media (max-width:820px) { .grid2, .grid3 { grid-template-columns:minmax(0,1fr); } }
+code { font-family:var(--f-mono); font-size:.88em; background:#efece3; border-radius:5px; padding:1px 5px; overflow-wrap:anywhere; }
+pre.code { max-width:100%; overflow-wrap:normal; font:13px/1.55 var(--f-mono); background:#1f2331; color:#e8ebf2; border:2px solid var(--ink); border-radius:12px; padding:14px; overflow:auto; margin:10px 0; }
+pre.comparar { white-space:pre-wrap; overflow-wrap:anywhere; font-size:12.5px; }
+pre.comparar .ln { padding:0 4px; border-radius:4px; } pre.comparar .ln::before { content:none; }
+pre.comparar .m-rojo { background:#5a1f2a; } pre.comparar .m-ambar { background:#4d3d12; } pre.comparar .m-verde { background:#173f2a; }
+.insignia { display:inline-grid; place-items:center; min-width:1.5em; height:1.5em; padding:0 4px; border-radius:999px; font:800 12px/1 var(--f-body); text-indent:0; vertical-align:middle; }
+.i-rojo { background:#ff8a8a; color:#2a0b10; } .i-ambar { background:#ffd36b; color:#2b2000; } .i-verde { background:#8be3a8; color:#06240f; }
+ol.leyenda { list-style:none; padding:0; margin:8px 0; } ol.leyenda li { margin:6px 0; } ol.leyenda .insignia { margin-right:6px; }
+pre.num { counter-reset:l; } pre.num .ln { display:block; } pre.num .ln::before { counter-increment:l; content:counter(l); display:inline-block; width:2.4em; color:#8c93a8; }
+table { width:100%; border-collapse:collapse; } td, th { border-top:2px solid var(--ink); padding:10px 8px; vertical-align:top; text-align:left; }
+th { font-weight:800; font-size:14px; color:var(--muted); }
+td.n { font-family:var(--f-display); width:2em; } td.opc { width:1%; white-space:nowrap; } td.cod { width:44%; } td.cod code { white-space:pre-wrap; }
+@media (max-width:820px) { td.opc { white-space:normal; } table.clasif, table.clasif tbody, table.clasif tr, table.clasif td, table.trad, table.trad tbody, table.trad tr, table.trad td, table.apilar, table.apilar tbody, table.apilar tr, table.apilar td { display:block; }
+  table.trad thead, table.apilar thead { display:none; } td.n { width:auto; border-top:2px solid var(--ink); padding-bottom:0; } table.clasif td:not(.n) { border-top:0; }
+  table.trad td, table.apilar td { border-top:0; padding:4px 8px; } table.trad tr, table.apilar tr { border-top:2px solid var(--ink); padding:6px 0; } td.cod { width:auto; } }
+button { font:800 14px var(--f-body); border:2px solid var(--ink); border-radius:10px; background:var(--surface); color:var(--ink); padding:6px 10px; margin:2px; cursor:pointer; }
+button:hover { background:var(--lav); } button.sel { background:var(--morado-osc); color:#fff; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline:3px solid var(--morado-osc); outline-offset:2px; }
+button.grande { background:var(--neon); box-shadow:3px 3px 0 var(--ink); padding:9px 16px; font-size:15px; }
+tr.bien td { background:#eefbe3; } tr.mal td { background:#ffe9e3; } .exp { margin-top:6px; font-size:14px; }
+.puntaje { font-weight:800; margin-left:10px; }
+ol.pasos li, ul.lista li, ol.lista li, ol.boleto li { margin:6px 0; } .fix { color:var(--morado-osc); font-weight:700; }
+.nota { color:var(--muted); font-size:14px; }
+a.boton { display:inline-block; text-decoration:none; color:var(--ink); background:var(--neon); border:2px solid var(--ink); border-radius:10px; box-shadow:3px 3px 0 var(--ink); padding:9px 16px; font-weight:800; margin:4px 6px 4px 0; }
+a.boton.blanco { background:var(--surface); }
+.frase { display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:17px; }
+.frase input, .frase select, select.cp-sel { font:16px var(--f-body); border:2px solid var(--ink); border-radius:8px; padding:6px 8px; min-width:0; max-width:100%; background:var(--surface); color:var(--ink); }
+.frase input { flex:1 1 200px; }
+textarea { width:100%; min-height:110px; font:15px/1.5 var(--f-body); border:2px solid var(--ink); border-radius:10px; padding:10px; }
+.cp-prac table.trad td:nth-child(3) { width:48%; } @media (max-width:820px) { .cp-prac table.trad td:nth-child(3) { width:auto; } }
+table.trad input { width:100%; font:14px var(--f-mono); border:2px solid var(--ink); border-radius:8px; padding:6px 8px; }
+.ok { color:var(--ok); font-weight:800; margin-left:6px; }
+.ficha-card h2 { color:var(--morado-osc); }
+.ficha { display:grid; grid-template-columns:minmax(0,15em) minmax(0,1fr); border-top:2px solid var(--ink); }
+.ficha .fk, .ficha .fv { padding:9px 8px; border-bottom:1px solid #c9c5ba; } .ficha .fk { font-weight:800; color:var(--morado-osc); }
+@media (max-width:820px) { .ficha { grid-template-columns:minmax(0,1fr); } .ficha .fk { border-bottom:0; padding-bottom:0; } }
+.desde { font-weight:700; } .paso { font:400 15px var(--f-display); color:var(--morado-osc); margin:0 0 4px; }
+.opciones { margin:2px 0 8px; }
+details { margin:8px 0; } summary { cursor:pointer; font-weight:800; }
+.check { display:flex; gap:10px; align-items:flex-start; cursor:pointer; } .check input { width:20px; height:20px; margin-top:3px; flex:none; accent-color:var(--morado-osc); }
+ul.checks { list-style:none; padding-left:0; } ul.checks li { margin:8px 0; }
+.ves { margin:2px 0 10px; font-size:15px; background:var(--surface); border:2px dashed #9a968b; border-radius:10px; padding:6px 10px; }
+ol.escalera { list-style:none; padding:0; margin:12px 0; }
+.peldano { display:flex; gap:12px; align-items:flex-start; border:2px solid var(--ink); border-radius:12px; background:var(--surface); padding:10px 12px; margin:8px 0; box-shadow:3px 3px 0 var(--ink); }
+.peldano .num { font:400 22px var(--f-display); width:1.6em; flex:none; color:var(--morado-osc); }
+.peldano > div { min-width:0; }
+.p1 { margin-right:16%; } .p2 { margin-left:4%; margin-right:12%; } .p3 { margin-left:8%; margin-right:8%; } .p4 { margin-left:12%; margin-right:4%; } .p5 { margin-left:16%; background:var(--peach); }
+@media (max-width:600px) { .p1, .p2, .p3, .p4, .p5 { margin-left:0; margin-right:0; } }
+.tipo { display:inline-block; border:2px solid var(--ink); border-radius:999px; padding:1px 9px; font-weight:800; font-size:12.5px; white-space:nowrap; }
+.t-ambiente { background:var(--cyan); } .t-pre { background:var(--lav); } .t-paso { background:var(--lime); } .t-dato { background:var(--yellow); } .t-esperado { background:var(--peach); }
+.contador { font:400 18px var(--f-display); color:var(--morado-osc); }
+.cp h3 { font-size:18px; }
+.cps { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; } .cps > .card { margin:0; }
+@media (max-width:980px) { .cps { grid-template-columns:minmax(0,1fr) minmax(0,1fr); } } @media (max-width:640px) { .cps { grid-template-columns:minmax(0,1fr); } }
+/* S7: el revisor y el mapeo */
+[hidden] { display:none !important; }
+@media (max-width:820px) { td.opc { width:auto; } }
+pre.code, code, textarea.gherkin { font-variant-ligatures:none; }
+.grid2 pre.code { white-space:pre-wrap; overflow-wrap:anywhere; }
+.idea { font:400 clamp(18px,2.6vw,22px)/1.35 var(--f-display); margin:6px 0 12px; max-width:860px; }
+.objetivo { display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; }
+.objetivo b.k { font:400 14px var(--f-display); color:var(--morado-osc); text-transform:uppercase; letter-spacing:.04em; }
+.linea-cp { margin:4px 0; }
+.frase-grande { font:400 clamp(17px,2.4vw,21px)/1.4 var(--f-display); margin:8px 0; }
+.letras { font:400 22px var(--f-display); color:var(--morado-osc); letter-spacing:.2em; margin:6px 0; }
+@media (min-width:821px) { .grid2.revisor { grid-template-columns:minmax(0,2fr) minmax(0,3fr); } }
+textarea.gherkin { min-height:320px; font:13px/1.55 var(--f-mono); background:#fbfaf6; color:var(--ink); white-space:pre; overflow:auto; tab-size:2; }
+.barra { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:8px 0; }
+.criterio { border:2px dashed var(--ink); border-radius:10px; padding:8px 12px; background:var(--surface); }
+.resumen { font:400 18px var(--f-display); padding:8px 12px; border:2px solid var(--ink); border-radius:10px; margin:10px 0; display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+.resumen.r-ok { background:#eefbe3; } .resumen.r-aviso { background:#fff3c4; } .resumen.r-error { background:#ffe9e3; }
+.escenario { border:2px solid var(--ink); border-radius:12px; background:var(--surface); padding:10px 12px; margin:10px 0; }
+.escenario h4 { margin:0 0 6px; font-size:16px; }
+ul.hallazgos { list-style:none; padding:0; margin:0; } ul.hallazgos li { display:flex; gap:8px; align-items:flex-start; padding:6px 8px; border-radius:8px; margin:4px 0; }
+.nivel { flex:none; font:800 12px/1 var(--f-body); border:2px solid currentColor; border-radius:999px; padding:3px 8px; margin-top:2px; text-transform:uppercase; }
+.h-ok { background:#eefbe3; color:#1e5a22; } .h-aviso { background:#fff3c4; color:#5e4500; } .h-error { background:#ffe9e3; color:#9c1616; }
+ul.hallazgos li span.t { color:var(--ink); }
+.cp-panel { border-top:2px solid var(--ink); padding-top:10px; margin-top:10px; }
+table.mapeo input, table.mapeo select { width:100%; font:14px var(--f-body); border:2px solid var(--ink); border-radius:8px; padding:6px 8px; background:var(--surface); color:var(--ink); min-width:0; }
+table.mapeo td:nth-child(2) { width:38%; } table.mapeo td:nth-child(3) { width:20%; }
+@media (max-width:820px) { table.mapeo, table.mapeo tbody, table.mapeo tr, table.mapeo td { display:block; } table.mapeo thead { display:none; }
+  table.mapeo tr { border-top:2px solid var(--ink); padding:6px 0; } table.mapeo td { border-top:0; padding:4px 8px; width:auto !important; } }
+.frase input { flex:1 1 160px; }
+a.boton.enorme { font-size:19px; padding:14px 22px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="knot-bar"><span><img src="data:image/png;base64,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" alt="">knot academy × accenture</span><small>Bootcamp QA &amp; Automatización · S7 · Estructura del framework y Gherkin / BDD</small></div>
+<h1>Tu CP en <span class="acc">Gherkin</span>, mapeado a las capas</h1>
+<p class="idea">Gherkin es tu CP con otra sintaxis: dice QUÉ pasa en el negocio. Las capas del framework dicen CÓMO.</p>
+<div class="card c-lime objetivo"><b class="k">Objetivo de hoy</b> <span class="frase-grande" style="margin:0">Tu CP en Gherkin, mapeado a las capas del framework.</span></div>
+<div class="card c-cyan">
+<p style="margin-top:0"><b>Abran estos enlaces y respondan en el chat ✅ si cargan o ❌ si alguno no carga (digan cuál):</b></p>
+<a class="boton" href="https://coach1-knotacademy.github.io/knot-qa-framework/laboratorio-s6.html">Laboratorio S6</a><a class="boton blanco" href="https://coach1-knotacademy.github.io/knot-qa-framework/plantilla.html">La plantilla</a><a class="boton blanco" href="https://coach1-knotacademy.github.io/knot-qa-framework/proyecto.html">Kit de proyecto</a><a class="boton blanco" href="https://coach1-knotacademy.github.io/knot-qa-framework/guia-estudio.html">Guía de estudio</a>
+<p class="nota">Todo funciona sin instalar nada. Si GitHub no abre en su red, el instructor sube los archivos al chat: se abren con doble clic en Edge.</p>
+</div>
+<nav class="top" aria-label="Actividades"><a href="#boleto-s6">Boleto S6</a><a href="#tres-idiomas">Tres idiomas</a><a href="#ficha">Ficha</a><a href="#declarativo">¿Declarativo?</a><a href="#revisor">Tu CP en Gherkin</a><a href="#capas">A las capas</a><a href="#mapeo">Tu mapeo</a><a href="#que-capa">¿Qué capa?</a><a href="#rosetta">Rosetta</a><a href="#proyecto">Tu proyecto</a><a href="#boleto">Boleto</a><a href="#cierre">Cierre</a></nav>
+
+<section id="boleto-s6">
+<div class="card c-lime">
+<h2>Repaso · <span class="acc">el boleto de la S6</span></h2>
+<div class="meta"><span class="chip">6:00 · para quien ya llegó</span><span class="chip">respondan a la vez: escriban sin enviar · «3, 2, 1, envíen»</span></div>
+<p>Las cuatro letras en orden, en el chat, todos al mismo tiempo. Por ejemplo: <b>«a c b a»</b>. Marquen aquí y pulsen «Revisar» cuando el instructor lo diga.</p>
+<table class="clasif" id="t-b6"><tbody><tr data-ok="c"><td class="n">1</td><td><b>Mañana las mismas pruebas deben correr en UAT. ¿Qué cambias?</b><p class="opciones"><b>a)</b> cada prueba<br><b>b)</b> el Page Object<br><b>c)</b> la variable <code>AMBIENTE</code> (la configuración)</p><div class="exp" hidden><b>c)</b> Configuración: la prueba es la misma; cambia el ambiente, en un solo lugar.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr><tr data-ok="a"><td class="n">2</td><td><b>¿Dónde va la clave de UAT?</b><p class="opciones"><b>a)</b> en una variable de la terminal o como valor local de Postman, sin compartir<br><b>b)</b> en <code>entorno.ts</code>, como valor por defecto<br><b>c)</b> como valor compartido del ambiente de Postman</p><div class="exp" hidden><b>a)</b> Fuera del código y fuera de lo que se comparte: el valor compartido de Postman se sincroniza con la nube.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr><tr data-ok="c"><td class="n">3</td><td><b>Llega el rediseño de Recargas. ¿Qué localizador sigue funcionando?</b><p class="opciones"><b>a)</b> <code>locator('#saldo')</code><br><b>b)</b> <code>locator('form &gt; button:nth-child(7)')</code><br><b>c)</b> <code>getByRole('button', { name: 'Recargar' })</code></p><div class="exp" hidden><b>c)</b> Rol y nombre: el diseño cambió, el botón sigue siendo un botón que dice «Recargar».</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr><tr data-ok="b"><td class="n">4</td><td><b>El saldo tarda 2 segundos en aparecer. ¿Qué es lo correcto?</b><p class="opciones"><b>a)</b> <code>await page.waitForTimeout(3000)</code><br><b>b)</b> <code>await expect(saldo).toHaveText('$1.490.000')</code><br><b>c)</b> <code>expect(await saldo.innerText()).toBe('$1.490.000')</code></p><div class="exp" hidden><b>b)</b> La aserción reintenta sola hasta 5 segundos. La espera fija pierde tiempo, y la lectura única no reintenta.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr></tbody></table><p><button type="button" class="grande" data-revisar="b6">Revisar</button><button type="button" data-reiniciar="b6">Reiniciar</button><span class="puntaje" id="p-b6" aria-live="polite"></span></p><p><button type="button" class="grande" data-revelar="b6-resp">Ver las respuestas</button></p><div id="b6-resp" hidden><p class="letras">c a c b</p><ol class="boleto"><li><b>c</b> · Configuración: la prueba es la misma; cambia el ambiente, en un solo lugar.</li><li><b>a</b> · Fuera del código y fuera de lo que se comparte: el valor compartido de Postman se sincroniza con la nube.</li><li><b>c</b> · Rol y nombre: el diseño cambió, el botón sigue siendo un botón que dice «Recargar».</li><li><b>b</b> · La aserción reintenta sola hasta 5 segundos. La espera fija pierde tiempo, y la lectura única no reintenta.</li></ol></div>
+</div>
+</section>
+
+<section id="tres-idiomas">
+<div class="card c-peach">
+<p class="paso">gancho · 6:08</p>
+<h2>El CP-101 en <span class="acc">tres idiomas</span></h2>
+<p class="frase-grande">«Gherkin no es para la máquina: es lo que el líder firma antes de que automatices.»</p>
+</div>
+<div class="grid2">
+<div class="card"><p class="paso">1 · el caso manual (el Excel o el ALM)</p><p><b>CP-101 · Recarga normal a celular</b></p><p class="linea-cp">Precondición: Ana inició sesión. Saldo de Ahorros: $1.500.000.</p><p class="linea-cp">1. Ir a «Recargar celular».</p><p class="linea-cp">2. Elegir Claro, escribir el celular 3001234567 y el valor $10.000.</p><p class="linea-cp">3. Pulsar «Recargar».</p><p class="linea-cp">Esperado: comprobante con «Recarga exitosa». Saldo de Ahorros: $1.490.000.</p></div>
+<div class="card"><p class="paso">2 · Gherkin · <code>especificaciones/recargas.feature</code></p><pre class="code">@CP-101
+Escenario: Una recarga normal da comprobante y descuenta de Ahorros
+  Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros
+  Cuando recarga $10.000 a un celular Claro 3001234567
+  Entonces ve el comprobante «Recarga exitosa»
+  Y su saldo de Ahorros queda en $1.490.000</pre>
+<p class="nota">El mismo caso, en el idioma del negocio: sin clics ni localizadores, con el ID en la etiqueta y el dato en el «Entonces».</p></div>
+</div>
+<div class="card"><p class="paso">3 · la prueba · <code>tests/recargas/CP-101-gherkin.spec.ts</code></p>
+<pre class="code num comparar"><span class="ln">test(&#x27;CP-101 · Recarga normal a celular (escenario Gherkin)&#x27;, { tag: &#x27;@CP-101&#x27; }, async ({ page, cliente, paginaRecargas }) =&gt; {</span><span class="ln">  const ana = Actor.llamado(&#x27;Ana&#x27;).puede(NavegarLaWeb.con(page));</span><span class="ln"> </span><span class="ln m-verde">  await test.step(&#x27;Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros&#x27;, async () =&gt; {</span><span class="ln">    await abrirConSesion(page, cliente, usuarios.ana);</span><span class="ln">    await paginaRecargas.abrir();</span><span class="ln">    await expect(paginaRecargas.saldoDisponible).toHaveText(&#x27;$1.500.000&#x27;);</span><span class="ln">  });</span><span class="ln"> </span><span class="ln m-verde">  await test.step(&#x27;Cuando recarga $10.000 a un celular Claro 3001234567&#x27;, async () =&gt; {</span><span class="ln">    await ana.intenta(RecargarDesdeLaPantalla.celular(&#x27;3001234567&#x27;).por(10_000).con(&#x27;Claro&#x27;));</span><span class="ln">  });</span><span class="ln"> </span><span class="ln m-verde">  await test.step(&#x27;Entonces ve el comprobante «Recarga exitosa»&#x27;, async () =&gt; {</span><span class="ln">    expect(await ana.pregunta(ResultadoDeLaRecarga.queVio())).toContain(&#x27;Recarga exitosa&#x27;);</span><span class="ln">  });</span><span class="ln"> </span><span class="ln m-verde">  await test.step(&#x27;Y su saldo de Ahorros queda en $1.490.000&#x27;, async () =&gt; {</span><span class="ln">    await expect(paginaRecargas.saldoDisponible).toHaveText(&#x27;$1.490.000&#x27;);</span><span class="ln">  });</span><span class="ln">});</span></pre>
+<p class="nota">Cada <code>test.step</code> (resaltado) lleva el mismo texto del paso de Gherkin, y el reporte HTML muestra la prueba con esos pasos. Se corre con <code>npx.cmd playwright test -g &quot;CP-101&quot; --project=recargas</code>.</p>
+</div>
+</section>
+
+<section id="ficha">
+<div class="card ficha-card"><div class="meta"><span class="chip">ficha · 6:12</span></div>
+<h2>Gherkin y BDD</h2>
+<div class="ficha"><div class="fk">El problema que ya sufrías a mano</div><div class="fv">El CP del Excel lo entiende quien lo escribió; el script, solo quien sabe código. Negocio aprueba uno, QA automatiza otro, y con el tiempo dicen cosas distintas.</div><div class="fk">La idea, en una frase</div><div class="fv">Un escenario de Gherkin es el CP escrito para que lo lean negocio, QA y la máquina: <b>Dado</b> (la precondición), <b>Cuando</b> (lo que hace el cliente), <b>Entonces</b> (el resultado esperado, con el dato).</div><div class="fk">Sus partes, en el repo</div><div class="fv"><code>especificaciones/recargas.feature</code> (los escenarios, con la etiqueta <code>@CP-101</code>) · <code>tests/recargas/CP-101-gherkin.spec.ts</code> (cada paso es un <code>test.step</code>) · <code>src/screenplay/recargas/RecargarDesdeLaPantalla.ts</code> (la tarea que ejecuta el «Cuando»).</div><div class="fk">Sí, cuando</div><div class="fv">El caso tiene reglas de negocio que alguien tiene que aprobar (montos, límites, bloqueos) y lo van a leer personas que no programan.</div><div class="fk">No, cuando</div><div class="fv">Es una prueba técnica que solo lee QA (un contrato de API, un cálculo): ahí basta un <code>test()</code> con buen nombre. Y un Gherkin con clics («hago clic en…») es peor que no tener Gherkin.</div><div class="fk">La frase para tu líder</div><div class="fv">El escenario es el contrato: lo firma negocio, lleva el ID del ALM y corre sobre las mismas capas. Si cambia la pantalla, el escenario no se toca.</div><div class="fk">Cómo pedírselo a la IA</div><div class="fv">«Convierte este CP del Banco Demo en un escenario de Gherkin en español: Dado, Cuando y Entonces, sin clics ni localizadores, máximo 5 pasos, con la etiqueta @CP-xxx y el resultado esperado con el dato exacto. Si falta el esperado, escribe TODO: no lo inventes.»</div></div></div>
+<h3>BDD, Gherkin y la herramienta <span class="acc">no son lo mismo</span></h3>
+<div class="grid3"><div class="card c-lav"><p class="paso">1 · BDD</p><p>una <b>práctica de equipo</b>: descubrir el comportamiento con ejemplos (los «tres amigos»: negocio, desarrollo y QA), formularlo y automatizarlo.</p><p class="nota"><b>Hoy solo <b>formulamos</b>.</b></p></div><div class="card c-lime"><p class="paso">2 · Gherkin</p><p>el <b>lenguaje</b> de los escenarios: <code>Característica</code>, <code>Escenario</code>, <code>Dado</code>, <code>Cuando</code>, <code>Entonces</code>, <code>Y</code>, <code>Pero</code>. En español con <code># language: es</code>.</p><p class="nota"><b>Es lo que escriben hoy.</b></p></div><div class="card c-cyan"><p class="paso">3 · Cucumber · playwright-bdd</p><p>las <b>herramientas</b> que leen el <code>.feature</code> y llaman a un código por cada paso.</p><p class="nota"><b>Hoy no se instalan: cada paso es un <code>test.step</code> y corre igual.</b></p></div></div>
+<div class="card c-yel"><p class="paso">en el banco</p><p style="margin:0">En el banco, BDD casi siempre es Gherkin escrito por QA, no los tres amigos en una sala. Aun así vale: el valor real es la trazabilidad. <code>@CP-101</code> en el escenario es la fila del ALM (o de Xray).</p></div>
+</section>
+
+<section id="declarativo">
+<div class="card c-lav">
+<p class="paso">comprobación · 6:12</p>
+<h2>¿Cuál es <span class="acc">declarativo</span>?</h2>
+<div class="meta"><span class="chip">respondan a la vez: escriban sin enviar · «3, 2, 1, envíen»</span></div>
+<p>Declarativo = dice <b>qué</b> pasa en el negocio, no <b>cómo</b> se hace en la pantalla. Tres letras en el chat, en orden, al mismo tiempo.</p>
+<table class="clasif" id="t-decl"><tbody><tr data-ok="b"><td class="n">1</td><td><b>El «Cuando» del CP-101</b><p class="opciones"><b>a)</b> «Cuando hago clic en el botón Recargar»<br><b>b)</b> «Cuando recarga $10.000 a un celular Claro 3001234567»<br><b>c)</b> «Cuando lleno el campo Valor con 10000 y pulso Enter»</p><div class="exp" hidden><b>b)</b> Dice <b>qué hace el cliente</b>. Las otras dos cuentan la pantalla: con el rediseño de la S6 se caen, y el líder no las puede firmar.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr><tr data-ok="a"><td class="n">2</td><td><b>El «Entonces» del CP-103</b><p class="opciones"><b>a)</b> «Entonces ve el mensaje «El celular debe tener 10 dígitos y empezar por 3»»<br><b>b)</b> «Entonces aparece el div #error en rojo»<br><b>c)</b> «Entonces el sistema responde correctamente»</p><div class="exp" hidden><b>a)</b> Tiene el <b>dato exacto</b> que se verifica. La b es un localizador; la c no dice qué es «correctamente»: nadie la puede reprobar.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr><tr data-ok="c"><td class="n">3</td><td><b>El «Dado» de cualquier CP</b><p class="opciones"><b>a)</b> «Dado que abro el navegador, entro a /login, escribo ana y la clave, y pongo el código del SMS»<br><b>b)</b> «Dado que espero 5 segundos a que cargue la página»<br><b>c)</b> «Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros»</p><div class="exp" hidden><b>c)</b> La precondición es un <b>estado del negocio</b>. Cómo se llega a ese estado (login, SMS) lo sabe la capa de flujos; la espera fija nunca es un paso.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr></tbody></table><p><button type="button" class="grande" data-revisar="decl">Revisar</button><button type="button" data-reiniciar="decl">Reiniciar</button><span class="puntaje" id="p-decl" aria-live="polite"></span></p><p><button type="button" class="grande" data-revelar="decl-resp">Ver las respuestas</button></p><div id="decl-resp" hidden><p class="letras">b a c</p><ol class="boleto"><li><b>b</b> · Dice <b>qué hace el cliente</b>. Las otras dos cuentan la pantalla: con el rediseño de la S6 se caen, y el líder no las puede firmar.</li><li><b>a</b> · Tiene el <b>dato exacto</b> que se verifica. La b es un localizador; la c no dice qué es «correctamente»: nadie la puede reprobar.</li><li><b>c</b> · La precondición es un <b>estado del negocio</b>. Cómo se llega a ese estado (login, SMS) lo sabe la capa de flujos; la espera fija nunca es un paso.</li></ol></div>
+</div>
+</section>
+
+<section id="revisor">
+<div class="card c-cyan">
+<h2>Tu CP en Gherkin · <span class="acc">el revisor de escenarios</span></h2>
+<div class="meta"><span class="chip">mírame 6:20 · salas 6:25 · tramo 1 · 8 min</span><span class="chip">un CP por sala: CP-102 a CP-106</span></div>
+<p>Escriban el escenario de su CP en el cuadro y pulsen <b>Revisar</b>. El revisor señala lo típico: clics, localizadores, más de 5 pasos, falta de ID o un «Entonces» sin dato. Es una ayuda, no un juez: si el esperado es el correcto lo deciden ustedes.</p>
+<p class="criterio"><b>Terminaron cuando el revisor dice 0 errores.</b> En el chat: «Sala X: 0 errores». Un «hago clic en…» o un «botón» cuenta como error: se reescribe con lo que hace el cliente. Los avisos (más de 5 pasos, dos «Cuando») no frenan, pero se discuten.</p>
+</div>
+<div class="grid2 revisor">
+<div class="card">
+<p class="paso">su caso manual</p>
+<p><label for="cp-elegido"><b>Mi caso:</b></label> <select id="cp-elegido" class="cp-sel"><option value="CP-101">CP-101 · Recarga normal a celular (modelo)</option><option value="CP-102" selected>CP-102 · Recarga de más de $50.000 con código (Sala 1)</option><option value="CP-103">CP-103 · Celular de 6 dígitos (Sala 2)</option><option value="CP-104">CP-104 · Recarga por encima del máximo (Sala 3)</option><option value="CP-105">CP-105 · Límite diario de recargas (Sala 4)</option><option value="CP-106">CP-106 · El operador no responde (Sala 5)</option></select></p>
+<div class="cp-panel" data-cp="CP-101" hidden><div class="meta"><span class="chip">CP-101</span><span class="chip">el modelo</span></div><h3 style="margin-top:0">Recarga normal a celular</h3><p><b>Precondición:</b> Ana inició sesión. Saldo de Ahorros: $1.500.000.</p><ol class="pasos"><li>Ir a «Recargar celular».</li><li>Elegir Claro, escribir el celular 3001234567 y el valor $10.000.</li><li>Pulsar «Recargar».</li></ol><p><b>Resultado esperado:</b> Comprobante con «Recarga exitosa». El saldo de Ahorros queda en $1.490.000.</p><p class="nota">El título del escenario ya está en <code>especificaciones/recargas.feature</code>: «Una recarga normal da comprobante y descuenta de Ahorros».</p><p class="nota">Es el modelo: cárguenlo en el revisor con el botón «Cargar el CP-101 resuelto».</p></div><div class="cp-panel" data-cp="CP-102" hidden><div class="meta"><span class="chip">CP-102</span><span class="chip">Sala 1</span></div><h3 style="margin-top:0">Recarga de más de $50.000 con código</h3><p><b>Precondición:</b> Ana inició sesión. Saldo de Ahorros: $1.500.000.</p><ol class="pasos"><li>Ir a «Recargar celular».</li><li>Elegir Claro, escribir el celular 3001234567 y el valor $60.000.</li><li>Pulsar «Recargar».</li><li>Leer el código de seguridad en el buzón de SMS, escribirlo y pulsar «Confirmar recarga».</li></ol><p><b>Resultado esperado:</b> Antes de recargar, el banco pide el «Código de seguridad». Con el código del buzón: comprobante con «Valor: $60.000» y saldo de Ahorros en $1.440.000.</p><p class="nota">El título del escenario ya está en <code>especificaciones/recargas.feature</code>: «Una recarga de más de $50.000 pide código de seguridad».</p><p><button type="button" class="grande" data-revelar="sol-CP-102">Ver una solución del CP-102</button></p><div id="sol-CP-102" hidden><pre class="code">@CP-102
+Escenario: Una recarga de más de $50.000 pide código de seguridad
+  Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros
+  Cuando recarga $60.000 a un celular Claro 3001234567
+  Entonces el banco le pide el «Código de seguridad»
+  Cuando confirma con el código que le llegó por SMS
+  Entonces ve el comprobante con «Valor: $60.000»
+  Y su saldo de Ahorros queda en $1.440.000</pre><p class="nota">Es una solución posible, no la única. Pásenla por el revisor y compárenla con la suya.</p></div></div><div class="cp-panel" data-cp="CP-103" hidden><div class="meta"><span class="chip">CP-103</span><span class="chip">Sala 2</span></div><h3 style="margin-top:0">Celular de 6 dígitos</h3><p><b>Precondición:</b> Ana inició sesión. Saldo de Ahorros: $1.500.000.</p><ol class="pasos"><li>Ir a «Recargar celular».</li><li>Elegir Claro, escribir el celular 300123 y el valor $10.000.</li><li>Pulsar «Recargar».</li></ol><p><b>Resultado esperado:</b> Mensaje «El celular debe tener 10 dígitos y empezar por 3». El saldo no cambia: $1.500.000.</p><p class="nota">El título del escenario ya está en <code>especificaciones/recargas.feature</code>: «Un celular de 6 dígitos se rechaza».</p><p><button type="button" class="grande" data-revelar="sol-CP-103">Ver una solución del CP-103</button></p><div id="sol-CP-103" hidden><pre class="code">@CP-103
+Escenario: Un celular de 6 dígitos se rechaza
+  Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros
+  Cuando recarga $10.000 al celular 300123
+  Entonces ve el mensaje «El celular debe tener 10 dígitos y empezar por 3»
+  Y su saldo de Ahorros sigue en $1.500.000</pre><p class="nota">Es una solución posible, no la única. Pásenla por el revisor y compárenla con la suya.</p></div></div><div class="cp-panel" data-cp="CP-104" hidden><div class="meta"><span class="chip">CP-104</span><span class="chip">Sala 3</span></div><h3 style="margin-top:0">Recarga por encima del máximo</h3><p><b>Precondición:</b> Ana inició sesión. Saldo de Ahorros: $1.500.000.</p><ol class="pasos"><li>Ir a «Recargar celular».</li><li>Elegir Claro, escribir el celular 3001234567 y el valor $150.000.</li><li>Pulsar «Recargar».</li></ol><p><b>Resultado esperado:</b> Mensaje «La recarga máxima es $100.000». No pide código (el máximo se revisa antes). El saldo no cambia: $1.500.000.</p><p class="nota">El título del escenario ya está en <code>especificaciones/recargas.feature</code>: «Una recarga por encima del máximo se rechaza».</p><p><button type="button" class="grande" data-revelar="sol-CP-104">Ver una solución del CP-104</button></p><div id="sol-CP-104" hidden><pre class="code">@CP-104
+Escenario: Una recarga por encima del máximo se rechaza
+  Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros
+  Cuando recarga $150.000 a un celular Claro 3001234567
+  Entonces ve el mensaje «La recarga máxima es $100.000»
+  Y el banco no le pide el «Código de seguridad»
+  Y su saldo de Ahorros sigue en $1.500.000</pre><p class="nota">Es una solución posible, no la única. Pásenla por el revisor y compárenla con la suya.</p></div></div><div class="cp-panel" data-cp="CP-105" hidden><div class="meta"><span class="chip">CP-105</span><span class="chip">Sala 4</span></div><h3 style="margin-top:0">Límite diario de recargas</h3><p><b>Precondición:</b> Ana inició sesión y hoy ya recargó $200.000 (4 recargas de $50.000).</p><ol class="pasos"><li>Ir a «Recargar celular».</li><li>Elegir Claro, escribir el celular 3001234567 y el valor $1.000.</li><li>Pulsar «Recargar».</li></ol><p><b>Resultado esperado:</b> Mensaje «Superaste el límite diario de recargas ($200.000)».</p><p class="nota">El título del escenario ya está en <code>especificaciones/recargas.feature</code>: «Pasado el límite diario no se puede recargar».</p><p><button type="button" class="grande" data-revelar="sol-CP-105">Ver una solución del CP-105</button></p><div id="sol-CP-105" hidden><pre class="code">@CP-105
+Escenario: Pasado el límite diario no se puede recargar
+  Dado que Ana tiene la sesión abierta
+  Y hoy ya recargó $200.000
+  Cuando recarga $1.000 a un celular Claro 3001234567
+  Entonces ve el mensaje «Superaste el límite diario de recargas ($200.000)»</pre><p class="nota">Es una solución posible, no la única. Pásenla por el revisor y compárenla con la suya.</p></div></div><div class="cp-panel" data-cp="CP-106" hidden><div class="meta"><span class="chip">CP-106</span><span class="chip">Sala 5</span></div><h3 style="margin-top:0">El operador no responde</h3><p><b>Precondición:</b> Ana inició sesión. Saldo de Ahorros: $1.500.000.</p><ol class="pasos"><li>Ir a «Recargar celular».</li><li>Elegir Claro, escribir el celular de prueba 3000000504 (el operador no responde) y el valor $20.000.</li><li>Pulsar «Recargar».</li></ol><p><b>Resultado esperado:</b> Mensaje «El operador no responde. Intenta más tarde.». El cliente no pierde la plata: el saldo de Ahorros sigue en $1.500.000.</p><p class="nota">Hoy esta prueba sale <b>roja</b>: el Banco Demo descuenta el saldo igual (BUG-04). Es un rojo <b>del sistema</b>, no del script: el esperado sale de la regla, no de lo que hace la pantalla.</p><p class="nota">El título del escenario ya está en <code>especificaciones/recargas.feature</code>: «Si el operador no responde, el cliente no pierde la plata».</p><p><button type="button" class="grande" data-revelar="sol-CP-106">Ver una solución del CP-106</button></p><div id="sol-CP-106" hidden><pre class="code">@CP-106
+Escenario: Si el operador no responde, el cliente no pierde la plata
+  # Hoy sale ROJO en el Banco Demo (BUG-04): el saldo se descuenta igual. Es un rojo del SISTEMA:
+  # el esperado sale de la regla del negocio, no de lo que hace la pantalla.
+  Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros
+  Cuando recarga $20.000 al celular de prueba 3000000504, cuyo operador no responde
+  Entonces ve el mensaje «El operador no responde. Intenta más tarde.»
+  Y su saldo de Ahorros sigue en $1.500.000</pre><p class="nota">Es una solución posible, no la única. Pásenla por el revisor y compárenla con la suya.</p></div></div>
+</div>
+<div class="card">
+<p class="paso">su escenario</p>
+<label for="gherkin" class="nota">Escriban sobre la plantilla. Se guarda solo en este navegador.</label>
+<textarea id="gherkin" class="gherkin" spellcheck="false"># language: es
+Característica: &lt;lo que el cliente puede hacer&gt;
+  Como &lt;rol&gt;
+  quiero &lt;acción&gt;
+  para &lt;beneficio&gt;
+
+  @CP-&lt;ID del caso&gt;
+  Escenario: &lt;el resultado, en una frase&gt;
+    Dado que &lt;el estado del negocio antes: quién, con qué&gt;
+    Cuando &lt;lo que hace el cliente, con el dato&gt;
+    Entonces &lt;lo que ve o lo que pasa, con el dato exacto&gt;
+</textarea>
+<div class="barra">
+<button type="button" class="grande" id="revisar-gherkin">Revisar</button>
+<button type="button" id="reiniciar-gherkin">Reiniciar</button>
+<button type="button" id="copiar-gherkin">Copiar</button><span class="ok" id="gherkin-ok" aria-live="polite"></span>
+<button type="button" id="cargar-cp101">Cargar el CP-101 resuelto</button>
+<button type="button" id="deshacer" hidden>Deshacer</button>
+</div>
+<p class="nota" id="estado-revisor" aria-live="polite"></p>
+<div class="barra"><label for="sala"><b>Mi sala:</b></label> <select id="sala" class="cp-sel"><option value="1">Sala 1</option><option value="2">Sala 2</option><option value="3">Sala 3</option><option value="4">Sala 4</option><option value="5">Sala 5</option></select></div>
+<div class="resumen" id="resumen" hidden><span class="r-texto"></span><button type="button" id="copiar-resumen">Copiar para el chat</button><span class="ok" id="resumen-ok" aria-live="polite"></span></div>
+<div id="hallazgos"></div>
+</div>
+</div>
+<div class="card c-yel">
+<p class="paso">mírame · 6:20</p>
+<p style="margin-top:0">El instructor carga el CP-101 resuelto en el revisor (0 errores) y lo corre con <code>npx.cmd playwright test -g &quot;CP-101&quot; --project=recargas</code>: el reporte HTML muestra los cuatro pasos con el texto del escenario.</p>
+<p class="nota">Con el repo instalado, los <code>.feature</code> de <code>especificaciones/</code> se revisan con <code>npm.cmd run revisar-escenarios</code>: son las mismas reglas de esta página.</p>
+</div>
+</section>
+
+<section id="capas">
+<div class="card">
+<h2>Del escenario <span class="acc">a las capas</span></h2>
+<div class="meta"><span class="chip">6:40</span><span class="chip">el CP-101, paso a paso</span></div>
+<table class="apilar"><thead><tr><th>En el escenario</th><th>Capa</th><th>Pieza</th><th>En el código</th></tr></thead><tbody><tr><td><code>@CP-101</code> (la etiqueta)</td><td>Trazabilidad</td><td>El título y la etiqueta de la prueba</td><td class="cod"><code>{ tag: '@CP-101' }</code> · se corre con <code>-g "CP-101"</code></td></tr><tr><td><b>Dado</b> · la precondición</td><td><code>src/flujos/</code> + <code>src/config/</code></td><td>Un flujo o una tarea; usuario y clave del entorno</td><td class="cod"><code>await abrirConSesion(page, cliente, usuarios.ana)</code></td></tr><tr><td><b>Cuando</b> · lo que hace el cliente</td><td><code>src/screenplay/</code> → <code>src/paginas/</code></td><td>Una <b>tarea</b> que usa el Page Object por dentro</td><td class="cod"><code>await ana.intenta(RecargarDesdeLaPantalla.celular('3001234567').por(10_000))</code></td></tr><tr><td>El dato ($10.000, Claro)</td><td><code>src/datos/</code></td><td>La fábrica: solo se escribe lo que cambia</td><td class="cod"><code>fabricaDeRecargas.valida({ monto: 10_000 })</code></td></tr><tr><td><b>Entonces</b> · el esperado</td><td><code>tests/</code></td><td>Un <code>expect</code> por resultado; lo que está en pantalla, con una aserción que reintenta</td><td class="cod"><code>await expect(paginaRecargas.saldoDisponible).toHaveText('$1.490.000')</code></td></tr><tr><td>El ambiente (no aparece en el escenario)</td><td><code>src/config/</code></td><td>La configuración de la S6</td><td class="cod"><code>$env:AMBIENTE = 'qa'</code></td></tr></tbody></table>
+<p class="frase-grande">Un paso, una línea de código: si un paso necesita 10 líneas en la prueba, falta una tarea.</p>
+</div>
+<h3>Tres precisiones que afectan lo que construyen hoy</h3>
+<div class="grid3"><div class="card c-cyan"><p class="paso">precisión 1</p><h3 style="margin-top:0">El <code>name</code> de <code>getByRole</code></h3><p><code>name</code> es el <b>nombre accesible</b>. En un botón es su texto visible, salvo que tenga <code>aria-label</code>, que lo reemplaza. No es el atributo <code>name</code> del HTML. Y busca un pedazo, sin importar mayúsculas: «Recargar ahora» también pasa; <code>exact: true</code> exige el nombre completo.</p></div><div class="card c-lime"><p class="paso">precisión 2</p><h3 style="margin-top:0">Page Object y Screenplay</h3><p>Page Object organiza <b>pantallas</b>; Screenplay organiza <b>tareas</b>. No compiten: la tarea <code>RecargarDesdeLaPantalla</code> usa <code>PaginaRecargas</code> por dentro. Page Object es la base; Screenplay se suma cuando hay varios actores (el cliente y el aprobador) o el mismo paso corre por varios canales.</p></div><div class="card c-peach"><p class="paso">precisión 3</p><h3 style="margin-top:0">El <code>await</code> en cada paso</h3><p>Todo lo que le pide algo al navegador lleva <code>await</code>: las acciones y los <code>expect</code> sobre localizadores. El localizador <b>no</b> lleva <code>await</code>: no hace nada hasta que se usa. Sin <code>await</code>, el resultado depende de la suerte: a veces pasa (la acción alcanzó a terminar) y a veces falla con un mensaje que no dice la causa (<code>Test ended</code>, <code>session closed</code>). Una prueba que pasa por suerte no es evidencia.</p></div></div>
+</section>
+
+<section id="mapeo">
+<div class="card c-lime">
+<h2>Tu mapeo · <span class="acc">cada paso a su capa</span></h2>
+<div class="meta"><span class="chip">salas 6:57 · tramo 2 · 8 min</span></div>
+<p>Las 6 filas: los pasos de su escenario (Dado, Cuando, Entonces, Y) y, si sobran filas, el dato y el ambiente, como en la tabla del CP-101. Por cada fila: qué <b>capa</b> lo ejecuta y con qué <b>pieza</b> (la tarea, la página, la fábrica, el <code>expect</code>, la configuración).</p>
+<p class="criterio"><b>Terminaron cuando las 6 filas tienen capa y pieza.</b> En el chat: «Sala X: 6 de 6».</p>
+<div class="barra"><button type="button" id="traer-pasos">Traer los pasos de mi escenario</button><span class="ok" id="traer-ok" aria-live="polite"></span>
+<label for="sala-mapeo"><b>Mi sala:</b></label> <select id="sala-mapeo" class="cp-sel"><option value="1">Sala 1</option><option value="2">Sala 2</option><option value="3">Sala 3</option><option value="4">Sala 4</option><option value="5">Sala 5</option></select></div>
+<table class="mapeo" id="tabla-mapeo"><thead><tr><th></th><th>Paso de Gherkin</th><th>Capa</th><th>Pieza</th></tr></thead><tbody><tr><td class="n">1</td><td><input type="text" class="m-paso" aria-label="Fila 1: el paso de Gherkin" placeholder="el paso (Dado, Cuando, Entonces…), el dato o el ambiente"></td><td><select class="m-capa" aria-label="Fila 1: la capa"><option value="">capa…</option><option value="src/flujos/">src/flujos/</option><option value="src/screenplay/">src/screenplay/</option><option value="src/paginas/">src/paginas/</option><option value="src/datos/">src/datos/</option><option value="tests/ (expect)">tests/ (expect)</option><option value="src/config/">src/config/</option></select></td><td><input type="text" class="m-pieza" aria-label="Fila 1: la pieza" placeholder="la tarea, la página, la fábrica, el expect…"></td></tr><tr><td class="n">2</td><td><input type="text" class="m-paso" aria-label="Fila 2: el paso de Gherkin" placeholder="el paso (Dado, Cuando, Entonces…), el dato o el ambiente"></td><td><select class="m-capa" aria-label="Fila 2: la capa"><option value="">capa…</option><option value="src/flujos/">src/flujos/</option><option value="src/screenplay/">src/screenplay/</option><option value="src/paginas/">src/paginas/</option><option value="src/datos/">src/datos/</option><option value="tests/ (expect)">tests/ (expect)</option><option value="src/config/">src/config/</option></select></td><td><input type="text" class="m-pieza" aria-label="Fila 2: la pieza" placeholder="la tarea, la página, la fábrica, el expect…"></td></tr><tr><td class="n">3</td><td><input type="text" class="m-paso" aria-label="Fila 3: el paso de Gherkin" placeholder="el paso (Dado, Cuando, Entonces…), el dato o el ambiente"></td><td><select class="m-capa" aria-label="Fila 3: la capa"><option value="">capa…</option><option value="src/flujos/">src/flujos/</option><option value="src/screenplay/">src/screenplay/</option><option value="src/paginas/">src/paginas/</option><option value="src/datos/">src/datos/</option><option value="tests/ (expect)">tests/ (expect)</option><option value="src/config/">src/config/</option></select></td><td><input type="text" class="m-pieza" aria-label="Fila 3: la pieza" placeholder="la tarea, la página, la fábrica, el expect…"></td></tr><tr><td class="n">4</td><td><input type="text" class="m-paso" aria-label="Fila 4: el paso de Gherkin" placeholder="el paso (Dado, Cuando, Entonces…), el dato o el ambiente"></td><td><select class="m-capa" aria-label="Fila 4: la capa"><option value="">capa…</option><option value="src/flujos/">src/flujos/</option><option value="src/screenplay/">src/screenplay/</option><option value="src/paginas/">src/paginas/</option><option value="src/datos/">src/datos/</option><option value="tests/ (expect)">tests/ (expect)</option><option value="src/config/">src/config/</option></select></td><td><input type="text" class="m-pieza" aria-label="Fila 4: la pieza" placeholder="la tarea, la página, la fábrica, el expect…"></td></tr><tr><td class="n">5</td><td><input type="text" class="m-paso" aria-label="Fila 5: el paso de Gherkin" placeholder="el paso (Dado, Cuando, Entonces…), el dato o el ambiente"></td><td><select class="m-capa" aria-label="Fila 5: la capa"><option value="">capa…</option><option value="src/flujos/">src/flujos/</option><option value="src/screenplay/">src/screenplay/</option><option value="src/paginas/">src/paginas/</option><option value="src/datos/">src/datos/</option><option value="tests/ (expect)">tests/ (expect)</option><option value="src/config/">src/config/</option></select></td><td><input type="text" class="m-pieza" aria-label="Fila 5: la pieza" placeholder="la tarea, la página, la fábrica, el expect…"></td></tr><tr><td class="n">6</td><td><input type="text" class="m-paso" aria-label="Fila 6: el paso de Gherkin" placeholder="el paso (Dado, Cuando, Entonces…), el dato o el ambiente"></td><td><select class="m-capa" aria-label="Fila 6: la capa"><option value="">capa…</option><option value="src/flujos/">src/flujos/</option><option value="src/screenplay/">src/screenplay/</option><option value="src/paginas/">src/paginas/</option><option value="src/datos/">src/datos/</option><option value="tests/ (expect)">tests/ (expect)</option><option value="src/config/">src/config/</option></select></td><td><input type="text" class="m-pieza" aria-label="Fila 6: la pieza" placeholder="la tarea, la página, la fábrica, el expect…"></td></tr></tbody></table>
+<p class="contador" id="mapeo-cuenta" aria-live="polite"></p>
+<div class="barra"><button type="button" class="grande" id="copiar-mapeo">Copiar mi mapeo</button><span class="ok" id="mapeo-ok" aria-live="polite"></span>
+<button type="button" id="reiniciar-mapeo">Reiniciar</button></div>
+</div>
+</section>
+
+<section id="que-capa">
+<div class="card c-lav">
+<p class="paso">comprobación · 7:05</p>
+<h2>¿Qué capa <span class="acc">ejecuta este paso</span>?</h2>
+<div class="meta"><span class="chip">respondan a la vez: escriban sin enviar · «3, 2, 1, envíen»</span></div>
+<table class="clasif" id="t-capa"><tbody><tr data-ok="c"><td class="n">1</td><td><b>«Dado que hoy ya recargó $200.000»</b><p class="opciones"><b>a)</b> Un <code>expect</code> en la prueba<br><b>b)</b> El Page Object, haciendo 4 recargas por la pantalla<br><b>c)</b> Una preparación por API (<code>cliente.recargar(...)</code> 4 veces)</p><div class="exp" hidden><b>c)</b> Una precondición se <b>prepara</b>, no se prueba: por API es más rápido y más estable. Lo que se prueba es el «Cuando» de hoy.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr><tr data-ok="a"><td class="n">2</td><td><b>«Cuando recarga $60.000 a un celular Claro 3001234567»</b><p class="opciones"><b>a)</b> Una tarea (<code>RecargarDesdeLaPantalla</code>) que usa <code>PaginaRecargas</code> por dentro<br><b>b)</b> El <code>expect</code><br><b>c)</b> La configuración</p><div class="exp" hidden><b>a)</b> El «Cuando» es una <b>tarea</b>: el paso de negocio. Por dentro usa el Page Object, que sabe en qué campo va cada dato.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr><tr data-ok="b"><td class="n">3</td><td><b>«Y su saldo de Ahorros queda en $1.440.000»</b><p class="opciones"><b>a)</b> La fábrica de datos<br><b>b)</b> <code>await expect(paginaRecargas.saldoDisponible).toHaveText('$1.440.000')</code><br><b>c)</b> <code>page.waitForTimeout(2000)</code> y después leer el saldo</p><div class="exp" hidden><b>b)</b> El esperado es un <code>expect</code> que <b>reintenta solo</b>. La espera fija es adivinar; la fábrica da datos de entrada, no resultados.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr></tbody></table><p><button type="button" class="grande" data-revisar="capa">Revisar</button><button type="button" data-reiniciar="capa">Reiniciar</button><span class="puntaje" id="p-capa" aria-live="polite"></span></p><p><button type="button" class="grande" data-revelar="capa-resp">Ver las respuestas</button></p><div id="capa-resp" hidden><p class="letras">c a b</p><ol class="boleto"><li><b>c</b> · Una precondición se <b>prepara</b>, no se prueba: por API es más rápido y más estable. Lo que se prueba es el «Cuando» de hoy.</li><li><b>a</b> · El «Cuando» es una <b>tarea</b>: el paso de negocio. Por dentro usa el Page Object, que sabe en qué campo va cada dato.</li><li><b>b</b> · El esperado es un <code>expect</code> que <b>reintenta solo</b>. La espera fija es adivinar; la fábrica da datos de entrada, no resultados.</li></ol></div>
+</div>
+</section>
+
+<section id="rosetta">
+<div class="card">
+<p class="paso">solo lectura · 2 min</p>
+<h2>Rosetta · <span class="acc">lo de hoy en el framework del banco</span></h2>
+<p>Playwright + TypeScript a la izquierda; lo que van a heredar (Java + Selenium + Cucumber o Serenity) a la derecha.</p>
+<table class="apilar"><thead><tr><th>La pieza</th><th>Hoy (Playwright)</th><th>En el banco (Selenium · Cucumber · Serenity)</th></tr></thead><tbody><tr><td><b>El escenario</b></td><td><code>especificaciones/recargas.feature</code></td><td>El mismo <code>.feature</code>: Gherkin es igual en los dos</td></tr><tr><td><b>Un paso</b></td><td><code>test.step('Cuando recarga…')</code> (o <code>When(...)</code> con playwright-bdd)</td><td><code>@Cuando("recarga {int} a un celular {word} {string}")</code> en Cucumber-JVM</td></tr><tr><td><b>La tarea</b></td><td><code>ana.intenta(RecargarDesdeLaPantalla.celular(...))</code></td><td><code>actor.attemptsTo(Recargar.celular(...))</code> en Serenity Screenplay</td></tr><tr><td><b>La memoria del actor</b></td><td><code>actor.recuerda('clave', valor)</code> / <code>actor.recuerdo('clave')</code></td><td><code>actor.remember("clave", valor)</code> / <code>actor.recall("clave")</code></td></tr><tr><td><b>El Page Object</b></td><td><code>PaginaRecargas</code> con <code>getByRole('button', { name: 'Recargar' })</code></td><td><code>Target.the("botón Recargar").located(By...)</code> o un <code>PageObject</code> con <code>@FindBy</code></td></tr><tr><td><b>La espera</b></td><td>Automática, y <code>await expect(...)</code> reintenta</td><td><code>WebDriverWait</code> con <code>ExpectedConditions</code>. Nunca mezclar la espera implícita con la explícita</td></tr><tr><td><b>Las piezas de cada prueba</b></td><td>Los fixtures (<code>test.extend</code>)</td><td>Hooks <code>@Before</code> e inyección (PicoContainer o Spring)</td></tr><tr><td><b>El reporte</b></td><td>El reporte HTML de Playwright: pasos, trace, video</td><td>El reporte de Serenity o Allure</td></tr></tbody></table>
+<p class="frase-grande">Lo que se transfiere no es la sintaxis, es la idea: escenario de negocio, tarea con nombre, página que esconde el cómo, esperar un estado y nunca un tiempo.</p>
+</div>
+</section>
+
+<section id="proyecto">
+<div class="card c-peach">
+<h2>Tu proyecto · <span class="acc">empieza hoy</span></h2>
+<div class="meta"><span class="chip">7:15 · 20 min, fijo</span></div>
+<p class="frase-grande">¿Qué parte de mi caso de prueba le confío a una máquina, y con qué evidencia?</p>
+<p><b>Hoy:</b> Elegir la vía, escribir la frase del proyecto en el chat y el primer escenario de tu CP en el revisor.</p>
+<p>Las vías: <b>A</b> Mi framework · <b>B</b> Revisión del framework · <b>C</b> Diseño de un caso que no es web.</p>
+<p><b>Escríbanla en el chat:</b></p>
+<div class="frase">Pruebo <input id="fp-0" aria-label="Espacio 1 de la frase" placeholder="___">; el riesgo es <input id="fp-1" aria-label="Espacio 2 de la frase" placeholder="___">; mi framework lo cubre con <input id="fp-2" aria-label="Espacio 3 de la frase" placeholder="___">.</div>
+<p><button type="button" class="grande" id="copiar-frase" data-frase="Pruebo ___; el riesgo es ___; mi framework lo cubre con ___.">Copiar mi frase</button><span class="ok" id="frase-ok" aria-live="polite"></span></p>
+<p><a class="boton enorme" href="https://coach1-knotacademy.github.io/knot-qa-framework/proyecto.html">Abrir el kit de proyecto</a></p>
+<p class="nota">Las vías, la ficha, la matriz de trazabilidad, el criterio de listo y el plan por sesión están en el kit. Su escenario, en el <a href="#revisor">revisor</a> de arriba.</p>
+</div>
+</section>
+
+<section id="boleto">
+<div class="card c-lime">
+<h2>Boleto de salida</h2>
+<div class="meta"><span class="chip">7:35</span><span class="chip">respondan a la vez: escriban sin enviar · «3, 2, 1, envíen»</span></div>
+<p>Las cuatro letras en orden, en el chat, todos al mismo tiempo.</p>
+<table class="clasif" id="t-b7"><tbody><tr data-ok="b"><td class="n">1</td><td><b>¿Dónde va el ID del caso del ALM en Gherkin?</b><p class="opciones"><b>a)</b> en el título de la <code>Característica</code><br><b>b)</b> en una etiqueta <code>@CP-102</code> encima del <code>Escenario</code><br><b>c)</b> en un comentario al final del archivo</p><div class="exp" hidden><b>b)</b> La etiqueta viaja con el escenario hasta el reporte: es la fila de la matriz de trazabilidad.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr><tr data-ok="a"><td class="n">2</td><td><b>«Cuando hago clic en Recargar». ¿Qué tiene de malo?</b><p class="opciones"><b>a)</b> describe la pantalla y no el negocio: se rompe con el rediseño y negocio no lo puede firmar<br><b>b)</b> nada: es más claro<br><b>c)</b> le falta el <code>await</code></p><div class="exp" hidden><b>a)</b> Declarativo: «Cuando recarga $10.000 a un celular Claro». El clic es asunto del Page Object.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr><tr data-ok="c"><td class="n">3</td><td><b>El paso «Cuando recarga $10.000…», ¿qué lo ejecuta?</b><p class="opciones"><b>a)</b> el escenario llama directo a los localizadores<br><b>b)</b> el <code>expect</code><br><b>c)</b> una tarea de Screenplay que usa el Page Object por dentro</p><div class="exp" hidden><b>c)</b> Screenplay y Page Object se combinan: la tarea es el paso de negocio, la página sabe el cómo.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr><tr data-ok="b"><td class="n">4</td><td><b>¿Qué hace <code>test.step('Dado que…')</code>?</b><p class="opciones"><b>a)</b> lee el archivo <code>.feature</code> y lo ejecuta<br><b>b)</b> agrupa el código del paso y el reporte lo muestra con ese texto<br><b>c)</b> reemplaza el <code>await</code></p><div class="exp" hidden><b>b)</b> Es la forma de ejecutar Gherkin sin instalar nada más. Para leer el <code>.feature</code> directo están playwright-bdd o Cucumber.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr></tbody></table><p><button type="button" class="grande" data-revisar="b7">Revisar</button><button type="button" data-reiniciar="b7">Reiniciar</button><span class="puntaje" id="p-b7" aria-live="polite"></span></p><p><button type="button" class="grande" data-revelar="b7-resp">Ver las respuestas</button></p><div id="b7-resp" hidden><p class="letras">b a c b</p><ol class="boleto"><li><b>b</b> · La etiqueta viaja con el escenario hasta el reporte: es la fila de la matriz de trazabilidad.</li><li><b>a</b> · Declarativo: «Cuando recarga $10.000 a un celular Claro». El clic es asunto del Page Object.</li><li><b>c</b> · Screenplay y Page Object se combinan: la tarea es el paso de negocio, la página sabe el cómo.</li><li><b>b</b> · Es la forma de ejecutar Gherkin sin instalar nada más. Para leer el <code>.feature</code> directo están playwright-bdd o Cucumber.</li></ol></div>
+</div>
+</section>
+
+<section id="cierre">
+<div class="card">
+<h2>Cierre</h2>
+<div class="meta"><span class="chip">7:42</span></div>
+<p class="frase-grande">Hoy su CP quedó escrito para que lo firme negocio y lo ejecute el framework. El martes, ese mismo escenario con muchos datos: una prueba, diez casos.</p>
+<a class="boton" href="https://coach1-knotacademy.github.io/knot-qa-framework/laboratorio-s6.html">Laboratorio S6</a><a class="boton blanco" href="https://coach1-knotacademy.github.io/knot-qa-framework/plantilla.html">La plantilla</a><a class="boton blanco" href="https://coach1-knotacademy.github.io/knot-qa-framework/proyecto.html">Kit de proyecto</a><a class="boton blanco" href="https://coach1-knotacademy.github.io/knot-qa-framework/guia-estudio.html">Guía de estudio</a>
+<p class="nota">En el repo: la ficha de hoy en <code>docs/gherkin-y-bdd.md</code>, los escenarios en <code>especificaciones/recargas.feature</code> y la prueba en <code>tests/recargas/CP-101-gherkin.spec.ts</code>.</p>
+</div>
+</section>
+<p class="nota">Página de práctica del Bootcamp QA · Knot Academy. No carga nada de internet salvo las fuentes. Los datos son de práctica: nunca escriban aquí datos, pantallas ni casos del banco. Lo que escriban queda solo en este navegador.</p>
+</div>
+<script type="application/json" id="datos-s7">{"plantilla": "# language: es\nCaracterística: <lo que el cliente puede hacer>\n  Como <rol>\n  quiero <acción>\n  para <beneficio>\n\n  @CP-<ID del caso>\n  Escenario: <el resultado, en una frase>\n    Dado que <el estado del negocio antes: quién, con qué>\n    Cuando <lo que hace el cliente, con el dato>\n    Entonces <lo que ve o lo que pasa, con el dato exacto>\n", "cp101": "# language: es\nCaracterística: Recargar un celular desde la billetera\n  Como cliente del banco\n  quiero recargar un celular desde mi cuenta de Ahorros\n  para no tener que ir a un punto físico\n\n  @CP-101\n  Escenario: Una recarga normal da comprobante y descuenta de Ahorros\n    Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros\n    Cuando recarga $10.000 a un celular Claro 3001234567\n    Entonces ve el comprobante «Recarga exitosa»\n    Y su saldo de Ahorros queda en $1.490.000\n"}</script>
+<script>
+/*
+ * S7 · REVISOR DE ESCENARIOS: revisa un texto en Gherkin con las reglas de la lista de cotejo.
+ * Lo usan la página de actividades (en el navegador, sin instalar nada) y `npm run revisar-escenarios`.
+ * Es una ayuda, no un juez: señala lo típico (clics, localizadores, falta de ID, «Entonces» sin dato).
+ * Lo que no puede saber (si el esperado es el correcto) lo decide la persona.
+ */
+(function (raiz) {
+  const PALABRAS = /^\s*(Dado|Dada|Dados|Dadas|Cuando|Entonces|Y|E|Pero)\b/i;
+  const IMPERATIVO = /\b(clic|click|cliquea|pulsa|pulso|pulsar|presiona|oprime|da clic|hace clic|hago clic|selecciona|seleccionar|escribe en|digita|llena|llenar|ingresa en|botón|boton|campo|casilla|desplegable|scroll|navega a|abre la url|url)\b/i;
+  const TECNICO = /(getBy\w+|locator\(|xpath|css|#[a-z][\w-]*|\.[a-z][\w-]*\b(?=\s*(?:>|$))|data-testid|nth-child|\/\/[a-z]+\[|<[a-z]+)/i;
+  const ESPERA_FIJA = /\b(espera|esperar|esperamos)\s+\d+\s*(s|seg|segundos|ms|milisegundos)\b/i;
+  const CLAVE = /\b(clave|contraseña|password)\b\s*[:=«"']?\s*[\w@#$%&*]{4,}/i;
+  const DATO = /(\$\s?[\d.]+|\d|«[^»]+»|"[^"]+"|“[^”]+”)/;
+
+  function revisar(texto) {
+    const lineas = String(texto || '').split(/\r?\n/);
+    const escenarios = [];
+    let etiquetas = [];
+    let actual = null;
+    lineas.forEach((cruda, i) => {
+      const linea = cruda.trim();
+      if (!linea || linea.startsWith('#')) return;
+      if (linea.startsWith('@')) { etiquetas = etiquetas.concat(linea.split(/\s+/)); return; }
+      const esc = linea.match(/^(Escenario|Ejemplo|Esquema del escenario|Scenario|Scenario Outline)\s*:\s*(.*)$/i);
+      if (esc) {
+        actual = { titulo: esc[2] || '(sin título)', linea: i + 1, etiquetas, pasos: [] };
+        escenarios.push(actual);
+        etiquetas = [];
+        return;
+      }
+      if (/^(Característica|Caracteristica|Feature|Antecedentes|Background|Regla|Rule)\s*:/i.test(linea)) { actual = null; etiquetas = []; return; }
+      const p = linea.match(PALABRAS);
+      if (p) {
+        if (!actual) { actual = { titulo: '(pasos sin «Escenario:»)', linea: i + 1, etiquetas, pasos: [] }; escenarios.push(actual); etiquetas = []; }
+        actual.pasos.push({ tipo: p[1].toLowerCase(), texto: linea, linea: i + 1 });
+      }
+    });
+    return escenarios.map(evaluar);
+  }
+
+  function evaluar(e) {
+    const h = [];
+    const agregar = (nivel, texto) => h.push({ nivel, texto });
+    // El tipo real de Y/Pero es el del paso anterior.
+    let previo = null;
+    const pasos = e.pasos.map((p) => {
+      let tipo = p.tipo;
+      if (/^(y|e|pero)$/.test(tipo)) tipo = previo || 'dado';
+      if (/^dad/.test(tipo)) tipo = 'dado';
+      previo = tipo;
+      return Object.assign({}, p, { tipoReal: tipo });
+    });
+    const tiene = (t) => pasos.some((p) => p.tipoReal === t);
+
+    const id = e.etiquetas.find((t) => /^@CP-\d+/i.test(t));
+    if (id) agregar('ok', `Trazable: ${id} (el ID del caso va en la etiqueta)`);
+    else agregar('error', 'Sin ID del caso: agrega una etiqueta como @CP-102 encima de «Escenario:»');
+
+    if (!pasos.length) { agregar('error', 'Todavía no tiene pasos (Dado, Cuando, Entonces)'); return { titulo: e.titulo, linea: e.linea, hallazgos: h, pasos: 0 }; }
+    ['dado', 'cuando', 'entonces'].forEach((t) => {
+      if (!tiene(t)) agregar('error', `Falta un «${t[0].toUpperCase() + t.slice(1)}»`);
+    });
+    const orden = pasos.map((p) => p.tipoReal);
+    if (orden.indexOf('cuando') > -1 && orden.indexOf('dado') > orden.indexOf('cuando')) agregar('aviso', 'El «Dado» va antes del «Cuando»: primero la precondición');
+    if (orden.filter((t, i) => t === 'cuando' && orden[i - 1] !== 'cuando').length > 1) agregar('aviso', 'Tiene más de un «Cuando»: ¿son dos escenarios? Si el caso lo pide (pedir código y confirmar), está bien');
+    if (pasos.length > 5) agregar('aviso', `Tiene ${pasos.length} pasos: con más de 5 suele estar contando la pantalla y no el negocio`);
+
+    pasos.forEach((p) => {
+      if (TECNICO.test(p.texto)) agregar('error', `Línea ${p.linea}: tiene un localizador o código («${p.texto}»). El escenario es del negocio; el localizador vive en el Page Object`);
+      else if (IMPERATIVO.test(p.texto)) agregar('error', `Línea ${p.linea}: describe la pantalla («${p.texto}»). Di QUÉ hace el cliente, no DÓNDE hace clic: «Cuando recarga $10.000…». El clic es asunto del Page Object`);
+      if (ESPERA_FIJA.test(p.texto)) agregar('error', `Línea ${p.linea}: una espera fija no es un paso del negocio. Playwright espera solo`);
+      if (CLAVE.test(p.texto)) agregar('error', `Línea ${p.linea}: la clave nunca va escrita en el escenario (sale del entorno)`);
+      if (p.tipoReal === 'entonces' && !DATO.test(p.texto)) agregar('aviso', `Línea ${p.linea}: este «Entonces» no tiene un dato que se pueda verificar (un monto, un texto entre «comillas»)`);
+    });
+    if (!h.some((x) => x.nivel !== 'ok')) agregar('ok', 'Declarativo, con Dado, Cuando y Entonces, y un esperado verificable');
+    return { titulo: e.titulo, linea: e.linea, hallazgos: h, pasos: pasos.length };
+  }
+
+  const api = { revisar };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else raiz.RevisorDeEscenarios = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+(function () {
+  function guardar(clave, valor) { try { localStorage.setItem(clave, valor); } catch (e) {} }
+  function recuperar(clave) { try { return localStorage.getItem(clave); } catch (e) { return null; } }
+  function borrar(clave) { try { localStorage.removeItem(clave); } catch (e) {} }
+  var DATOS = JSON.parse(document.getElementById('datos-s7').textContent);
+
+  // Clasificadores (los mismos de la S5 y la S6), ahora con Reiniciar
+  document.querySelectorAll('table.clasif').forEach(function (tabla) {
+    tabla.querySelectorAll('tr').forEach(function (tr) {
+      tr.querySelectorAll('button').forEach(function (b) {
+        b.setAttribute('aria-pressed', 'false');
+        b.addEventListener('click', function () {
+          tr.querySelectorAll('button').forEach(function (x) { x.classList.remove('sel'); x.setAttribute('aria-pressed', 'false'); });
+          b.classList.add('sel'); b.setAttribute('aria-pressed', 'true'); tr.classList.remove('bien', 'mal');
+        });
+      });
+    });
+  });
+  document.querySelectorAll('[data-revisar]').forEach(function (boton) {
+    boton.addEventListener('click', function () {
+      var id = boton.getAttribute('data-revisar');
+      var filas = document.querySelectorAll('#t-' + id + ' tr');
+      var bien = 0, marcadas = 0;
+      filas.forEach(function (tr) {
+        var sel = tr.querySelector('button.sel');
+        tr.classList.remove('bien', 'mal');
+        tr.querySelector('.exp').hidden = false;
+        if (!sel) return;
+        marcadas++;
+        if (sel.getAttribute('data-v') === tr.getAttribute('data-ok')) { bien++; tr.classList.add('bien'); } else tr.classList.add('mal');
+      });
+      document.getElementById('p-' + id).textContent = bien + ' de ' + filas.length + ' bien' + (marcadas < filas.length ? ' (faltan ' + (filas.length - marcadas) + ' por marcar)' : '');
+    });
+  });
+  document.querySelectorAll('[data-reiniciar]').forEach(function (boton) {
+    boton.addEventListener('click', function () {
+      var id = boton.getAttribute('data-reiniciar');
+      document.querySelectorAll('#t-' + id + ' tr').forEach(function (tr) {
+        tr.classList.remove('bien', 'mal'); tr.querySelector('.exp').hidden = true;
+        tr.querySelectorAll('button').forEach(function (x) { x.classList.remove('sel'); x.setAttribute('aria-pressed', 'false'); });
+      });
+      document.getElementById('p-' + id).textContent = '';
+      var resp = document.getElementById(id + '-resp'), b = document.querySelector('[data-revelar="' + id + '-resp"]');
+      if (resp && b) { resp.hidden = true; b.hidden = false; }
+    });
+  });
+  document.querySelectorAll('[data-revelar]').forEach(function (boton) {
+    boton.addEventListener('click', function () { document.getElementById(boton.getAttribute('data-revelar')).hidden = false; boton.hidden = true; });
+  });
+
+  function copiar(texto, aviso) {
+    var listo = function () { if (aviso) { aviso.textContent = 'Copiado'; setTimeout(function () { aviso.textContent = ''; }, 2500); } };
+    var aMano = function () {
+      var t = document.createElement('textarea'); t.value = texto; document.body.appendChild(t); t.select();
+      try { document.execCommand('copy'); } catch (e) {} document.body.removeChild(t); listo();
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(texto).then(listo, aMano); else aMano();
+  }
+
+  // ---------- El revisor de escenarios ----------
+  var area = document.getElementById('gherkin'), salida = document.getElementById('hallazgos');
+  var resumen = document.getElementById('resumen'), sala = document.getElementById('sala'), estado = document.getElementById('estado-revisor');
+  var deshacer = document.getElementById('deshacer'), respaldo = null, ultimo = '';
+  var borrador = recuperar('s7-borrador');
+  area.value = borrador !== null && borrador.trim() ? borrador : DATOS.plantilla;
+  var guardado = recuperar('s7-sala'); if (guardado) sala.value = guardado;
+  area.addEventListener('input', function () { guardar('s7-borrador', area.value); });
+  sala.addEventListener('change', function () { guardar('s7-sala', sala.value); pintarResumen(); });
+
+  var NOMBRE = { ok: 'ok', aviso: 'aviso', error: 'error' };
+  var cuenta = null;
+  function pintarResumen() {
+    if (!cuenta) return;
+    var texto = 'Sala ' + sala.value + ': ' + cuenta.errores + (cuenta.errores === 1 ? ' error' : ' errores');
+    ultimo = texto + (cuenta.avisos ? ' (' + cuenta.avisos + (cuenta.avisos === 1 ? ' aviso' : ' avisos') + ')' : '');
+    resumen.hidden = false;
+    resumen.className = 'resumen ' + (cuenta.errores ? 'r-error' : cuenta.avisos ? 'r-aviso' : 'r-ok');
+    resumen.querySelector('.r-texto').textContent = (cuenta.errores ? '✗ ' : '✓ ') + ultimo;
+  }
+  function revisarTexto() {
+    var resultado = window.RevisorDeEscenarios.revisar(area.value);
+    salida.textContent = '';
+    cuenta = { errores: 0, avisos: 0 };
+    if (!resultado.length) {
+      var p = document.createElement('p'); p.className = 'escenario h-error';
+      p.textContent = 'No encontré ningún «Escenario:». Escriban al menos uno, con su etiqueta @CP-xxx encima.';
+      salida.appendChild(p); cuenta.errores = 1;
+    }
+    resultado.forEach(function (e) {
+      var caja = document.createElement('div'); caja.className = 'escenario';
+      var h = document.createElement('h4'); h.textContent = 'Escenario (línea ' + e.linea + '): ' + e.titulo; caja.appendChild(h);
+      var ul = document.createElement('ul'); ul.className = 'hallazgos';
+      e.hallazgos.forEach(function (x) {
+        if (x.nivel === 'error') cuenta.errores++; if (x.nivel === 'aviso') cuenta.avisos++;
+        var li = document.createElement('li'); li.className = 'h-' + x.nivel;
+        var n = document.createElement('span'); n.className = 'nivel'; n.textContent = (x.nivel === 'ok' ? '✓ ' : x.nivel === 'aviso' ? '! ' : '✗ ') + NOMBRE[x.nivel];
+        var t = document.createElement('span'); t.className = 't'; t.textContent = x.texto;
+        li.appendChild(n); li.appendChild(t); ul.appendChild(li);
+      });
+      caja.appendChild(ul); salida.appendChild(caja);
+    });
+    pintarResumen();
+    estado.textContent = 'Revisado: ' + resultado.length + (resultado.length === 1 ? ' escenario' : ' escenarios') + ', ' + cuenta.errores + ' errores y ' + cuenta.avisos + ' avisos.';
+  }
+  function limpiarHallazgos() { salida.textContent = ''; resumen.hidden = true; cuenta = null; estado.textContent = ''; }
+  function reemplazar(texto, mensaje) {
+    respaldo = area.value; area.value = texto; guardar('s7-borrador', texto);
+    deshacer.hidden = respaldo === texto; limpiarHallazgos(); estado.textContent = mensaje;
+  }
+  document.getElementById('revisar-gherkin').addEventListener('click', revisarTexto);
+  document.getElementById('reiniciar-gherkin').addEventListener('click', function () {
+    reemplazar(DATOS.plantilla, 'Volvió la plantilla. Si fue sin querer: «Deshacer».');
+  });
+  document.getElementById('cargar-cp101').addEventListener('click', function () {
+    reemplazar(DATOS.cp101, 'Cargado el CP-101 resuelto. Pulsen «Revisar». Para volver a lo suyo: «Deshacer».');
+  });
+  deshacer.addEventListener('click', function () {
+    if (respaldo === null) return;
+    area.value = respaldo; guardar('s7-borrador', respaldo); respaldo = null; deshacer.hidden = true; limpiarHallazgos();
+    estado.textContent = 'Volvió su borrador.';
+  });
+  document.getElementById('copiar-gherkin').addEventListener('click', function () { copiar(area.value, document.getElementById('gherkin-ok')); });
+  document.getElementById('copiar-resumen').addEventListener('click', function () { copiar(ultimo, document.getElementById('resumen-ok')); });
+
+  // El CP manual de la sala
+  var cpSel = document.getElementById('cp-elegido');
+  function mostrarCp() { document.querySelectorAll('.cp-panel').forEach(function (d) { d.hidden = d.getAttribute('data-cp') !== cpSel.value; }); guardar('s7-cp', cpSel.value); }
+  var cpGuardado = recuperar('s7-cp'); if (cpGuardado && cpSel.querySelector('option[value="' + cpGuardado + '"]')) cpSel.value = cpGuardado;
+  cpSel.addEventListener('change', mostrarCp); mostrarCp();
+
+  // ---------- Tu mapeo ----------
+  var filas = Array.prototype.slice.call(document.querySelectorAll('#tabla-mapeo tbody tr'));
+  var cuentaMapeo = document.getElementById('mapeo-cuenta'), salaMapeo = document.getElementById('sala-mapeo');
+  function leerMapeo() { return filas.map(function (tr) { return [tr.querySelector('.m-paso').value, tr.querySelector('.m-capa').value, tr.querySelector('.m-pieza').value]; }); }
+  function contarMapeo() {
+    var n = leerMapeo().filter(function (f) { return f[0].trim() && f[1] && f[2].trim(); }).length;
+    cuentaMapeo.textContent = 'Sala ' + salaMapeo.value + ': ' + n + ' de ' + filas.length;
+    return n;
+  }
+  function guardarMapeo() { guardar('s7-mapeo', JSON.stringify(leerMapeo())); contarMapeo(); }
+  try {
+    var m = JSON.parse(recuperar('s7-mapeo') || 'null');
+    if (m) filas.forEach(function (tr, i) { if (!m[i]) return; tr.querySelector('.m-paso').value = m[i][0] || ''; tr.querySelector('.m-capa').value = m[i][1] || ''; tr.querySelector('.m-pieza').value = m[i][2] || ''; });
+  } catch (e) {}
+  if (guardado) salaMapeo.value = guardado;
+  filas.forEach(function (tr) { tr.querySelectorAll('input, select').forEach(function (c) { c.addEventListener('input', guardarMapeo); c.addEventListener('change', guardarMapeo); }); });
+  salaMapeo.addEventListener('change', function () { guardar('s7-sala', salaMapeo.value); contarMapeo(); });
+  document.getElementById('traer-pasos').addEventListener('click', function () {
+    var pasos = area.value.split(/\r?\n/).map(function (l) { return l.trim(); })
+      .filter(function (l) { return /^(Dado|Dada|Dados|Dadas|Cuando|Entonces|Y|E|Pero)\b/.test(l); });
+    var aviso = document.getElementById('traer-ok');
+    if (!pasos.length) { aviso.textContent = 'No hay pasos en el revisor todavía'; return; }
+    filas.forEach(function (tr, i) { if (pasos[i]) tr.querySelector('.m-paso').value = pasos[i]; });
+    aviso.textContent = pasos.length > filas.length ? 'Traje los primeros ' + filas.length + ' pasos' : 'Traje ' + pasos.length + ' pasos';
+    guardarMapeo();
+  });
+  document.getElementById('reiniciar-mapeo').addEventListener('click', function () {
+    filas.forEach(function (tr) { tr.querySelector('.m-paso').value = ''; tr.querySelector('.m-capa').value = ''; tr.querySelector('.m-pieza').value = ''; });
+    borrar('s7-mapeo'); contarMapeo(); document.getElementById('traer-ok').textContent = '';
+  });
+  document.getElementById('copiar-mapeo').addEventListener('click', function () {
+    var lineas = [cuentaMapeo.textContent].concat(leerMapeo().map(function (f, i) { return (i + 1) + '. ' + (f[0].trim() || '___') + ' → ' + (f[1] || '___') + ' → ' + (f[2].trim() || '___'); }));
+    copiar(lineas.join('\n'), document.getElementById('mapeo-ok'));
+  });
+  contarMapeo();
+
+  // ---------- La frase del proyecto ----------
+  var fp = document.querySelectorAll('[id^="fp-"]'), plantillaFrase = document.getElementById('copiar-frase').getAttribute('data-frase');
+  document.getElementById('copiar-frase').addEventListener('click', function () {
+    var i = 0, texto = plantillaFrase.replace(/___/g, function () { var v = fp[i++]; return (v && v.value.trim()) || '___'; });
+    copiar(texto, document.getElementById('frase-ok'));
+  });
+})();
+</script>
+</body>
+</html>

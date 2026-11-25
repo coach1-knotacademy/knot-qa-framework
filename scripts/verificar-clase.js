@@ -62,6 +62,9 @@ const ESTADOS = {
   // S6 · Llega con los retos de la S5 ya resueltos (como la S5 llegó con los de la S4).
   's06-inicio': { pendientes: { S3: [], S4: [], S5: [], S6: [1, 2] }, retosS04: true, retosS05: true, retosS06: true, confirmados: TODOS },
   's06-solucion': { pendientes: { S3: [], S4: [], S5: [], S6: [] }, retosS04: true, retosS05: true, retosS06: true, confirmados: TODOS },
+  // S7 · Gherkin no agrega retos de código (la práctica es el escenario y el mapeo): las pruebas quedan como en la S6.
+  's07-inicio': { pendientes: { S3: [], S4: [], S5: [], S6: [1, 2] }, retosS04: true, retosS05: true, retosS06: true, confirmados: TODOS },
+  's07-solucion': { pendientes: { S3: [], S4: [], S5: [], S6: [1, 2] }, retosS04: true, retosS05: true, retosS06: true, confirmados: TODOS },
 };
 
 // ---------- Argumentos ----------

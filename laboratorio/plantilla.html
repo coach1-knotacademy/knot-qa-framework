@@ -237,6 +237,8 @@ test(&#x27;CP-101 · una recarga de $10.000 a Claro da comprobante y descuenta d
 <div class="card"><pre class="arbol"><b>plantilla/</b>
 <span class="rama">├── </span><b>.github/</b>
 <span class="rama">│   └── </span><a href="#f-github-copilot-instructions-md">copilot-instructions.md</a>
+<span class="rama">├── </span><b>especificaciones/</b>
+<span class="rama">│   └── </span><a href="#f-especificaciones-cp-101-feature">CP-101.feature</a>
 <span class="rama">├── </span><b>src/</b>
 <span class="rama">│   ├── </span><b>config/</b>
 <span class="rama">│   │   ├── </span><a href="#f-src-config-ambientes-ts">ambientes.ts</a>
@@ -260,7 +262,7 @@ test(&#x27;CP-101 · una recarga de $10.000 a Claro da comprobante y descuenta d
 <span class="rama">├── </span><a href="#f-readme-md">README.md</a>
 <span class="rama">└── </span><a href="#f-tsconfig-json">tsconfig.json</a></pre></div>
 <article class="card archivo" id="f-readme-md">
-<div class="arch-cab"><div><h3><code>plantilla/README.md</code></h3><p class="nota">Cómo usarla, paso a paso · 60 líneas</p></div>
+<div class="arch-cab"><div><h3><code>plantilla/README.md</code></h3><p class="nota">Cómo usarla, paso a paso · 62 líneas</p></div>
 <button type="button" class="copiar" data-copiar="c-f-readme-md">Copiar</button></div>
 <pre class="code prosa" id="c-f-readme-md"># Mi framework de QA · plantilla (S6)
 
@@ -274,7 +276,8 @@ src/paginas/PaginaRecargas.ts  un Page Object de ejemplo, con localizadores por 
 src/datos/fabricaDeRecargas.ts los datos de prueba, con nombres de negocio
 src/flujos/sesion.ts         abrir la sesión sin pasar por las pantallas de ingreso
 src/soporte/fixtures.ts      las piezas que recibe cada prueba
-tests/CP-101-recarga.spec.ts una prueba que sale de un caso manual (el ID va en el nombre)
+especificaciones/CP-101.feature  el mismo caso en Gherkin (S7): lo que firma negocio
+tests/CP-101-recarga.spec.ts una prueba que sale de un caso manual (el ID va en el nombre; cada paso es un test.step)
 PROMPT.md                    el prompt para pedirle a tu Copilot una prueba nueva con esta forma
 ```
 
@@ -317,6 +320,7 @@ npm.cmd test
 
 ## Para agregar tu caso
 
+0. **Primero el escenario** (S7): escribe tu CP en Gherkin en `especificaciones/` (copia `CP-101.feature`), sin clics ni localizadores, con la etiqueta `@CP-xxx`. Revísalo con el revisor de escenarios de las [actividades de la S7](https://coach1-knotacademy.github.io/knot-qa-framework/actividades-s7.html).
 1. Pide la prueba con [`PROMPT.md`](PROMPT.md) (o escríbela tú con la misma forma que `CP-101`).
 2. Antes de correrla, revísala con la lista de cotejo: localizadores por rol o etiqueta, URL desde `entorno`, sin claves, sin `waitForTimeout`, datos desde la fábrica, esperado desde la regla y el ID del caso en el nombre.
 3. Córrela sola: `npx.cmd playwright test -g &quot;CP-102&quot;`.
@@ -704,8 +708,30 @@ export const test = base.extend&lt;Piezas&gt;({
 export { expect } from &#x27;@playwright/test&#x27;;
 </pre>
 </article>
+<article class="card archivo" id="f-especificaciones-cp-101-feature">
+<div class="arch-cab"><div><h3><code>plantilla/especificaciones/CP-101.feature</code></h3><p class="nota">El mismo caso en Gherkin (S7): lo que firma negocio, sin clics ni localizadores · 17 líneas</p></div>
+<button type="button" class="copiar" data-copiar="c-f-especificaciones-cp-101-feature">Copiar</button></div>
+<pre class="code" id="c-f-especificaciones-cp-101-feature"># language: es
+#
+# Tu CP en Gherkin (S7). Primero el escenario, después la prueba: cada paso es un test.step con el mismo texto
+# (mira tests/CP-101-recarga.spec.ts). Sin clics ni localizadores: así lo firma negocio y no cambia con la pantalla.
+# Revísalo en las actividades de la S7 (revisor de escenarios) antes de automatizarlo.
+
+Característica: Recargar un celular desde la billetera
+  Como cliente del banco
+  quiero recargar un celular desde mi cuenta de Ahorros
+  para no tener que ir a un punto físico
+
+  @CP-101
+  Escenario: Una recarga normal da comprobante y descuenta de Ahorros
+    Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros
+    Cuando recarga $10.000 a un celular Claro 3001234567
+    Entonces ve el comprobante «Recarga exitosa»
+    Y su saldo de Ahorros queda en $1.490.000
+</pre>
+</article>
 <article class="card archivo" id="f-tests-cp-101-recarga-spec-ts">
-<div class="arch-cab"><div><h3><code>plantilla/tests/CP-101-recarga.spec.ts</code></h3><p class="nota">Una prueba que sale de un caso manual (el ID va en el nombre) · 26 líneas</p></div>
+<div class="arch-cab"><div><h3><code>plantilla/tests/CP-101-recarga.spec.ts</code></h3><p class="nota">Una prueba que sale de un caso manual (el ID va en el nombre; cada paso es un test.step) · 37 líneas</p></div>
 <button type="button" class="copiar" data-copiar="c-f-tests-cp-101-recarga-spec-ts">Copiar</button></div>
 <pre class="code" id="c-f-tests-cp-101-recarga-spec-ts">/**
  * CP-101 · Recarga normal a celular (Banco Demo).
@@ -723,15 +749,26 @@ test.beforeEach(async ({ page }) =&gt; {
   await abrirConSesion(page);
 });
 
-test(&#x27;CP-101 · una recarga de $10.000 a Claro da comprobante y descuenta de Ahorros&#x27;, async ({ paginaRecargas }) =&gt; {
-  await paginaRecargas.abrir();
-  await expect(paginaRecargas.saldoDisponible).toHaveText(&#x27;$1.500.000&#x27;);
+// S7 · Cada paso del escenario (especificaciones/CP-101.feature) es un test.step con el mismo texto:
+// el reporte HTML muestra el escenario paso a paso, como lo leería negocio.
+test(&#x27;CP-101 · una recarga de $10.000 a Claro da comprobante y descuenta de Ahorros&#x27;, { tag: &#x27;@CP-101&#x27; }, async ({ paginaRecargas }) =&gt; {
+  await test.step(&#x27;Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros&#x27;, async () =&gt; {
+    await paginaRecargas.abrir();
+    await expect(paginaRecargas.saldoDisponible).toHaveText(&#x27;$1.500.000&#x27;);
+  });
 
-  await paginaRecargas.recargar(fabricaDeRecargas.valida());
+  await test.step(&#x27;Cuando recarga $10.000 a un celular Claro 3001234567&#x27;, async () =&gt; {
+    await paginaRecargas.recargar(fabricaDeRecargas.valida());
+  });
 
-  expect(await paginaRecargas.esperarResultado()).toContain(&#x27;Recarga exitosa&#x27;);
-  // Esperado de la regla, no de la pantalla: la recarga se descuenta completa de Ahorros (1.500.000 − 10.000).
-  await expect(paginaRecargas.saldoDisponible).toHaveText(&#x27;$1.490.000&#x27;);
+  await test.step(&#x27;Entonces ve el comprobante «Recarga exitosa»&#x27;, async () =&gt; {
+    expect(await paginaRecargas.esperarResultado()).toContain(&#x27;Recarga exitosa&#x27;);
+  });
+
+  await test.step(&#x27;Y su saldo de Ahorros queda en $1.490.000&#x27;, async () =&gt; {
+    // Esperado de la regla, no de la pantalla: la recarga se descuenta completa de Ahorros (1.500.000 − 10.000).
+    await expect(paginaRecargas.saldoDisponible).toHaveText(&#x27;$1.490.000&#x27;);
+  });
 });
 </pre>
 </article>

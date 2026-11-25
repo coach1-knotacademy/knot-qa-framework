@@ -18,7 +18,7 @@ IGNORAR = {'node_modules', 'test-results', 'playwright-report', 'blob-report', '
 # El orden en que conviene leerlos: primero cómo usarla, después las capas de abajo hacia arriba, al final la prueba.
 ORDEN = ['README.md', 'package.json', 'playwright.config.ts', 'tsconfig.json', '.gitignore', '.env.ejemplo',
          'src/config/ambientes.ts', 'src/config/entorno.ts', 'src/paginas/PaginaBase.ts', 'src/paginas/PaginaRecargas.ts',
-         'src/datos/fabricaDeRecargas.ts', 'src/flujos/sesion.ts', 'src/soporte/fixtures.ts', 'tests/CP-101-recarga.spec.ts',
+         'src/datos/fabricaDeRecargas.ts', 'src/flujos/sesion.ts', 'src/soporte/fixtures.ts', 'especificaciones/CP-101.feature', 'tests/CP-101-recarga.spec.ts',
          '.github/copilot-instructions.md', 'PROMPT.md']
 QUE_ES = {
   'README.md': 'Cómo usarla, paso a paso',
@@ -34,7 +34,8 @@ QUE_ES = {
   'src/datos/fabricaDeRecargas.ts': 'Los datos de prueba, con nombres de negocio',
   'src/flujos/sesion.ts': 'Abrir la sesión sin pasar por las pantallas de ingreso',
   'src/soporte/fixtures.ts': 'Las piezas que recibe cada prueba',
-  'tests/CP-101-recarga.spec.ts': 'Una prueba que sale de un caso manual (el ID va en el nombre)',
+  'especificaciones/CP-101.feature': 'El mismo caso en Gherkin (S7): lo que firma negocio, sin clics ni localizadores',
+  'tests/CP-101-recarga.spec.ts': 'Una prueba que sale de un caso manual (el ID va en el nombre; cada paso es un test.step)',
   '.github/copilot-instructions.md': 'Las reglas que tu Copilot lee solo, en este proyecto',
   'PROMPT.md': 'El prompt para pedirle a tu Copilot una prueba nueva',
 }

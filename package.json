@@ -21,7 +21,8 @@
     "parabank:ver": "playwright test --project=parabank --workers=1 --headed",
     "verificar-clase": "node scripts/verificar-clase.js",
     "reporte": "playwright show-report",
-    "tipos": "tsc --noEmit"
+    "tipos": "tsc --noEmit",
+    "revisar-escenarios": "node scripts/revisar-escenarios.js"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",

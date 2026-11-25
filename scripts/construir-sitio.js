@@ -30,9 +30,13 @@ if (fs.existsSync(path.join('laboratorio', 'practica_extra_S4.html'))) fs.copyFi
 for (const [origen, destino] of [
   ['laboratorio_S5.html', 'laboratorio-s5.html'], ['actividades_S5.html', 'actividades-s5.html'],
   ['laboratorio_S6.html', 'laboratorio-s6.html'], ['actividades_S6.html', 'actividades-s6.html'], ['plantilla.html', 'plantilla.html'],
+  // S7 · Gherkin con el revisor de escenarios, el kit del proyecto final y la guía de estudio (repaso opcional).
+  ['actividades_S7.html', 'actividades-s7.html'], ['proyecto.html', 'proyecto.html'], ['guia_estudio.html', 'guia-estudio.html'],
 ]) {
   if (fs.existsSync(path.join('laboratorio', origen))) fs.copyFileSync(path.join('laboratorio', origen), path.join(SALIDA, destino));
 }
+// Las presentaciones de cada sesión en PDF, sin las notas del instructor (las enlaza la guía de estudio).
+if (fs.existsSync('presentaciones')) fs.cpSync('presentaciones', path.join(SALIDA, 'presentaciones'), { recursive: true });
 // S6 · Dos "ambientes" de práctica (QA y UAT) como archivos fijos: el mismo pedido de Postman, datos distintos.
 // Sin servidor, sin datos reales y sin límite de peticiones. Y la colección y los ambientes para importar en Postman.
 fs.cpSync(path.join('banco-demo', 'ambientes'), path.join(SALIDA, 'ambientes'), { recursive: true });

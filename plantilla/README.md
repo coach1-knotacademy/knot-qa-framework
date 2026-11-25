@@ -10,7 +10,8 @@ src/paginas/PaginaRecargas.ts  un Page Object de ejemplo, con localizadores por 
 src/datos/fabricaDeRecargas.ts los datos de prueba, con nombres de negocio
 src/flujos/sesion.ts         abrir la sesión sin pasar por las pantallas de ingreso
 src/soporte/fixtures.ts      las piezas que recibe cada prueba
-tests/CP-101-recarga.spec.ts una prueba que sale de un caso manual (el ID va en el nombre)
+especificaciones/CP-101.feature  el mismo caso en Gherkin (S7): lo que firma negocio
+tests/CP-101-recarga.spec.ts una prueba que sale de un caso manual (el ID va en el nombre; cada paso es un test.step)
 PROMPT.md                    el prompt para pedirle a tu Copilot una prueba nueva con esta forma
 ```
 
@@ -53,6 +54,7 @@ npm.cmd test
 
 ## Para agregar tu caso
 
+0. **Primero el escenario** (S7): escribe tu CP en Gherkin en `especificaciones/` (copia `CP-101.feature`), sin clics ni localizadores, con la etiqueta `@CP-xxx`. Revísalo con el revisor de escenarios de las [actividades de la S7](https://coach1-knotacademy.github.io/knot-qa-framework/actividades-s7.html).
 1. Pide la prueba con [`PROMPT.md`](PROMPT.md) (o escríbela tú con la misma forma que `CP-101`).
 2. Antes de correrla, revísala con la lista de cotejo: localizadores por rol o etiqueta, URL desde `entorno`, sin claves, sin `waitForTimeout`, datos desde la fábrica, esperado desde la regla y el ID del caso en el nombre.
 3. Córrela sola: `npx.cmd playwright test -g "CP-102"`.

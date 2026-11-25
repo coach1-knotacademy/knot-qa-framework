@@ -14,13 +14,24 @@ test.beforeEach(async ({ page }) => {
   await abrirConSesion(page);
 });
 
-test('CP-101 · una recarga de $10.000 a Claro da comprobante y descuenta de Ahorros', async ({ paginaRecargas }) => {
-  await paginaRecargas.abrir();
-  await expect(paginaRecargas.saldoDisponible).toHaveText('$1.500.000');
+// S7 · Cada paso del escenario (especificaciones/CP-101.feature) es un test.step con el mismo texto:
+// el reporte HTML muestra el escenario paso a paso, como lo leería negocio.
+test('CP-101 · una recarga de $10.000 a Claro da comprobante y descuenta de Ahorros', { tag: '@CP-101' }, async ({ paginaRecargas }) => {
+  await test.step('Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros', async () => {
+    await paginaRecargas.abrir();
+    await expect(paginaRecargas.saldoDisponible).toHaveText('$1.500.000');
+  });
 
-  await paginaRecargas.recargar(fabricaDeRecargas.valida());
+  await test.step('Cuando recarga $10.000 a un celular Claro 3001234567', async () => {
+    await paginaRecargas.recargar(fabricaDeRecargas.valida());
+  });
 
-  expect(await paginaRecargas.esperarResultado()).toContain('Recarga exitosa');
-  // Esperado de la regla, no de la pantalla: la recarga se descuenta completa de Ahorros (1.500.000 − 10.000).
-  await expect(paginaRecargas.saldoDisponible).toHaveText('$1.490.000');
+  await test.step('Entonces ve el comprobante «Recarga exitosa»', async () => {
+    expect(await paginaRecargas.esperarResultado()).toContain('Recarga exitosa');
+  });
+
+  await test.step('Y su saldo de Ahorros queda en $1.490.000', async () => {
+    // Esperado de la regla, no de la pantalla: la recarga se descuenta completa de Ahorros (1.500.000 − 10.000).
+    await expect(paginaRecargas.saldoDisponible).toHaveText('$1.490.000');
+  });
 });
