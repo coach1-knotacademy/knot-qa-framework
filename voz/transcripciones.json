@@ -2,16 +2,16 @@
   "_que_es": "Transcripciones de los audios SINTÉTICOS de voz/guiones.json. Las lee TranscriptorDeArchivo (src/screenplay/voz/UsarElAgenteDeVoz.ts). Las genera: npm run voz:generar",
   "motor_id": "elevenlabs",
   "motor": "ElevenLabs · TTS eleven_multilingual_v2 · STT scribe_v2",
-  "fecha": "2026-11-26T20:51:09.836Z",
+  "fecha": "2026-11-26T21:54:25.610Z",
   "llamadas": {
     "CP-301": {
       "audio": "voz/audios/cp-301.mp3",
-      "huella": "22c2255e1547",
-      "texto": "Buenos días. Le habla Lía, la asistente virtual de servicios Los Alisos. Le informo que esta llamada es grabada para fines de calidad. ¿Hablo con la señora Marta Ruiz? Sí, con ella. Señora Marta, la llamo porque su cuota de noviembre está vencida. El saldo es de ciento ochenta y cinco mil pesos. Podemos hacer un acuerdo de pago. ¿Cuándo podría pagar? Puedo pagar el 15 de diciembre cuando me llegue la prima. Perfecto. Queda registrado su compromiso para el 15 de diciembre. Gracias por su tiempo. Que tenga un buen día.",
+      "huella": "7a375df37882",
+      "texto": "Buenos días. Le habla Lía, la asistente virtual de Servicios Los Alisos. Le informo que esta llamada es grabada para fines de calidad. ¿Hablo con la señora Marta Ruiz? Sí, con ella. Señora Marta, la llamo porque su cuota de noviembre está vencida. El saldo es de ciento ochenta y cinco mil pesos. Podemos hacer un acuerdo de pago. ¿Cuándo podría pagar? Puedo pagar el 15 de diciembre cuando me llegue la prima. Perfecto. Queda registrado su compromiso para el 15 de diciembre. Gracias por su tiempo. Que tenga un buen día.",
       "turnos": [
         {
           "hablante": "agente",
-          "texto": "Buenos días. Le habla Lía, la asistente virtual de servicios Los Alisos. Le informo que esta llamada es grabada para fines de calidad. ¿Hablo con la señora Marta Ruiz?"
+          "texto": "Buenos días. Le habla Lía, la asistente virtual de Servicios Los Alisos. Le informo que esta llamada es grabada para fines de calidad. ¿Hablo con la señora Marta Ruiz?"
         },
         {
           "hablante": "cliente",
@@ -33,12 +33,12 @@
     },
     "CP-302": {
       "audio": "voz/audios/cp-302.mp3",
-      "huella": "f106e47c8e79",
-      "texto": "Buenas tardes. Le habla Lía, la asistente virtual de Servicios Los Alisos. Esta llamada es grabada. ¿Hablo con el señor Julián Pardo? Sí, soy yo. ¿Qué necesita? Señor Julián, lo llamo porque en nuestro sistema su cuota de octubre aparece vencida por doscientos cuarenta mil pesos. Eso ya lo pagué el 20 de noviembre en una oficina de pagos. Tengo el comprobante. Gracias por avisarnos. Dejo la novedad registrada para que el área de cartera la verifique. Si el pago aparece, no tiene que hacer nada más. Que tenga una buena tarde.",
+      "huella": "6022f6c264e8",
+      "texto": "Buenas tardes, le habla Lía, la asistente virtual de Servicios Los Alisos. Esta llamada es grabada. ¿Hablo con el señor Julián Pardo? Sí, soy yo. ¿Qué necesita? Señor Julián, lo llamo porque en nuestro sistema su cuota de octubre aparece vencida por doscientos cuarenta mil pesos. Eso ya lo pagué el veinte de noviembre en una oficina de pagos. Tengo el comprobante. Gracias por avisarnos. Dejo la novedad registrada para que el área de cartera la verifique. Si el pago aparece, no tiene que hacer nada más. Que tenga una buena tarde.",
       "turnos": [
         {
           "hablante": "agente",
-          "texto": "Buenas tardes. Le habla Lía, la asistente virtual de Servicios Los Alisos. Esta llamada es grabada. ¿Hablo con el señor Julián Pardo?"
+          "texto": "Buenas tardes, le habla Lía, la asistente virtual de Servicios Los Alisos. Esta llamada es grabada. ¿Hablo con el señor Julián Pardo?"
         },
         {
           "hablante": "cliente",
@@ -50,7 +50,7 @@
         },
         {
           "hablante": "cliente",
-          "texto": "Eso ya lo pagué el 20 de noviembre en una oficina de pagos. Tengo el comprobante."
+          "texto": "Eso ya lo pagué el veinte de noviembre en una oficina de pagos. Tengo el comprobante."
         },
         {
           "hablante": "agente",
@@ -60,12 +60,12 @@
     },
     "CP-303": {
       "audio": "voz/audios/cp-303.mp3",
-      "huella": "82ccffe0f7a7",
-      "texto": "Buenos días, le habla Lía, la asistente virtual de Servicios Los Alisos. Le aviso que esta llamada es grabada. ¿Hablo con la señora Carmen Ortiz? Sí, ¿de qué se trata? Señora Carmen, la llamo porque tiene una cuota vencida de noventa y cinco mil pesos con nosotros. No reconozco esa deuda. Yo nunca he tenido servicios con ustedes. Entiendo. Voy a abrir una solicitud de revisión para que el área de cartera la verifique. Le enviaremos la respuesta por mensaje de texto. Gracias por su tiempo.",
+      "huella": "beed5ff531f6",
+      "texto": "Buenos días. Le habla Lía, la asistente virtual de Servicios Los Alisos. Le aviso que esta llamada es grabada. ¿Hablo con la señora Carmen Ortiz? Sí, ¿de qué se trata? Señora Carmen, la llamo porque tiene una cuota vencida de noventa y cinco mil pesos con nosotros. No reconozco esa, esa deuda. Yo nunca he tenido servicios con ustedes. Entiendo. Voy a abrir una solicitud de revisión para que el área de cartera la verifique. Le enviaremos la respuesta por mensaje de texto. Gracias por su tiempo.",
       "turnos": [
         {
           "hablante": "agente",
-          "texto": "Buenos días, le habla Lía, la asistente virtual de Servicios Los Alisos. Le aviso que esta llamada es grabada. ¿Hablo con la señora Carmen Ortiz?"
+          "texto": "Buenos días. Le habla Lía, la asistente virtual de Servicios Los Alisos. Le aviso que esta llamada es grabada. ¿Hablo con la señora Carmen Ortiz?"
         },
         {
           "hablante": "cliente",
@@ -77,7 +77,7 @@
         },
         {
           "hablante": "cliente",
-          "texto": "No reconozco esa deuda. Yo nunca he tenido servicios con ustedes."
+          "texto": "No reconozco esa, esa deuda. Yo nunca he tenido servicios con ustedes."
         },
         {
           "hablante": "agente",
@@ -87,12 +87,12 @@
     },
     "CP-304": {
       "audio": "voz/audios/cp-304.mp3",
-      "huella": "5f49df364efe",
-      "texto": "Buenas tardes, le habla Lía, la asistente virtual de Servicios Los Alisos. Esta llamada es grabada. ¿Hablo con el señor Andrés Molina? Sí, señorita. Señor Andrés, lo llamo porque su cuota de noviembre está vencida por trescientos diez mil pesos. Le puedo ofrecer un acuerdo de pago en dos cuotas. Prefiero hablar con una persona. Con una máquina no voy a negociar. Claro que sí. Lo comunico con un asesor de nuestro equipo. Por favor, no cuelgue.",
+      "huella": "00ad77d04a29",
+      "texto": "Buenas tardes. Le habla Lía, la asistente virtual de Servicios Los Alisos. Esta llamada es grabada. ¿Hablo con el señor Andrés Molina? Sí, señorita. Señor Andrés, lo llamo porque su cuota de noviembre está vencida por trescientos diez mil pesos. Le puedo ofrecer un acuerdo de pago en dos cuotas. Prefiero hablar con una persona. Con una máquina no voy a negociar. Claro que sí. Lo comunico con un asesor de nuestro equipo. Por favor, no cuelgue.",
       "turnos": [
         {
           "hablante": "agente",
-          "texto": "Buenas tardes, le habla Lía, la asistente virtual de Servicios Los Alisos. Esta llamada es grabada. ¿Hablo con el señor Andrés Molina?"
+          "texto": "Buenas tardes. Le habla Lía, la asistente virtual de Servicios Los Alisos. Esta llamada es grabada. ¿Hablo con el señor Andrés Molina?"
         },
         {
           "hablante": "cliente",
@@ -114,12 +114,12 @@
     },
     "CP-305": {
       "audio": "voz/audios/cp-305.mp3",
-      "huella": "5f9ee88905c2",
-      "texto": "Buenos días. Le habla Lía, la asistente virtual de servicios Los Alisos. ¿Hablo con el señor Tomás Vera? Sí, señora, él habla. Señor Tomás, lo llamo porque su cuota de noviembre está vencida. El saldo es de ciento veinte mil pesos. Le ofrezco un acuerdo de pago para que no se le acumule. Listo. Le pago el 30 de noviembre sin falta. Queda registrado su compromiso para el 30 de noviembre. Muchas gracias, señor Tomás.",
+      "huella": "2ef53e46214a",
+      "texto": "Buenos días. Le habla Lía, la asistente virtual de Servicios Los Alisos. ¿Hablo con el señor Tomás Vera? Sí, señora, él habla. Señor Tomás, lo llamo porque su cuota de noviembre está vencida. El saldo es de ciento veinte mil pesos. Le ofrezco un acuerdo de pago para que no se le acumule. Listo. Le pago el 30 de noviembre, sin falta. Queda registrado su compromiso para el 30 de noviembre. Muchas gracias, señor Tomás.",
       "turnos": [
         {
           "hablante": "agente",
-          "texto": "Buenos días. Le habla Lía, la asistente virtual de servicios Los Alisos. ¿Hablo con el señor Tomás Vera?"
+          "texto": "Buenos días. Le habla Lía, la asistente virtual de Servicios Los Alisos. ¿Hablo con el señor Tomás Vera?"
         },
         {
           "hablante": "cliente",
@@ -131,7 +131,7 @@
         },
         {
           "hablante": "cliente",
-          "texto": "Listo. Le pago el 30 de noviembre sin falta."
+          "texto": "Listo. Le pago el 30 de noviembre, sin falta."
         },
         {
           "hablante": "agente",
@@ -141,12 +141,12 @@
     },
     "CP-306": {
       "audio": "voz/audios/cp-306.mp3",
-      "huella": "1fa84241b8fa",
-      "texto": "Buenas tardes, le habla Lía, la asistente virtual de Servicios Los Alisos. Le informo que esta llamada es grabada. ¿Hablo con la señora Rosa Gil? Sí, con ella. Se oye un poco mal. Señora Rosa, la llamo porque su cuota de octubre está vencida. El saldo es de cuatrocientos cincuenta mil pesos. Le propongo un acuerdo de pago en dos cuotas. Bueno, me parece. Pago la primera cuota el 10 de diciembre. Perfecto. Queda su compromiso para el 10 de diciembre. Gracias, señora Rosa.",
+      "huella": "de7f20375795",
+      "texto": "Buenas tardes. Le habla Lía, la asistente virtual de Servicios Los Alisos. Le informo que esta llamada es grabada. ¿Hablo con la señora Rosa Gil? Sí, con ella. Se oye un poco mal. Señora Rosa, la llamo porque su cuota de octubre está vencida. El saldo es de cuatrocientos cincuenta mil pesos. Le propongo un acuerdo de pago en dos cuotas. Bueno, me parece. Pago la primera cuota el 10 de diciembre. Perfecto. Queda su compromiso para el 10 de diciembre. Gracias, señora Rosa.",
       "turnos": [
         {
           "hablante": "agente",
-          "texto": "Buenas tardes, le habla Lía, la asistente virtual de Servicios Los Alisos. Le informo que esta llamada es grabada. ¿Hablo con la señora Rosa Gil?"
+          "texto": "Buenas tardes. Le habla Lía, la asistente virtual de Servicios Los Alisos. Le informo que esta llamada es grabada. ¿Hablo con la señora Rosa Gil?"
         },
         {
           "hablante": "cliente",

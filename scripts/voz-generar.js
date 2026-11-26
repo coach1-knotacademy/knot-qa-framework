@@ -61,11 +61,16 @@ const FRASE = typeof opcion('frase') === 'string' ? opcion('frase') : null;
 
 const VOCES = {
   elevenlabs: {
-    // Voces prediseñadas de ElevenLabs con el modelo multilingüe (hablan español). Se cambian en el .env.
-    agente: env.ELEVENLABS_VOZ_AGENTE || 'EXAVITQu4vr4xnSDxMaL',
-    cliente: env.ELEVENLABS_VOZ_CLIENTE || 'onwK4e9ZLuTAKqWW03F9',
+    // Voces colombianas de la biblioteca de ElevenLabs (acento colombiano, conversacionales). Se cambian en el .env.
+    agente: env.ELEVENLABS_VOZ_AGENTE || 'kd5kUGaa17tlaf9G7ZXj', // «Valentina», cálida y clara: la asistente Lía
+    cliente_mujer: env.ELEVENLABS_VOZ_CLIENTA || 'HQkNMSvU4RYxL7ghM0Pa', // «Vivi», natural: las señoras
+    cliente_hombre: env.ELEVENLABS_VOZ_CLIENTE || 'k1LcwPlB8fqtr2BOqzNo', // «Edinson», calmado: los señores
   },
-  say: { agente: env.SAY_VOZ_AGENTE || 'Paulina', cliente: env.SAY_VOZ_CLIENTE || 'Eddy (Spanish (Mexico))' },
+  say: {
+    agente: env.SAY_VOZ_AGENTE || 'Paulina',
+    cliente_mujer: env.SAY_VOZ_CLIENTA || 'Paulina',
+    cliente_hombre: env.SAY_VOZ_CLIENTE || 'Eddy (Spanish (Mexico))',
+  },
 };
 const MODELO_TTS = env.ELEVENLABS_MODELO_TTS || 'eleven_multilingual_v2';
 const MODELO_STT = env.ELEVENLABS_MODELO_STT || 'scribe_v2';
@@ -171,12 +176,13 @@ function transcripcionSimulada(guion) {
 }
 
 const huella = (guion) =>
-  crypto.createHash('sha1').update(JSON.stringify({ turnos: guion.turnos, ruido: !!guion.ruido, motor: MOTOR, voces: VOCES[MOTOR], MODELO_TTS, MODELO_STT })).digest('hex').slice(0, 12);
+  crypto.createHash('sha1').update(JSON.stringify({ turnos: guion.turnos, cliente_voz: guion.cliente_voz, ruido: !!guion.ruido, motor: MOTOR, voces: VOCES[MOTOR], MODELO_TTS, MODELO_STT })).digest('hex').slice(0, 12);
 
 async function generarAudio(guion, destino) {
   const piezas = [];
   for (const [i, turno] of guion.turnos.entries()) {
-    const voz = VOCES[MOTOR][turno.hablante];
+    // El cliente habla con la voz de su género (cliente_voz en guiones.json: «mujer» u «hombre»).
+    const voz = VOCES[MOTOR][turno.hablante === 'cliente' ? `cliente_${guion.cliente_voz || 'hombre'}` : turno.hablante];
     const pieza = path.join(temporal, `${guion.id}-${i}.${MOTOR === 'say' ? 'aiff' : 'mp3'}`);
     if (MOTOR === 'say') hablarSay(turno.texto, voz, pieza);
     else await hablarElevenLabs(turno.texto, voz, pieza);
