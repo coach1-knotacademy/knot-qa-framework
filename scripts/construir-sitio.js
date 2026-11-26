@@ -34,6 +34,7 @@ for (const [origen, destino] of [
   ['actividades_S7.html', 'actividades-s7.html'], ['proyecto.html', 'proyecto.html'], ['guia_estudio.html', 'guia-estudio.html'],
   // Kits para empezar con algo real (voz, móvil, web real, integraciones).
   ['voz.html', 'voz.html'], ['movil.html', 'movil.html'], ['web_real.html', 'web-real.html'], ['integraciones.html', 'integraciones.html'],
+  ['cps.html', 'cps.html'],
 ]) {
   if (fs.existsSync(path.join('laboratorio', origen))) fs.copyFileSync(path.join('laboratorio', origen), path.join(SALIDA, destino));
 }

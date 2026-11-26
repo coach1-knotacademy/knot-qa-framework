@@ -15,7 +15,7 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parents[2]
 D = Path(__file__).parent
 sys.path.insert(0, str(D))
-from fichas_s7 import (TEMA, IDEA_FUERZA, FRASE_GANCHO, FRASE_CIERRE, OBJETIVO, FICHA, FILAS, TRES_COSAS, FRASE_BANCO,  # noqa: E402
+from fichas_s7 import (PAGES, TEMA, IDEA_FUERZA, FRASE_GANCHO, FRASE_CIERRE, OBJETIVO, FICHA, FILAS, TRES_COSAS, FRASE_BANCO,  # noqa: E402
                        TRES_IDIOMAS, DECLARATIVO, MAPEO, REGLA_MAPEO, QUE_CAPA, PRECISIONES, ROSETTA, ROSETTA_FRASE,
                        BOLETO, BOLETO_S6, HORARIO, PREGUNTA_GUIA, FRASE_PROYECTO, VIAS, PLAN_PROYECTO, PLANTILLA_FEATURE,
                        CPS, PROYECTO, GUIA, PLANTILLA, LABORATORIO_S6, CRITERIO_REVISOR, CAPAS, TU_MAPEO, CRITERIO_MAPEO,
@@ -466,7 +466,8 @@ JS = """
 N = lambda s: f'<a href="#{s[0]}">{s[1]}</a>'
 NAV = ''.join(N(s) for s in [('boleto-s6', 'Boleto S6'), ('tres-idiomas', 'Tres idiomas'), ('ficha', 'Ficha'), ('declarativo', '¿Declarativo?'),
                              ('revisor', 'Tu CP en Gherkin'), ('capas', 'A las capas'), ('mapeo', 'Tu mapeo'), ('que-capa', '¿Qué capa?'),
-                             ('rosetta', 'Rosetta'), ('proyecto', 'Tu proyecto'), ('boleto', 'Boleto'), ('cierre', 'Cierre')])
+                             ('rosetta', 'Rosetta'), ('proyecto', 'Tu proyecto'), ('boleto', 'Boleto'), ('cierre', 'Cierre')]) + \
+      f'<a href="{PAGES}cps.html" style="background:var(--neon)">📋 Los CP</a>'
 
 HTML = f'''<!doctype html>
 <html lang="es">
