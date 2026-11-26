@@ -1,0 +1,13 @@
+# Kit móvil · lo que NO se sube.
+node_modules/
+# El APK se baja con: npm.cmd run app  (pesa 18 MB y es de un tercero: no va en el repo).
+apps/*
+!apps/.gitkeep
+# Las evidencias de cada corrida se quedan en tu equipo...
+# (la raíz ignora toda carpeta "evidencias/": aquí se vuelve a incluir solo la demo grabada).
+!evidencias/
+evidencias/*
+# ...menos la demo grabada que se publica en el sitio (capturas y un video corto).
+!evidencias/demo/
+# Tus variables (host, puerto, dispositivo). El modelo sin valores sí se sube: .env.ejemplo
+.env

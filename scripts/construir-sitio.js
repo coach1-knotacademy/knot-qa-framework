@@ -32,9 +32,15 @@ for (const [origen, destino] of [
   ['laboratorio_S6.html', 'laboratorio-s6.html'], ['actividades_S6.html', 'actividades-s6.html'], ['plantilla.html', 'plantilla.html'],
   // S7 · Gherkin con el revisor de escenarios, el kit del proyecto final y la guía de estudio (repaso opcional).
   ['actividades_S7.html', 'actividades-s7.html'], ['proyecto.html', 'proyecto.html'], ['guia_estudio.html', 'guia-estudio.html'],
+  // Kits para empezar con algo real (voz, móvil, web real, integraciones).
+  ['voz.html', 'voz.html'], ['movil.html', 'movil.html'], ['web_real.html', 'web-real.html'], ['integraciones.html', 'integraciones.html'],
 ]) {
   if (fs.existsSync(path.join('laboratorio', origen))) fs.copyFileSync(path.join('laboratorio', origen), path.join(SALIDA, destino));
 }
+// Kit de voz: los audios sintéticos de las llamadas (nunca voz/demo/, que es la frase en vivo del instructor).
+if (fs.existsSync(path.join('voz', 'audios'))) fs.cpSync(path.join('voz', 'audios'), path.join(SALIDA, 'voz', 'audios'), { recursive: true });
+// Kit móvil: la evidencia de la corrida que se publica (capturas y video corto).
+if (fs.existsSync(path.join('movil', 'evidencias', 'demo'))) fs.cpSync(path.join('movil', 'evidencias', 'demo'), path.join(SALIDA, 'movil', 'evidencias', 'demo'), { recursive: true });
 // Las presentaciones de cada sesión en PDF, sin las notas del instructor (las enlaza la guía de estudio).
 if (fs.existsSync('presentaciones')) fs.cpSync('presentaciones', path.join(SALIDA, 'presentaciones'), { recursive: true });
 // S6 · Dos "ambientes" de práctica (QA y UAT) como archivos fijos: el mismo pedido de Postman, datos distintos.

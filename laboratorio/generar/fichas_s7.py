@@ -354,3 +354,27 @@ FUENTES = [
   'Playwright, «test.step» (playwright.dev/docs/api/class-test#test-step) y «Annotations · Tag tests» (playwright.dev/docs/test-annotations): los pasos en el reporte y la etiqueta `@CP-101`.',
   'ISTQB, CTAL-TAE v2.0: la capa de definición de pruebas del gTAA.',
 ]
+
+# ─────────────────────────── Kits para empezar con algo real (decidido el 25 nov; council_casos_reales.md) ───────────────────────────
+# Casos de uso reales y no solo de banca. El problema y la técnica son reales; lo que se codifica va sobre sitios y apps públicos de práctica.
+KITS_INTRO = ('Para que el ejemplo no se quede en el Banco Demo: cuatro kits con casos reales, cada uno con su objetivo, cómo probarlo '
+              'sin instalar nada y cómo correrlo si tienes Node. Elige el que se parece a lo que pruebas en tu trabajo: es el punto de partida de tu proyecto.')
+KITS = [
+  {'id': 'voz', 'titulo': 'Voz: un agente de cobranza', 'color': 'lav', 'pagina': 'voz.html', 'via': 'C',
+   'caso': 'Un agente de voz con IA llama por una cuota vencida. Se prueba la transcripción: frases obligatorias (se identifica, avisa que graba), lo prohibido, la intención del cliente, el monto y la fecha, y el margen de error (WER).',
+   'sin_instalar': 'Escuchas las llamadas, ves la transcripción y corres las aserciones en el navegador. Puedes editar el texto para provocar fallas.',
+   'para': 'Quien prueba agentes de voz, IVR o call center.'},
+  {'id': 'movil', 'titulo': 'Móvil: Appium con TypeScript', 'color': 'cyan', 'pagina': 'movil.html', 'via': 'A',
+   'caso': 'Una app Android pública hecha para practicar (tienda): login, usuario bloqueado, carrito y total. Las mismas capas del curso, con WebdriverIO.',
+   'sin_instalar': 'Lees el código, ves la corrida grabada (video y capturas) y la escalera de localizadores móvil. La guía rápida de instalación trae prompts para tu IA.',
+   'para': 'Quien prueba apps y tiene (o puede pedir) permisos de administrador.'},
+  {'id': 'web', 'titulo': 'Web real: una tienda y un formulario público', 'color': 'lime', 'pagina': 'web-real.html', 'via': 'A o B',
+   'caso': 'Practice Software Testing (una tienda hecha para practicar) y las validaciones de un formulario público real, sin enviar nada, con lo que se encontró (campos sin etiqueta accesible, un control antibots).',
+   'sin_instalar': 'Recorres los casos a mano en el sitio, lees los escenarios y la evidencia de la corrida.',
+   'para': 'Quien prueba web y quiere salir del sitio de práctica del curso.'},
+  {'id': 'integraciones', 'titulo': 'Integraciones: del ticket a la prueba', 'color': 'peach', 'pagina': 'integraciones.html', 'via': 'A o B',
+   'caso': 'La IA lee el caso desde un tablero (Trello o Jira) por MCP, escribe la prueba con el prompt de la plantilla, la prueba corre y el resultado vuelve al ticket.',
+   'sin_instalar': 'Ves el flujo con el tablero del curso, los prompts y cómo se haría con Jira y Xray o con GitHub.',
+   'para': 'Quien lleva sus CP en Jira o Trello y quiere conectar la automatización.'},
+]
+KITS_FRASE = 'El sistema es de práctica; el problema, la técnica y la evidencia son reales.'

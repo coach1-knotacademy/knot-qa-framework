@@ -1,0 +1,12 @@
+TimeoutError: locator.fill: Timeout 5000ms exceeded.
+Call log:
+  - waiting for getByLabel('Número de celular', { exact: true })
+
+
+  131 |
+  132 |   // Esto es lo que escribiría cualquiera (y lo que propone la IA). Se queda esperando y falla.
+> 133 |   await recarga.celularPorEtiqueta.fill(celularDePrueba, { timeout: 5_000 });
+      |                                    ^
+  134 | });
+  135 |
+    at tests/sistema-real/recarga-pse.spec.ts:133:36

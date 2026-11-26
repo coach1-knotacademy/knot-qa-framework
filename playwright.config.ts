@@ -1,11 +1,14 @@
 import { defineConfig, devices } from '@playwright/test';
 import { entorno } from './src/config/entorno';
 import { entornoParaBank } from './src/sitios/parabank/entorno';
+import { entornoToolshop } from './src/sitios/toolshop/entorno';
+import { entornoSistemaReal } from './src/sitios/sistema-real/entorno';
 
 /**
  * Configuración de Playwright. Cada carpeta de tests/ es un "proyecto":
  *   npx playwright test --project=ui
  * Cada proyecto dice su carpeta (testDir): plantilla/ (S6) es un framework aparte y no entra aquí.
+ * Tampoco entra movil/ (kit de Appium con WebdriverIO): tiene su propio package.json y se corre desde esa carpeta.
  */
 
 // Lo que comparten las pruebas que abren navegador.
@@ -26,8 +29,17 @@ const pedidos = process.argv.flatMap((a, i, todos) => (a.startsWith('--project='
 if (pedidos.includes('parabank')) process.env.KNOT_PARABANK = '1';
 const conParaBank = process.env.KNOT_PARABANK === '1';
 
+// Kit «web real» · La Toolshop también es un sitio en internet: solo corre si se pide (--project=toolshop).
+// Así la corrida por defecto y la de CI (npm run verificar-clase) no dependen de internet.
+if (pedidos.includes('toolshop')) process.env.KNOT_TOOLSHOP = '1';
+const conToolshop = process.env.KNOT_TOOLSHOP === '1';
+
+// Kit «web real» · El sistema real (producción de un tercero) NUNCA corre por defecto ni en CI.
+// Solo existe si alguien pone SISTEMA_REAL=1 a propósito y no está en un servidor de CI.
+const conSistemaReal = process.env.SISTEMA_REAL === '1' && !process.env.CI;
+
 // Estos proyectos no usan el Banco Demo: si solo corres esos, no se inicia.
-const SIN_BANCO_DEMO = ['unidad', 'retos-s05', 'retos-s06', 'parabank'];
+const SIN_BANCO_DEMO = ['unidad', 'retos-s05', 'retos-s06', 'parabank', 'toolshop', 'sistema-real', 'voz'];
 const soloUnidad = pedidos.length > 0 && pedidos.every((p) => SIN_BANCO_DEMO.includes(p));
 // S6 · Fuera de "local" (AMBIENTE=qa o uat) el sistema ya existe en otro lado: no se inicia el Banco Demo.
 const sinServidorLocal = soloUnidad || entorno.nombre !== 'local';
@@ -70,6 +82,8 @@ export default defineConfig({
     { name: 'retos-s06', testDir: 'tests/retos-s06', testIgnore: /reto2-/ },
     // S6 · Reto 2, localizadores robustos: con navegador, contra Recargas de hoy y la del rediseño.
     { name: 'retos-s06-ui', testDir: 'tests/retos-s06', testMatch: /reto2-.*\.spec\.ts/, use: conNavegador },
+    // Kit de voz · Agente de voz de cobranza: se revisa la transcripción (frases, intención, datos y WER). Sin navegador ni servidor.
+    { name: 'voz', testDir: 'tests/voz' },
     // S5 · ParaBank, un banco de práctica real en internet. Se graba todo: video, pantallazos y trace.
     // Un solo proceso a la vez: el sitio corta a quien hace demasiadas peticiones (HTTP 429).
     ...(conParaBank
@@ -87,6 +101,49 @@ export default defineConfig({
             actionTimeout: 15_000,
             // Más despacio a propósito: el video se puede seguir y no se pasa el límite de peticiones (HTTP 429).
             launchOptions: { slowMo: 250 },
+          },
+        }]
+      : []),
+    // Kit «web real» · La Toolshop (Practice Software Testing), una tienda pública hecha para practicar.
+    // Con internet, de a una prueba (es un sitio compartido), con trace y pantallazos de cada prueba.
+    ...(conToolshop
+      ? [{
+          name: 'toolshop',
+          testDir: 'tests/toolshop',
+          workers: 1,
+          timeout: 60_000,
+          use: {
+            ...devices['Desktop Chrome'],
+            baseURL: entornoToolshop.urlBase,
+            channel: process.env.PW_CHANNEL,
+            // El sitio trae atributos data-test pactados: getByTestId('cart-total') los usa.
+            testIdAttribute: entornoToolshop.atributoDePrueba,
+            locale: entornoToolshop.idioma,
+            screenshot: 'on' as const,
+            trace: 'on' as const,
+            actionTimeout: 15_000,
+          },
+        }]
+      : []),
+    // Kit «web real» · El sistema REAL (formulario público de recarga por PSE). Solo el instructor, solo con SISTEMA_REAL=1.
+    // Solo validaciones: nunca «Continuar», nunca el antibots, celulares de prueba, una prueba a la vez.
+    ...(conSistemaReal
+      ? [{
+          name: 'sistema-real',
+          testDir: 'tests/sistema-real',
+          workers: 1,
+          retries: 0,
+          timeout: 60_000,
+          use: {
+            ...devices['Desktop Chrome'],
+            baseURL: entornoSistemaReal.urlBase,
+            channel: process.env.PW_CHANNEL,
+            locale: 'es-CO',
+            screenshot: 'on' as const,
+            trace: 'on' as const,
+            actionTimeout: 15_000,
+            // Más despacio a propósito: en la demo se ve cada paso.
+            launchOptions: { slowMo: 300 },
           },
         }]
       : []),

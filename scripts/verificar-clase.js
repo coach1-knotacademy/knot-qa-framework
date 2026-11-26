@@ -46,10 +46,12 @@ const HALLAZGOS = {
   'BUG-03': { texto: '"BLOQUEADO" en mayúsculas puede entrar', necesita: null },
   'MIG-01': { texto: 'en /api/v2/cuentas la cuenta Corriente dice "Ahorros"', necesita: null },
   'BUG-04': { texto: 'si el operador no responde, igual se descuenta el saldo de la recarga', necesita: null },
+  // Kit de voz · sembrado en el guion del agente de voz (voz/guiones.json, CP-305), no en el Banco Demo.
+  'VOZ-01': { texto: 'el agente de voz no avisa que la llamada se graba (CP-305)', necesita: null },
 };
 const TODOS = Object.keys(HALLAZGOS);
-// Hasta la S4 no existían las recargas: esas etiquetas no tienen BUG-04.
-const HASTA_S4 = TODOS.filter((id) => id !== 'BUG-04');
+// Hasta la S4 no existían las recargas (BUG-04) ni el kit de voz (VOZ-01).
+const HASTA_S4 = TODOS.filter((id) => id !== 'BUG-04' && id !== 'VOZ-01');
 
 // Lo que debe pasar en cada etiqueta del repo.
 const ESTADOS = {
@@ -211,7 +213,7 @@ for (const sesion of ['S3', 'S4', 'S5', 'S6']) {
 
 // ---------- 5. Hallazgos esperados ----------
 console.log('');
-console.log(negrita('HALLAZGOS ESPERADOS') + ' (bugs sembrados en el Banco Demo: no se corrigen)');
+console.log(negrita('HALLAZGOS ESPERADOS') + ' (bugs sembrados a propósito: no se corrigen)');
 linea();
 const corridaCompleta = proyectos.length === 0;
 const confirmados = new Set();

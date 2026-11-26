@@ -19,10 +19,13 @@
     "recargas": "playwright test --project=recargas",
     "parabank": "playwright test --project=parabank --workers=1",
     "parabank:ver": "playwright test --project=parabank --workers=1 --headed",
+    "toolshop": "playwright test --project=toolshop",
     "verificar-clase": "node scripts/verificar-clase.js",
     "reporte": "playwright show-report",
     "tipos": "tsc --noEmit",
-    "revisar-escenarios": "node scripts/revisar-escenarios.js"
+    "revisar-escenarios": "node scripts/revisar-escenarios.js",
+    "voz:generar": "node scripts/voz-generar.js",
+    "trello:reportar": "node scripts/reportar-a-trello.js"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",

@@ -23,7 +23,7 @@
       if (linea.startsWith('@')) { etiquetas = etiquetas.concat(linea.split(/\s+/)); return; }
       const esc = linea.match(/^(Escenario|Ejemplo|Esquema del escenario|Scenario|Scenario Outline)\s*:\s*(.*)$/i);
       if (esc) {
-        actual = { titulo: esc[2] || '(sin título)', linea: i + 1, etiquetas, pasos: [] };
+        actual = { titulo: esc[2] || '(sin título)', linea: i + 1, etiquetas, pasos: [], esquema: /^(Esquema del escenario|Scenario Outline)$/i.test(esc[1]) };
         escenarios.push(actual);
         etiquetas = [];
         return;
@@ -66,7 +66,9 @@
     if (pasos.length > 5) agregar('aviso', `Tiene ${pasos.length} pasos: con más de 5 suele estar contando la pantalla y no el negocio`);
 
     pasos.forEach((p) => {
-      if (TECNICO.test(p.texto)) agregar('error', `Línea ${p.linea}: tiene un localizador o código («${p.texto}»). El escenario es del negocio; el localizador vive en el Page Object`);
+      // En un «Esquema del escenario», <monto> es un marcador que se llena con la fila de «Ejemplos», no HTML.
+      const texto = e.esquema ? p.texto.replace(/<[a-z_áéíóúñ]+>/gi, 'X') : p.texto;
+      if (TECNICO.test(texto)) agregar('error', `Línea ${p.linea}: tiene un localizador o código («${p.texto}»). El escenario es del negocio; el localizador vive en el Page Object`);
       else if (IMPERATIVO.test(p.texto)) agregar('error', `Línea ${p.linea}: describe la pantalla («${p.texto}»). Di QUÉ hace el cliente, no DÓNDE hace clic: «Cuando recarga $10.000…». El clic es asunto del Page Object`);
       if (ESPERA_FIJA.test(p.texto)) agregar('error', `Línea ${p.linea}: una espera fija no es un paso del negocio. Playwright espera solo`);
       if (CLAVE.test(p.texto)) agregar('error', `Línea ${p.linea}: la clave nunca va escrita en el escenario (sale del entorno)`);

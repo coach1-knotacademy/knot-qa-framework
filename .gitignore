@@ -22,3 +22,5 @@ laboratorio/generar/s06_solucion/
 plantilla/node_modules/
 plantilla/test-results/
 plantilla/playwright-report/
+# Kit de voz · la frase de la demo en vivo (npm run voz:generar -- --frase "...") no se sube.
+voz/demo/

@@ -1,0 +1,11 @@
+Running 7 tests using 1 worker
+
+  ✓  1 [toolshop] › tests/toolshop/carrito.spec.ts:12:5 › CP-504 · Dos unidades en el carrito suman el doble del precio @CP-504 (4.8s)
+  ✓  2 [toolshop] › tests/toolshop/catalogo.spec.ts:16:5 › CP-501 · La búsqueda muestra solo los productos que coinciden @CP-501 (2.5s)
+  ✓  3 [toolshop] › tests/toolshop/catalogo.spec.ts:37:5 › CP-502 · El filtro por categoría deja solo esa categoría @CP-502 (2.7s)
+  ✓  4 [toolshop] › tests/toolshop/catalogo.spec.ts:54:5 › CP-503 · El detalle de un producto muestra el mismo precio del catálogo @CP-503 (3.1s)
+  ✓  5 [toolshop] › tests/toolshop/formularios.spec.ts:13:5 › CP-505 · El contacto sin datos pide los obligatorios @CP-505 (2.2s)
+  ✓  6 [toolshop] › tests/toolshop/formularios.spec.ts:29:5 › CP-506 · El contacto con un correo mal escrito se rechaza @CP-506 (1.8s)
+  ✓  7 [toolshop] › tests/toolshop/formularios.spec.ts:45:5 › CP-507 · El ingreso sin correo ni clave pide los dos @CP-507 (1.8s)
+
+  7 passed (20.1s)

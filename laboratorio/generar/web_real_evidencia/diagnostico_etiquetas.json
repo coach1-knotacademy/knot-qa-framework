@@ -1,0 +1,5 @@
+[
+  { "etiqueta": "Número de celular", "elementosConEseId": 2, "apuntaAUnCampo": false },
+  { "etiqueta": "Confirma el número de celular", "elementosConEseId": 2, "apuntaAUnCampo": false },
+  { "etiqueta": "¿Cuánto?", "elementosConEseId": 2, "apuntaAUnCampo": false }
+]

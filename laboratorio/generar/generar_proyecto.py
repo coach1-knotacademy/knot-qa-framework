@@ -18,7 +18,7 @@ RAIZ = Path(__file__).resolve().parents[2]
 D = Path(__file__).parent
 sys.path.insert(0, str(D))
 from fichas_s7 import (PAGES, CPS, COTEJO, ESCALERA, BOLETO_S6, BOLETO, a_html,  # noqa: E402
-                       PREGUNTA_GUIA, FRASE_PROYECTO, VIAS, FICHA_PROYECTO, MATRIZ, CRITERIO_LISTO, CHARLA, CHARLA_NOTA,
+                       PREGUNTA_GUIA, FRASE_PROYECTO, VIAS, KITS, KITS_INTRO, KITS_FRASE, FICHA_PROYECTO, MATRIZ, CRITERIO_LISTO, CHARLA, CHARLA_NOTA,
                        PLAN_PROYECTO, REGLAS_PROYECTO, PLANTILLA_FEATURE, GUIA_SESIONES, LO_PRECISO)
 from fichas_s5 import BOLETO as BOLETO_S5  # noqa: E402
 
@@ -36,6 +36,7 @@ SITIO = {
   'lab_s5': 'laboratorio-s5.html',
   'lab_s6': 'laboratorio-s6.html',
   'banco': 'banco/recargas.html',
+  'voz': 'voz.html', 'movil': 'movil.html', 'web': 'web-real.html', 'integraciones': 'integraciones.html',
 }
 
 
@@ -107,6 +108,7 @@ ul.checks { list-style:none; padding-left:0; } ul.checks li { margin:10px 0; }
 .cab > div { min-width:0; flex:1 1 240px; }
 .via .letra { display:inline-grid; place-items:center; width:2em; height:2em; border:2px solid var(--ink); border-radius:999px; background:var(--surface); font:400 18px var(--f-display); margin-right:8px; vertical-align:middle; }
 .via h3 { margin-top:6px; }
+a.kit { display:block; color:var(--ink); text-decoration:none; } a.kit:hover { transform:translate(-1px,-1px); box-shadow:6px 6px 0 var(--ink); } a.kit b { color:var(--morado-osc); }
 .via dt { font-weight:800; color:var(--morado-osc); margin-top:10px; } .via dd { margin:2px 0 0; }
 .ficha { display:grid; grid-template-columns:minmax(0,13em) minmax(0,1fr); border-top:2px solid var(--ink); }
 .ficha .fk, .ficha .fv { padding:9px 8px; border-bottom:1px solid #c9c5ba; } .ficha .fk { font-weight:800; color:var(--morado-osc); }
@@ -180,7 +182,7 @@ JS = """
 """
 
 
-def pagina(titulo, subtitulo, cuerpo):
+def pagina(titulo, subtitulo, cuerpo, generador='generar_proyecto.py'):
     return f'''<!doctype html>
 <html lang="es">
 <head>
@@ -194,7 +196,7 @@ def pagina(titulo, subtitulo, cuerpo):
 <div class="wrap">
 <div class="knot-bar"><span><img src="{LOGO}" alt="">knot academy × accenture</span><small>Bootcamp QA &amp; Automatización · {subtitulo}</small></div>
 {cuerpo}
-<p class="nota">Página del Bootcamp QA · Knot Academy, generada con <code>laboratorio/generar/generar_proyecto.py</code>. No carga nada de internet salvo las fuentes. Los datos son de práctica: nunca escribas aquí datos reales.</p>
+<p class="nota">Página del Bootcamp QA · Knot Academy, generada con <code>laboratorio/generar/{generador}</code>. No carga nada de internet salvo las fuentes. Los datos son de práctica: nunca escribas aquí datos reales.</p>
 </div>
 <script>{JS}</script>
 </body>
@@ -227,6 +229,11 @@ def proyecto(base):
         f'<h3>{e(v["nombre"])}</h3><dl><dt>Para quién</dt><dd>{a_html(v["para"])}</dd><dt>Qué</dt><dd>{a_html(v["que"])}</dd>'
         f'<dt>Ejemplos</dt><dd><ul class="lista">' + ''.join(f'<li>{a_html(x)}</li>' for x in v['ejemplos']) + '</ul></dd></dl></div>'
         for v in VIAS)
+
+    kits = ''.join(
+        f'<a class="card via kit c-{k["color"]}" href="{s(k["id"])}"><p class="paso">vía {e(k["via"])}</p><h3>{e(k["titulo"])}</h3>'
+        f'<p>{a_html(k["caso"])}</p><p><b>Sin instalar:</b> {a_html(k["sin_instalar"])}</p><p class="nota">{a_html(k["para"])}</p><p><b>Abrir el kit →</b></p></a>'
+        for k in KITS)
 
     partes_frase = FRASE_PROYECTO.split('___')
     placeholders = ['qué pruebas', 'qué puede salir mal', 'qué CP y qué evidencia']
@@ -266,7 +273,7 @@ def proyecto(base):
 <p class="lead">Todo lo que necesitas para armar tu proyecto: la pregunta que responde, las tres vías, la ficha de una hoja, el escenario, la matriz de trazabilidad, el criterio de listo y la charla del último día.</p>
 <p class="rotulo">Todo se trabaja en clase; avanzar por tu cuenta es opcional.</p>
 <nav class="top" aria-label="Secciones">
-<a href="#pregunta">La pregunta</a><a href="#vias">Las vías</a><a href="#frase">La frase</a><a href="#ficha">La ficha</a><a href="#escenario">El escenario</a><a href="#matriz">La matriz</a><a href="#listo">Criterio de listo</a><a href="#charla">La charla</a><a href="#plan">Plan por sesión</a><a href="#reglas">Reglas</a><a href="#enlaces">Enlaces y CP</a>
+<a href="#pregunta">La pregunta</a><a href="#vias">Las vías</a><a href="#kits">Los kits</a><a href="#frase">La frase</a><a href="#ficha">La ficha</a><a href="#escenario">El escenario</a><a href="#matriz">La matriz</a><a href="#listo">Criterio de listo</a><a href="#charla">La charla</a><a href="#plan">Plan por sesión</a><a href="#reglas">Reglas</a><a href="#enlaces">Enlaces y CP</a>
 </nav>
 
 <section id="pregunta">
@@ -280,6 +287,13 @@ def proyecto(base):
 <h2>Tres vías, <span class="acc">el mismo valor</span></h2>
 <p>Elige la que te sirve según lo que puedes hacer en tu equipo y lo que pruebas en tu trabajo.</p>
 <div class="grid3">{vias}</div>
+</section>
+
+<section id="kits">
+<h2>Kits para empezar <span class="acc">con algo real</span></h2>
+<p>{a_html(KITS_INTRO)}</p>
+<div class="grid2">{kits}</div>
+<p class="nota">{a_html(KITS_FRASE)}</p>
 </section>
 
 <section id="frase">
@@ -450,13 +464,14 @@ def guia(base):
 # ─────────────────────────── Salida ───────────────────────────
 RELATIVO = re.compile(r'href="(?!https?://|#|data:)([^"]+)"')
 
-for nombre, fn in [('proyecto.html', proyecto), ('guia_estudio.html', guia)]:
-    (RAIZ / 'laboratorio' / nombre).write_text(fn(''), encoding='utf-8')
-    local = fn(PAGES)
-    sueltos = RELATIVO.findall(local)
-    assert not sueltos, f'{nombre}: enlaces relativos en la copia local: {sueltos}'
-    assert 'claude.ai' not in local, f'{nombre}: enlace de claude.ai'
-    if PARA_ENVIAR.is_dir():
-        (PARA_ENVIAR / nombre).write_text(local, encoding='utf-8')
+if __name__ == '__main__':
+    for nombre, fn in [('proyecto.html', proyecto), ('guia_estudio.html', guia)]:
+        (RAIZ / 'laboratorio' / nombre).write_text(fn(''), encoding='utf-8')
+        local = fn(PAGES)
+        sueltos = RELATIVO.findall(local)
+        assert not sueltos, f'{nombre}: enlaces relativos en la copia local: {sueltos}'
+        assert 'claude.ai' not in local, f'{nombre}: enlace de claude.ai'
+        if PARA_ENVIAR.is_dir():
+            (PARA_ENVIAR / nombre).write_text(local, encoding='utf-8')
 
-print('proyecto.html y guia_estudio.html listos (y sus copias en para_enviar/ con enlaces completos de Pages)')
+    print('proyecto.html y guia_estudio.html listos (y sus copias en para_enviar/ con enlaces completos de Pages)')

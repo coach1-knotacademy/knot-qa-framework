@@ -1,0 +1,12 @@
+Running 7 tests using 1 worker
+
+  ✓  1 [sistema-real] › tests/sistema-real/recarga-pse.spec.ts:26:5 › A11Y-01 · getByLabel no encuentra el celular: los campos no tienen nombre accesible (9.4s)
+  ✓  2 [sistema-real] › tests/sistema-real/recarga-pse.spec.ts:62:5 › Continuar está deshabilitado con el formulario vacío (6.3s)
+  ✓  3 [sistema-real] › tests/sistema-real/recarga-pse.spec.ts:70:5 › si la confirmación no coincide, avisa y Continuar sigue deshabilitado (5.9s)
+  ✓  4 [sistema-real] › tests/sistema-real/recarga-pse.spec.ts:86:5 › un celular de 3 dígitos se rechaza (6.4s)
+  ✓  5 [sistema-real] › tests/sistema-real/recarga-pse.spec.ts:96:5 › el valor mínimo es $1: con $0 avisa y con $1 ya no (6.7s)
+  ✓  6 [sistema-real] › tests/sistema-real/recarga-pse.spec.ts:112:5 › con datos válidos, Continuar sigue deshabilitado: aquí se detiene la automatización (7.0s)
+  -  7 [sistema-real] › tests/sistema-real/recarga-pse.spec.ts:127:5 › rojo a propósito · así falla getByLabel (solo para la demo)
+
+  1 skipped
+  6 passed (45.5s)
