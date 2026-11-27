@@ -21,6 +21,23 @@ from fichas_s7 import (PAGES, CPS, COTEJO, ESCALERA, BOLETO_S6, BOLETO, a_html, 
                        PREGUNTA_GUIA, FRASE_PROYECTO, VIAS, KITS, KITS_INTRO, KITS_FRASE, FICHA_PROYECTO, MATRIZ, CRITERIO_LISTO, CHARLA, CHARLA_NOTA,
                        PLAN_PROYECTO, REGLAS_PROYECTO, PLANTILLA_FEATURE, GUIA_SESIONES, LO_PRECISO)
 from fichas_s5 import BOLETO as BOLETO_S5  # noqa: E402
+# S8 (council_S8): la vía D de especificador, el plan del proyecto de la S8 y la guía de la S7 (con el índice del video) y la S8.
+from fichas_s8 import (VIA_ESPECIFICADOR, PROYECTO_S8, PROYECTO_ESPECIFICADOR, GUIA_S7, GUIA_S8,  # noqa: E402
+                       BOLETO as BOLETO_S8)
+# S9 (council_S9): el plan del proyecto de la S9 (la falla provocada y clasificada), la guía de la S9 y su boleto.
+from fichas_s9 import (GUIA_S9, PROYECTO_S9, PROYECTO_ESPECIFICADOR as PROYECTO_ESPECIFICADOR_S9,  # noqa: E402
+                       BOLETO as BOLETO_S9)
+
+VIAS_TODAS = VIAS + [VIA_ESPECIFICADOR]
+# El plan de la S8 sale de PROYECTO_S8 (20 min fijos, en la sala principal), no del plan que se escribió en la S7.
+# El de la S9 sale de PROYECTO_S9 (20 min fijos en la sala principal, y después el ensayo de 90 s en las salas).
+PLAN_PROYECTO = [(ses, f, '20 min fijos', PROYECTO_S8 + ' ' + PROYECTO_ESPECIFICADOR) if ses == 'S8'
+                 else (ses, f, '20 min fijos + el ensayo', PROYECTO_S9 + ' ' + PROYECTO_ESPECIFICADOR_S9) if ses == 'S9'
+                 else (ses, f, t, q)
+                 for ses, f, t, q in PLAN_PROYECTO]
+assert any(ses == 'S8' for ses, _, _, _ in PLAN_PROYECTO), 'El plan del proyecto no tiene la S8'
+assert any(ses == 'S9' for ses, _, _, _ in PLAN_PROYECTO), 'El plan del proyecto no tiene la S9'
+GUIA_TODAS = GUIA_SESIONES + [g for g in (GUIA_S7, GUIA_S8, GUIA_S9) if g['s'] not in {x['s'] for x in GUIA_SESIONES}]
 
 LOGO = re.search(r'<img src="(data:image/png;base64,[^"]+)"', (D / 'plantilla.html').read_text(encoding='utf-8')).group(1)
 PARA_ENVIAR = RAIZ.parent / 'para_enviar'
@@ -30,6 +47,9 @@ e = lambda t: html.escape(t, quote=True)
 SITIO = {
   'plantilla': 'plantilla.html',
   'actividades_s7': 'actividades-s7.html',
+  'actividades_s8': 'actividades-s8.html',
+  'actividades_s9': 'actividades-s9.html',
+  'laminas': 'laminas-s10.html',
   'guia': 'guia-estudio.html',
   'proyecto': 'proyecto.html',
   'lab_s4': 'laboratorio-s4.html',
@@ -129,6 +149,10 @@ table.video td.m { font-family:var(--f-mono); font-weight:600; width:5.5em; whit
 .flecha { font-weight:800; color:var(--morado-osc); }
 ol.pasos-cp { margin:0; padding-left:20px; } ol.pasos-cp li { margin:2px 0; }
 td.id { font-family:var(--f-display); white-space:nowrap; }
+.creditos { font:700 15px/1.4 var(--f-mono); background:var(--surface); border:2px solid var(--ink); border-radius:10px; padding:8px 12px; margin:4px 0; overflow-wrap:anywhere; }
+table.ejemplos { width:auto; min-width:60%; max-width:100%; margin:6px 0; font:13px/1.4 var(--f-mono); background:var(--surface); border:2px solid var(--ink); border-radius:10px; border-collapse:separate; border-spacing:0; overflow:hidden; }
+table.ejemplos th, table.ejemplos td { border-top:1px solid #c9c5ba; padding:5px 10px; } table.ejemplos td:not(:last-child) { white-space:nowrap; } table.ejemplos thead th { border-top:0; background:var(--yellow); color:var(--ink); font:800 13px var(--f-mono); white-space:normal; }
+.via .aviso { background:var(--surface); border:2px dashed var(--ink); border-radius:10px; padding:6px 10px; font-weight:700; }
 .respuestas { background:var(--yellow); border:2px dashed var(--ink); border-radius:12px; padding:4px 14px; margin-top:8px; }
 .respuestas ol.boleto { padding-left:22px; }
 """
@@ -224,11 +248,23 @@ def boleto(bid, titulo, preguntas):
 # ─────────────────────────── proyecto.html ───────────────────────────
 def proyecto(base):
     s = lambda clave: enlace(SITIO[clave], base)
+    def extra_via(v):
+        """La vía D (S8) trae sus límites, cuándo se entrega, la defensa en la S10 y la línea de créditos."""
+        if 'limites' not in v:
+            return ''
+        cid = f'creditos-{v["id"].lower()}'
+        return (f'<dt>Los límites</dt><dd><ul class="lista">' + ''.join(f'<li>{a_html(x)}</li>' for x in v['limites']) + '</ul></dd>'
+                f'<dt>La defensa en la S10</dt><dd>{a_html(v["defensa"])}</dd>'
+                f'<dt>Los créditos (en la primera lámina)</dt><dd><p class="creditos" id="{cid}">{e(v["creditos"])}</p>{boton_copiar(cid, "Copiar los créditos")}</dd>')
+
     vias = ''.join(
-        f'<div class="card via c-{v["color"]}"><p class="paso"><span class="letra">{v["id"]}</span>{e(v["verbo"])}</p>'
-        f'<h3>{e(v["nombre"])}</h3><dl><dt>Para quién</dt><dd>{a_html(v["para"])}</dd><dt>Qué</dt><dd>{a_html(v["que"])}</dd>'
-        f'<dt>Ejemplos</dt><dd><ul class="lista">' + ''.join(f'<li>{a_html(x)}</li>' for x in v['ejemplos']) + '</ul></dd></dl></div>'
-        for v in VIAS)
+        f'<div class="card via c-{v["color"]}" id="via-{v["id"].lower()}"><p class="paso"><span class="letra">{v["id"]}</span>{e(v["verbo"])}</p>'
+        f'<h3>{e(v["nombre"])}</h3>'
+        + (f'<p class="aviso">{a_html(PROYECTO_ESPECIFICADOR)}</p>' if v is VIA_ESPECIFICADOR else '')
+        + f'<dl><dt>Para quién</dt><dd>{a_html(v["para"])}</dd><dt>Qué</dt><dd>{a_html(v["que"])}</dd>'
+        + extra_via(v)
+        + f'<dt>Ejemplos</dt><dd><ul class="lista">' + ''.join(f'<li>{a_html(x)}</li>' for x in v['ejemplos']) + '</ul></dd></dl></div>'
+        for v in VIAS_TODAS)
 
     kits = ''.join(
         f'<a class="card via kit c-{k["color"]}" href="{s(k["id"])}"><p class="paso">vía {e(k["via"])}</p><h3>{e(k["titulo"])}</h3>'
@@ -259,7 +295,10 @@ def proyecto(base):
 
     charla = ''.join(f'<tr><td data-k="Tiempo"><span class="min">{e(m)}</span></td><td data-k="Parte"><b>{a_html(p)}</b></td><td data-k="Qué va">{a_html(q)}</td></tr>'
                      for m, p, q in CHARLA)
-    plan = ''.join(f'<tr><td class="id" data-k="Sesión">{e(ses)}</td><td data-k="Fecha">{e(f)}</td><td data-k="En clase">{e(t)}</td><td data-k="Qué se hace">{a_html(q)}</td></tr>'
+    # S9: la fila lleva el enlace a la plantilla de láminas y a las actividades (la línea «Mi CP · falla · caja · evidencia»).
+    extra_plan = {'S9': f'<p><a class="boton chico" href="{s("laminas")}">La plantilla de láminas</a>'
+                        f'<a class="boton blanco chico" href="{s("actividades_s9")}#proyecto">Actividades S9 · tu falla</a></p>'}
+    plan = ''.join(f'<tr><td class="id" data-k="Sesión">{e(ses)}</td><td data-k="Fecha">{e(f)}</td><td data-k="En clase">{e(t)}</td><td data-k="Qué se hace">{a_html(q)}{extra_plan.get(ses, "")}</td></tr>'
                    for ses, f, t, q in PLAN_PROYECTO)
     reglas = ''.join(f'<li>{a_html(r)}</li>' for r in REGLAS_PROYECTO)
 
@@ -270,7 +309,7 @@ def proyecto(base):
         for cp in CPS)
 
     cuerpo = f'''<h1>El kit de <span class="acc">tu proyecto final</span></h1>
-<p class="lead">Todo lo que necesitas para armar tu proyecto: la pregunta que responde, las tres vías, la ficha de una hoja, el escenario, la matriz de trazabilidad, el criterio de listo y la charla del último día.</p>
+<p class="lead">Todo lo que necesitas para armar tu proyecto: la pregunta que responde, las cuatro vías, la ficha de una hoja, el escenario, la matriz de trazabilidad, el criterio de listo y la charla del último día.</p>
 <p class="rotulo">Todo se trabaja en clase; avanzar por tu cuenta es opcional.</p>
 <nav class="top" aria-label="Secciones">
 <a href="#pregunta">La pregunta</a><a href="#vias">Las vías</a><a href="#kits">Los kits</a><a href="#frase">La frase</a><a href="#ficha">La ficha</a><a href="#escenario">El escenario</a><a href="#matriz">La matriz</a><a href="#listo">Criterio de listo</a><a href="#charla">La charla</a><a href="#plan">Plan por sesión</a><a href="#reglas">Reglas</a><a href="#enlaces">Enlaces y CP</a>
@@ -284,9 +323,9 @@ def proyecto(base):
 </section>
 
 <section id="vias">
-<h2>Tres vías, <span class="acc">el mismo valor</span></h2>
+<h2>Cuatro vías, <span class="acc">el mismo valor</span></h2>
 <p>Elige la que te sirve según lo que puedes hacer en tu equipo y lo que pruebas en tu trabajo.</p>
-<div class="grid3">{vias}</div>
+<div class="grid2">{vias}</div>
 </section>
 
 <section id="kits">
@@ -321,10 +360,10 @@ def proyecto(base):
 
 <section id="escenario">
 <div class="card">
-<div class="cab"><div><h2>Tu escenario en <span class="acc">Gherkin</span></h2><p>Reemplaza lo que está entre <code>&lt;…&gt;</code>. Después pásalo por el revisor de escenarios de las actividades de la S7.</p></div>
+<div class="cab"><div><h2>Tu escenario en <span class="acc">Gherkin</span></h2><p>Reemplaza lo que está entre <code>&lt;…&gt;</code>. Después pásalo por el revisor de escenarios: desde la S8, como Esquema del escenario con su tabla de Ejemplos (en el revisor, «Mi proyecto»).</p></div>
 <div style="flex:none">{boton_copiar("plantilla-feature", "Copiar el .feature")}</div></div>
 <pre class="code" id="plantilla-feature">{e(PLANTILLA_FEATURE)}</pre>
-<a class="boton blanco" href="{s("actividades_s7")}">Abrir el revisor de escenarios (actividades S7)</a>
+<a class="boton" href="{s("actividades_s8")}#revisor">Abrir el revisor con Ejemplos (actividades S8)</a><a class="boton blanco" href="{s("actividades_s7")}">El revisor de la S7</a>
 </div>
 </section>
 
@@ -354,6 +393,7 @@ def proyecto(base):
 <h2>La charla <span class="acc">del último día</span></h2>
 <table class="apilar"><thead><tr><th>Tiempo</th><th>Parte</th><th>Qué va</th></tr></thead><tbody>{charla}</tbody></table>
 <p class="nota" style="font-size:15px">{a_html(CHARLA_NOTA)}</p>
+<p><a class="boton" href="{s("laminas")}">Arma tus láminas con la plantilla (una por página, a 16:9)</a></p>
 </div>
 </section>
 
@@ -375,7 +415,7 @@ def proyecto(base):
 <section id="enlaces">
 <h2>Lo que <span class="acc">vas a usar</span></h2>
 <div class="card">
-<a class="boton" href="{s("plantilla")}">La plantilla del framework</a><a class="boton blanco" href="{s("actividades_s7")}">Actividades S7 · revisor de escenarios</a><a class="boton blanco" href="{s("lab_s6")}">Laboratorio S6</a><a class="boton blanco" href="{s("lab_s5")}">Laboratorio S5</a><a class="boton blanco" href="{s("lab_s4")}">Laboratorio S4</a><a class="boton blanco" href="{s("banco")}">Banco Demo · Recargas</a><a class="boton blanco" href="{s("guia")}">Guía de estudio</a>
+<a class="boton" href="{s("plantilla")}">La plantilla del framework</a><a class="boton blanco" href="{s("laminas")}">La plantilla de láminas (S10)</a><a class="boton blanco" href="{s("actividades_s9")}">Actividades S9 · triage</a><a class="boton blanco" href="{s("actividades_s8")}">Actividades S8 · revisor con Ejemplos</a><a class="boton blanco" href="{s("actividades_s7")}">Actividades S7 · revisor de escenarios</a><a class="boton blanco" href="{s("lab_s6")}">Laboratorio S6</a><a class="boton blanco" href="{s("lab_s5")}">Laboratorio S5</a><a class="boton blanco" href="{s("lab_s4")}">Laboratorio S4</a><a class="boton blanco" href="{s("banco")}">Banco Demo · Recargas</a><a class="boton blanco" href="{s("guia")}">Guía de estudio</a>
 <p class="nota">Banco Demo: usuario <code>ana</code>, clave <code>Clave123</code> (es de práctica) y el código que llega al buzón de SMS.</p>
 </div>
 <div class="card">
@@ -393,7 +433,7 @@ NOTA_VIDEO = 'El video está en el Drive del curso; usa estos minutos para ir al
 
 def guia(base):
     tarjetas = []
-    for g in GUIA_SESIONES:
+    for g in GUIA_TODAS:
         enl = ''.join(f'<a class="boton blanco chico" href="{enlace(u, base)}">{e(t)}</a>' for t, u in g['enlaces'])
         tarjetas.append(
             f'<div class="card sesion"><div class="meta"><span class="chip">{e(g["s"])}</span><span class="chip">{e(g["fecha"])}</span></div>'
@@ -405,7 +445,7 @@ def guia(base):
         f'<div class="card c-cyan" id="video-{g["s"].lower()}"><h3 style="margin-top:0">El video de la {e(g["s"])}, por minuto</h3>'
         f'<p class="nota">{NOTA_VIDEO}</p><table class="video"><tbody>'
         + ''.join(f'<tr><td class="m">{e(m)}</td><td>{a_html(t)}</td></tr>' for m, t in g['video']) + '</tbody></table></div>'
-        for g in GUIA_SESIONES if g.get('video'))
+        for g in GUIA_TODAS if g.get('video'))
 
     preciso = ''.join(f'<tr><td class="oye" data-k="Se oye a veces"><span>«{a_html(o)}»</span></td><td data-k="Lo preciso"><span class="flecha">→</span> {a_html(p)}</td></tr>'
                       for o, p in LO_PRECISO)
@@ -457,6 +497,8 @@ def guia(base):
 {boleto("s5", "S5 · patrones", BOLETO_S5)}
 {boleto("s6", "S6 · configuración, localizadores y esperas", BOLETO_S6)}
 {boleto("s7", "S7 · Gherkin sobre el framework", BOLETO)}
+{boleto("s8", "S8 · Data Driven Testing y el reporte", BOLETO_S8)}
+{boleto("s9", "S9 · ¿sistema, script o ambiente?", BOLETO_S9)}
 </section>'''
     return pagina('Guía de estudio', 'guía de estudio · repaso opcional', cuerpo)
 

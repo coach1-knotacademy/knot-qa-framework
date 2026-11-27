@@ -12,10 +12,15 @@ from pathlib import Path
 D = Path(__file__).parent
 sys.path.insert(0, str(D))
 from generar_proyecto import pagina, RAIZ, PARA_ENVIAR, enlace  # noqa: E402
-from fichas_s7 import PAGES, CPS, a_html  # noqa: E402
+from fichas_s7 import PAGES, CPS as CPS_S7, a_html  # noqa: E402
+from fichas_s8 import SALAS as SALAS_S8, CP_NUEVO  # noqa: E402
 
 e = lambda t: html.escape(t, quote=True)
 SALA = {'CP-102': 'Sala 1', 'CP-103': 'Sala 2', 'CP-104': 'Sala 3', 'CP-105': 'Sala 4', 'CP-106': 'Sala 5'}
+# S8: cada sala hace la tabla de Ejemplos de un CP (fichas_s8.SALAS). El CP-107 es nuevo en la S8.
+SALA_S8 = {s['id']: s for s in SALAS_S8}
+CPS = CPS_S7 + [CP_NUEVO] if CP_NUEVO['id'] not in {c['id'] for c in CPS_S7} else CPS_S7
+assert all(cp in {c['id'] for c in CPS} for cp in SALA_S8), 'Una sala de la S8 tiene un CP que no está en la lista'
 
 
 def escenarios(ruta):
@@ -56,12 +61,29 @@ def tabla_voz():
 
 def cps(base):
     s = lambda r: enlace(r, base)
+    def salas_de(cid):
+        partes = [f'<span class="sala">{SALA[cid]} en la S7</span>'] if cid in SALA else []
+        partes += [f'<span class="sala">{SALA_S8[cid]["sala"]} en la S8</span>'] if cid in SALA_S8 else []
+        partes += ['<span class="sala">nuevo en la S8</span>'] if cid == CP_NUEVO['id'] else []
+        return ''.join(' · ' + x for x in partes)
+
+    def ejemplos_s8(cid):
+        """La tabla de Ejemplos que la sala de la S8 convierte en pruebas (los datos, no la solución en Gherkin)."""
+        if cid not in SALA_S8:
+            return ''
+        s8 = SALA_S8[cid]
+        return (f'<p class="paso" style="margin-top:12px">{s8["sala"]} en la S8 · su tabla de Ejemplos</p>'
+                '<table class="ejemplos"><thead><tr>' + ''.join(f'<th>{e(c)}</th>' for c in s8['columnas']) + '</tr></thead><tbody>'
+                + ''.join('<tr>' + ''.join(f'<td>{e(v)}</td>' for v in f) + '</tr>' for f in s8['filas']) + '</tbody></table>'
+                f'<p class="nota">{len(s8["filas"])} filas: salen {len(s8["filas"])} pruebas, una por fila, con el mismo «Entonces».</p>')
+
     banco = ''.join(
-        f'<article class="card cp" id="{c["id"]}"><p class="paso">{c["id"]}{" · <span class=\"sala\">" + SALA[c["id"]] + " en la S7</span>" if c["id"] in SALA else ""}</p>'
+        f'<article class="card cp" id="{c["id"]}"><p class="paso">{c["id"]}{salas_de(c["id"])}</p>'
         f'<h3>{e(c["titulo"])}</h3><p><b>Precondición:</b> {a_html(c["pre"])}</p>'
         f'<ol>{"".join(f"<li>{a_html(p)}</li>" for p in c["pasos"])}</ol><p><b>Esperado:</b> {a_html(c["esperado"])}</p>'
-        + (f'<p class="nota">{a_html(c["nota"])}</p>' if c.get('nota') else '') + '</article>'
+        + (f'<p class="nota">{a_html(c["nota"])}</p>' if c.get('nota') else '') + ejemplos_s8(c['id']) + '</article>'
         for c in CPS)
+    salas_s8 = ' · '.join(f'{s8["sala"]} {s8["id"]}' for s8 in SALAS_S8)
 
     def bloque(ruta):
         return ''.join(f'<article class="card cp" id="{i}"><p class="paso">{i}</p><h3>{e(t)}</h3><pre class="code">{e(g)}</pre></article>'
@@ -78,11 +100,11 @@ def cps(base):
 <h1>Los casos <span class="acc">de prueba</span></h1>
 <p class="lead">Todos los CP del curso en una sola página, para saber siempre de qué caso se habla. Déjala abierta en una pestaña durante la clase.</p>
 <div class="rotulo">Son casos de sistemas de práctica. Nunca se usan casos del ALM del banco.</div>
-<nav class="top" aria-label="Casos"><a href="#banco">Banco Demo · CP-101 a CP-106</a><a href="#tienda">Tienda · CP-501 a CP-507</a><a href="#voz">Voz · CP-301 a CP-306</a><a href="#movil">Móvil · CP-401 a CP-404</a></nav>
+<nav class="top" aria-label="Casos"><a href="#banco">Banco Demo · CP-101 a CP-107</a><a href="#tienda">Tienda · CP-501 a CP-507</a><a href="#voz">Voz · CP-301 a CP-306</a><a href="#movil">Móvil · CP-401 a CP-404</a></nav>
 
 <section id="banco">
 <h2>Banco Demo · <span class="acc">recargas</span></h2>
-<p>Los de la S6 y la S7. En la S7 cada sala escribe el suyo en Gherkin: <b>Sala 1 CP-102 · Sala 2 CP-103 · Sala 3 CP-104 · Sala 4 CP-105 · Sala 5 CP-106</b>. El CP-101 es el modelo resuelto. Ir a: {indice}</p>
+<p>Los de la S6 a la S8. En la S7 cada sala escribe el suyo en Gherkin: <b>Sala 1 CP-102 · Sala 2 CP-103 · Sala 3 CP-104 · Sala 4 CP-105 · Sala 5 CP-106</b>. En la S8 cada sala convierte una tabla de Ejemplos en pruebas: <b>{salas_s8}</b>. El CP-101 es el modelo resuelto. Ir a: {indice}</p>
 <p><a class="boton" href="{s("banco/recargas.html")}">Abrir Recargas en el Banco Demo</a> <span class="nota">usuario <code>ana</code> · clave <code>Clave123</code> · el código solo sale para más de $50.000</span></p>
 <div class="grid2">{banco}</div>
 </section>

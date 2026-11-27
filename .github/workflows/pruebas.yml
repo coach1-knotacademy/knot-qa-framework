@@ -1,5 +1,6 @@
 # Cada cambio corre todas las pruebas en la nube y deja las evidencias con pantallazos.
-# Esto es un pipeline: lo construiremos paso a paso en la S10.
+# Esto es un pipeline: corre desde la S3 en cada push y en la S9 aprendemos a leerlo (es su job de Jenkins o de Azure DevOps).
+# No corre el triage de la S9 (sus rojos son a propósito): ese solo corre si se pide, con --project=triage.
 name: Pruebas
 
 on:

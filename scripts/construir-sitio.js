@@ -32,6 +32,10 @@ for (const [origen, destino] of [
   ['laboratorio_S6.html', 'laboratorio-s6.html'], ['actividades_S6.html', 'actividades-s6.html'], ['plantilla.html', 'plantilla.html'],
   // S7 · Gherkin con el revisor de escenarios, el kit del proyecto final y la guía de estudio (repaso opcional).
   ['actividades_S7.html', 'actividades-s7.html'], ['proyecto.html', 'proyecto.html'], ['guia_estudio.html', 'guia-estudio.html'],
+  // S8 · Data Driven Testing: el revisor con Ejemplos (un borrador por CP) y el reporte que lee negocio.
+  ['actividades_S8.html', 'actividades-s8.html'],
+  // S9 · Triage (sistema, script o ambiente) con las capturas incrustadas, y la plantilla de las láminas de la S10.
+  ['actividades_S9.html', 'actividades-s9.html'], ['laminas_s10.html', 'laminas-s10.html'],
   // Kits para empezar con algo real (voz, móvil, web real, integraciones).
   ['voz.html', 'voz.html'], ['movil.html', 'movil.html'], ['web_real.html', 'web-real.html'], ['integraciones.html', 'integraciones.html'],
   ['cps.html', 'cps.html'],
@@ -50,6 +54,8 @@ fs.cpSync(path.join('banco-demo', 'ambientes'), path.join(SALIDA, 'ambientes'), 
 fs.cpSync(path.join('banco-demo', 'postman'), path.join(SALIDA, 'postman'), { recursive: true });
 // S5 · El reporte de la suite de ParaBank (con videos y traces), si la corrida lo generó.
 if (fs.existsSync(path.join('reporte-parabank', 'index.html'))) fs.cpSync('reporte-parabank', path.join(SALIDA, 'reportes', 'parabank'), { recursive: true });
+// S9 · El reporte del triage (los 4 rojos y el flaky, con sus traces), los zips con nombre y las capturas (npm run triage:generar).
+if (fs.existsSync(path.join('reportes', 'triage', 'index.html'))) fs.cpSync(path.join('reportes', 'triage'), path.join(SALIDA, 'reportes', 'triage'), { recursive: true });
 if (fs.existsSync('evidencias.html')) fs.copyFileSync('evidencias.html', path.join(SALIDA, 'evidencias.html'));
 fs.copyFileSync(path.join('banco-demo', 'calculadora.html'), path.join(SALIDA, 'calculadora.html'));
 fs.copyFileSync(path.join('banco-demo', 'portada.html'), path.join(SALIDA, 'index.html'));

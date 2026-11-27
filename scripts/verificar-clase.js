@@ -5,8 +5,10 @@
 //   npm run verificar-clase                      detecta el estado por los PENDIENTE
 //   npm run verificar-clase -- s06-inicio        exige exactamente el estado de esa etiqueta
 //   npm run verificar-clase -- --proyectos=ui,unidad   corre solo esos proyectos
+//   npm run verificar-clase -- --proyectos=triage      S9 · los rojos a propósito: se muestran aparte, no son problemas
 //
 // Termina con código 0 si el estado es el esperado y con 1 si hay algo que revisar.
+// S9 · Una prueba FLAKY (falló y pasó al reintentar) no cuenta como verde: cuenta como ALERTA y el resumen lo dice.
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
@@ -67,7 +69,21 @@ const ESTADOS = {
   // S7 · Gherkin no agrega retos de código (la práctica es el escenario y el mapeo): las pruebas quedan como en la S6.
   's07-inicio': { pendientes: { S3: [], S4: [], S5: [], S6: [1, 2] }, retosS04: true, retosS05: true, retosS06: true, confirmados: TODOS },
   's07-solucion': { pendientes: { S3: [], S4: [], S5: [], S6: [1, 2] }, retosS04: true, retosS05: true, retosS06: true, confirmados: TODOS },
+  // S8 · Una prueba, muchos datos: tampoco hay retos de código. Entra una prueba BASE, tests/recargas/CP-104-limites.spec.ts
+  // (un test() por fila de la tabla). En la solución están además las de las otras 4 salas (CP-101, 103, 105 y 107).
+  's08-inicio': { pendientes: { S3: [], S4: [], S5: [], S6: [1, 2] }, retosS04: true, retosS05: true, retosS06: true, ddtS08: 'inicio', confirmados: TODOS },
+  's08-solucion': { pendientes: { S3: [], S4: [], S5: [], S6: [1, 2] }, retosS04: true, retosS05: true, retosS06: true, ddtS08: 'solucion', confirmados: TODOS },
+  // S9 · Triage de fallas: tampoco hay retos de código (la práctica es clasificar rojos). Entran tests/triage-s09/ (el proyecto
+  // «triage», que solo corre si se pide: no está en esta corrida) y src/soporte/registro.ts. Inicio y solución quedan iguales.
+  's09-inicio': { pendientes: { S3: [], S4: [], S5: [], S6: [1, 2] }, retosS04: true, retosS05: true, retosS06: true, ddtS08: 'inicio', triageS09: true, confirmados: TODOS },
+  's09-solucion': { pendientes: { S3: [], S4: [], S5: [], S6: [1, 2] }, retosS04: true, retosS05: true, retosS06: true, ddtS08: 'inicio', triageS09: true, confirmados: TODOS },
 };
+// S8 · Las pruebas de datos: la del mírame (siempre desde la S8) y las de las salas (solo en la solución).
+const DDT_S08 = path.join(RAIZ, 'tests', 'recargas', 'CP-104-limites.spec.ts');
+const DDT_S08_SALAS = ['CP-101-sin-codigo', 'CP-103-celulares', 'CP-105-limite-diario', 'CP-107-operadores']
+  .map((nombre) => path.join(RAIZ, 'tests', 'recargas', `${nombre}.spec.ts`));
+// S9 · El triage: los rojos a propósito (proyecto «triage») y el registro de la corrida.
+const TRIAGE_S09 = [path.join(RAIZ, 'tests', 'triage-s09'), path.join(RAIZ, 'src', 'soporte', 'registro.ts')];
 
 // ---------- Argumentos ----------
 const argumentos = process.argv.slice(2);
@@ -129,7 +145,9 @@ function recorrer(suite, archivo) {
       if (prueba.status === 'skipped') tipo = 'omitida';
       else if (pendiente) tipo = 'pendiente';
       else if (hallazgo) tipo = prueba.status === 'expected' ? 'hallazgo' : 'alerta';
-      else tipo = prueba.status === 'expected' || prueba.status === 'flaky' ? 'verde' : 'rojo';
+      // S9 · flaky = falló y pasó al reintentar. NO es un verde: es una alerta que hay que investigar.
+      else if (prueba.status === 'flaky') tipo = 'flaky';
+      else tipo = prueba.status === 'expected' ? 'verde' : 'rojo';
 
       pruebas.push({
         archivo: nombre.replace(/^tests\//, '').replace(/\.spec\.ts$/, ''),
@@ -138,6 +156,7 @@ function recorrer(suite, archivo) {
         tipo,
         error: error.split('\n').find((l) => l.trim()) || '',
         hallazgo: hallazgo ? hallazgo.description.split(':')[0] : null,
+        intentos: prueba.results.length,
         sesion: { 'retos-s03': 'S3', 'retos-s04': 'S4', 'retos-s05': 'S5', 'retos-s06': 'S6' }[carpeta] || null,
         reto: retoDelArchivo ? Number(retoDelArchivo[1]) : null,
         pendienteDe: pendiente ? { sesion: pendiente[1], reto: Number(pendiente[2]) } : null,
@@ -158,14 +177,20 @@ const columna = (t, n) => String(t).padEnd(n);
 console.log('');
 console.log(negrita('PRUEBAS BASE') + ' (deben estar en verde)');
 linea();
-const base = pruebas.filter((p) => !p.sesion && p.tipo !== 'hallazgo' && p.tipo !== 'alerta');
+// S9 · Los rojos del triage (tests/triage-s09) fallan a propósito: van en su propia tabla, más abajo.
+const esTriage = (p) => p.carpeta === 'triage-s09';
+const base = pruebas.filter((p) => !p.sesion && !esTriage(p) && p.tipo !== 'hallazgo' && p.tipo !== 'alerta');
 const porArchivo = new Map();
 for (const p of base) porArchivo.set(p.archivo, [...(porArchivo.get(p.archivo) || []), p]);
 for (const [archivo, lista] of porArchivo) {
   const bien = lista.filter((p) => p.tipo === 'verde').length;
-  const estado = bien === lista.length ? etiqueta('OK', verde) : etiqueta('FALLA', rojo);
+  const hayRojo = lista.some((p) => p.tipo !== 'verde' && p.tipo !== 'flaky');
+  const estado = bien === lista.length ? etiqueta('OK', verde) : hayRojo ? etiqueta('FALLA', rojo) : etiqueta('ALERTA', amarillo);
   console.log(`${estado}${columna(archivo, 40)}${bien}/${lista.length} en verde`);
-  for (const p of lista.filter((x) => x.tipo !== 'verde')) {
+  for (const p of lista.filter((x) => x.tipo === 'flaky')) {
+    console.log(amarillo(`        - ${p.titulo}: FLAKY, pasó en el intento ${p.intentos}. No es un verde: abre un ticket.`));
+  }
+  for (const p of lista.filter((x) => x.tipo !== 'verde' && x.tipo !== 'flaky')) {
     console.log(rojo(`        - ${p.titulo}: ${p.error.slice(0, 120)}`));
     problemas.push(`Prueba base en rojo: ${p.archivo} › ${p.titulo}`);
   }
@@ -196,18 +221,36 @@ for (const sesion of ['S3', 'S4', 'S5', 'S6']) {
     const lista = pruebas.filter((p) => p.sesion === sesion && p.reto === Number(numero));
     if (!lista.length) continue;
     const enRojo = lista.filter((p) => p.tipo === 'rojo' || p.tipo === 'alerta');
+    const flakyDelReto = lista.filter((p) => p.tipo === 'flaky');
     let estado;
     if (enRojo.length) estado = etiqueta('CON ERRORES', rojo);
+    else if (flakyDelReto.length) estado = etiqueta('ALERTA', amarillo);
     else if (pendientesPorSesion[sesion].has(Number(numero))) estado = etiqueta('PENDIENTE', amarillo);
     else {
       estado = etiqueta('RESUELTO', verde);
       resueltosPorSesion[sesion] += 1;
     }
     console.log(`${estado}Reto ${numero} · ${columna(nombre, 42)}${lista.length} pruebas`);
+    for (const p of flakyDelReto) console.log(amarillo(`            - ${p.titulo}: FLAKY, pasó en el intento ${p.intentos}. No es un verde.`));
     for (const p of enRojo) {
       console.log(rojo(`            - ${p.titulo}: ${p.error.slice(0, 120)}`));
       problemas.push(`Reto ${numero} de la ${sesion} con una prueba en rojo: ${p.titulo}`);
     }
+  }
+}
+
+// ---------- 4b. S9 · Los rojos del triage (solo si se pidió --proyectos=triage) ----------
+const delTriage = pruebas.filter(esTriage);
+if (delTriage.length) {
+  console.log('');
+  console.log(negrita('TRIAGE S9') + ' (rojos a propósito: fallan para clasificarlos; no son problemas del repo)');
+  linea();
+  for (const p of delTriage) {
+    const estado = p.tipo === 'omitida' ? etiqueta('APARTE', azul) : p.tipo === 'flaky' ? etiqueta('FLAKY', amarillo)
+      : p.tipo === 'rojo' ? etiqueta('ROJO', rojo) : etiqueta('PASÓ', verde);
+    const detalle = p.tipo === 'omitida' ? 'se corre con npm.cmd run triage:sin-clave'
+      : p.tipo === 'flaky' ? `pasó en el intento ${p.intentos}: alerta, no verde` : p.tipo === 'rojo' ? p.error.slice(0, 90) : 'este rojo ya no falla: ¿lo arreglaste en tu repo (por ejemplo, el reto 2 de la S6)?';
+    console.log(`${estado}${p.titulo.slice(0, 40).padEnd(42)}${detalle}`);
   }
 }
 
@@ -242,8 +285,14 @@ for (const [id, { texto, necesita }] of Object.entries(HALLAZGOS)) {
 }
 
 // ---------- 6. Estado del repo ----------
+const hayDdtS08 = fs.existsSync(DDT_S08);
+const hayDdtS08Salas = DDT_S08_SALAS.every((archivo) => fs.existsSync(archivo));
+const hayTriageS09 = TRIAGE_S09.every((archivo) => fs.existsSync(archivo));
 let detectado;
-if (hayRetosS06) detectado = pendientesPorSesion.S6.size ? 's06-inicio' : 's06-solucion';
+// S9 no tiene retos de código: con el triage en el repo, inicio y solución se ven iguales (se detecta s09-inicio).
+if (hayTriageS09) detectado = 's09-inicio';
+else if (hayDdtS08) detectado = hayDdtS08Salas ? 's08-solucion' : 's08-inicio';
+else if (hayRetosS06) detectado = pendientesPorSesion.S6.size ? 's06-inicio' : 's06-solucion';
 else if (hayRetosS05) detectado = pendientesPorSesion.S5.size ? 's05-inicio' : 's05-solucion';
 else if (hayRetosS04) detectado = pendientesPorSesion.S4.size ? 's04-inicio' : 's04-solucion';
 else detectado = pendientesPorSesion.S3.size ? 's03-inicio' : 's03-solucion';
@@ -261,6 +310,11 @@ if (pedido && corridaCompleta) {
   if (regla.retosS06 !== hayRetosS06) {
     problemas.push(regla.retosS06 ? 'Faltan los retos de la S6 (tests/retos-s06).' : 'Los retos de la S6 no deberían estar todavía.');
   }
+  if (Boolean(regla.triageS09) !== hayTriageS09) {
+    problemas.push(regla.triageS09 ? 'Falta el triage de la S9 (tests/triage-s09 y src/soporte/registro.ts).' : 'El triage de la S9 (tests/triage-s09) no debería estar todavía.');
+  }
+  if (regla.ddtS08 && !hayDdtS08) problemas.push('Falta la prueba de datos de la S8 (tests/recargas/CP-104-limites.spec.ts).');
+  if (regla.ddtS08 === 'solucion' && !hayDdtS08Salas) problemas.push('Faltan las pruebas de datos de las salas de la S8 (CP-101, 103, 105 y 107 en tests/recargas/).');
   for (const sesion of ['S3', 'S4', 'S5', 'S6']) {
     const tiene = lista(pendientesPorSesion[sesion]);
     const debe = lista(regla.pendientes[sesion]);
@@ -282,7 +336,11 @@ if (corridaCompleta) {
 } else {
   console.log(`Corrida parcial (${proyectos.join(', ')}): solo se revisa que no haya pruebas en rojo.`);
 }
-console.log(`Pruebas: ${pruebas.length} en total · ${cuenta('verde')} en verde · ${cuenta('pendiente')} pendientes · ${cuenta('hallazgo')} hallazgos · ${cuenta('rojo') + cuenta('alerta')} en rojo`);
+const enRojo = pruebas.filter((p) => !esTriage(p) && (p.tipo === 'rojo' || p.tipo === 'alerta')).length;
+const flaky = pruebas.filter((p) => !esTriage(p) && p.tipo === 'flaky');
+console.log(`Pruebas: ${pruebas.length} en total · ${cuenta('verde')} en verde · ${flaky.length} flaky (alerta) · ${cuenta('pendiente')} pendientes · ${cuenta('hallazgo')} hallazgos · ${enRojo} en rojo`);
+if (flaky.length) console.log(amarillo(`Flaky: ${flaky.length} prueba(s) fallaron y pasaron al reintentar. No cuentan como verde: cada una es una alerta con ticket.`));
+if (delTriage.length) console.log(`Triage S9: ${delTriage.filter((p) => p.tipo === 'rojo').length} rojos a propósito (no cuentan como problemas del repo).`);
 if (corrioSesion('S3')) console.log(`Retos S3: ${resueltos('S3')} de 5 resueltos`);
 if (hayRetosS04 && corrioSesion('S4')) console.log(`Retos S4: ${resueltos('S4')} de 5 resueltos`);
 if (hayRetosS05 && corrioSesion('S5')) console.log(`Retos S5: ${resueltos('S5')} de 2 resueltos`);
@@ -293,8 +351,9 @@ console.log('');
 
 if (process.env.GITHUB_STEP_SUMMARY) {
   fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## Verificación de clase: ${corridaCompleta ? esperado : 'corrida parcial'} ${problemas.length ? '🔴' : '🟢'}\n\n` +
-    `| Base en verde | Pendientes | Hallazgos | En rojo |\n|---|---|---|---|\n` +
-    `| ${cuenta('verde')} | ${cuenta('pendiente')} | ${cuenta('hallazgo')} | ${cuenta('rojo') + cuenta('alerta')} |\n\n` +
+    `| Base en verde | Flaky (alerta) | Pendientes | Hallazgos | En rojo |\n|---|---|---|---|---|\n` +
+    `| ${cuenta('verde')} | ${flaky.length} | ${cuenta('pendiente')} | ${cuenta('hallazgo')} | ${enRojo} |\n\n` +
+    (flaky.length ? flaky.map((p) => `- ⚠️ Flaky (pasó en el intento ${p.intentos}): ${p.archivo} › ${p.titulo}`).join('\n') + '\n\n' : '') +
     (problemas.length ? problemas.map((p) => `- ${p}`).join('\n') + '\n\n' : ''));
 }
 
@@ -303,4 +362,11 @@ if (problemas.length) {
   for (const p of problemas) console.log(rojo(`  - ${p}`));
   process.exit(1);
 }
-console.log(verde(negrita(corridaCompleta ? `TODO EN ORDEN: el repo está como se espera para ${esperado}.` : 'TODO EN ORDEN: ninguna prueba en rojo.')));
+if (flaky.length) {
+  // Una alerta no rompe el pipeline, pero tampoco se llama «todo en orden»: se dice y se abre un ticket.
+  console.log(amarillo(negrita(`EN ORDEN, CON ${flaky.length} ALERTA(S) FLAKY: no son un verde. Abre un ticket por cada una:`)));
+  for (const p of flaky) console.log(amarillo(`  - ${p.archivo} › ${p.titulo} (pasó en el intento ${p.intentos})`));
+  process.exit(0);
+}
+const fueraDelTriage = delTriage.length ? ' fuera de los rojos a propósito del triage' : '';
+console.log(verde(negrita(corridaCompleta ? `TODO EN ORDEN: el repo está como se espera para ${esperado}.` : `TODO EN ORDEN: ninguna prueba en rojo${fueraDelTriage}.`)));

@@ -38,6 +38,11 @@ const conToolshop = process.env.KNOT_TOOLSHOP === '1';
 // Solo existe si alguien pone SISTEMA_REAL=1 a propósito y no está en un servidor de CI.
 const conSistemaReal = process.env.SISTEMA_REAL === '1' && !process.env.CI;
 
+// S9 · El triage: cuatro rojos A PROPÓSITO (sistema, script y ambiente) y un flaky. Solo corre si se pide
+// (npx.cmd playwright test --project=triage): nunca en la corrida por defecto ni en la de CI (npm run verificar-clase).
+if (pedidos.includes('triage')) process.env.KNOT_TRIAGE = '1';
+const conTriage = process.env.KNOT_TRIAGE === '1';
+
 // Estos proyectos no usan el Banco Demo: si solo corres esos, no se inicia.
 const SIN_BANCO_DEMO = ['unidad', 'retos-s05', 'retos-s06', 'parabank', 'toolshop', 'sistema-real', 'voz'];
 const soloUnidad = pedidos.length > 0 && pedidos.every((p) => SIN_BANCO_DEMO.includes(p));
@@ -123,6 +128,16 @@ export default defineConfig({
             trace: 'on' as const,
             actionTimeout: 15_000,
           },
+        }]
+      : []),
+    // S9 · Triage de fallas: cada rojo deja su trace y su captura, pase o no (para leerlos en clase y publicarlos).
+    // retries en 0, como todo el repo: el flaky se muestra a propósito con --retries=1, en la línea de comandos.
+    ...(conTriage
+      ? [{
+          name: 'triage',
+          testDir: 'tests/triage-s09',
+          retries: 0,
+          use: { ...conNavegador, screenshot: 'on' as const, trace: 'on' as const },
         }]
       : []),
     // Kit «web real» · El sistema REAL (formulario público de recarga por PSE). Solo el instructor, solo con SISTEMA_REAL=1.

@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Actividades S8 Datos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=Nunito:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>:root { --bg:#f7f6f2; --surface:#fff; --ink:#1d2130; --muted:#454a58; --morado:#8b55f6; --morado-osc:#5b34c9; --neon:#8be000;
+  --lav:#e7defe; --lime:#e2f7c9; --peach:#ffdccf; --cyan:#d3f4f7; --yellow:#fffccb; --ok:#2f7d32; --bad:#c62828;
+  --f-display:"Archivo Black","Arial Black",Impact,sans-serif; --f-body:"Nunito","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",Consolas,"Cascadia Mono",Menlo,monospace; color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin:0; background-color:var(--bg); background-image:radial-gradient(#d9d6cc 1.2px, transparent 1.2px); background-size:22px 22px; color:var(--ink); font:16px/1.5 var(--f-body); }
+.wrap { max-width:1100px; margin:0 auto; padding:0 16px 48px; }
+.knot-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 0 0; font:800 14px var(--f-body); flex-wrap:wrap; }
+.knot-bar span { display:flex; align-items:center; gap:8px; } .knot-bar img { height:26px; } .knot-bar small { font-weight:600; color:var(--muted); }
+h1, h2, h3 { font-family:var(--f-display); font-weight:400; letter-spacing:-.01em; line-height:1.15; text-wrap:balance; }
+h1 { font-size:clamp(28px,5vw,44px); margin:22px 0 6px; } h1 .acc, h2 .acc { color:var(--morado-osc); }
+h2 { font-size:clamp(22px,3.4vw,30px); margin:0 0 6px; } h3 { font-size:19px; margin:14px 0 6px; }
+.lead { font-size:18px; max-width:760px; }
+nav.top { position:sticky; top:0; z-index:5; background:var(--bg); padding:10px 0; display:flex; gap:8px; flex-wrap:wrap; border-bottom:2px solid var(--ink); margin-bottom:18px; }
+nav.top a { color:var(--ink); text-decoration:none; border:2px solid var(--ink); border-radius:999px; padding:4px 12px; font-weight:800; font-size:14px; background:var(--surface); }
+nav.top a:hover { background:var(--lav); }
+@media (max-width:820px) { nav.top { position:static; } }
+section { margin:30px 0; scroll-margin-top:110px; }
+.card { background:var(--surface); border:2px solid var(--ink); border-radius:14px; box-shadow:5px 5px 0 var(--ink); padding:18px 20px; margin:14px 0; min-width:0; overflow-wrap:anywhere; }
+@media (max-width:480px) { .card { padding:14px 14px; } }
+.c-lav { background:var(--lav); } .c-lime { background:var(--lime); } .c-peach { background:var(--peach); } .c-cyan { background:var(--cyan); } .c-yel { background:var(--yellow); }
+.meta { display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 10px; }
+.chip code { background:none; padding:0; }
+.chip { border:2px solid var(--ink); border-radius:999px; padding:3px 10px; font-weight:800; font-size:13px; background:var(--surface); }
+.grid2, .grid3 { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; } .grid3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.grid2 > *, .grid3 > * { min-width:0; } .grid3 > .card { margin:0; }
+@media (max-width:820px) { .grid2, .grid3 { grid-template-columns:minmax(0,1fr); } }
+code { font-family:var(--f-mono); font-size:.88em; background:#efece3; border-radius:5px; padding:1px 5px; overflow-wrap:anywhere; }
+pre.code { max-width:100%; overflow-wrap:normal; font:13px/1.55 var(--f-mono); background:#1f2331; color:#e8ebf2; border:2px solid var(--ink); border-radius:12px; padding:14px; overflow:auto; margin:10px 0; }
+pre.comparar { white-space:pre-wrap; overflow-wrap:anywhere; font-size:12.5px; }
+pre.comparar .ln { padding:0 4px; border-radius:4px; } pre.comparar .ln::before { content:none; }
+pre.comparar .m-rojo { background:#5a1f2a; } pre.comparar .m-ambar { background:#4d3d12; } pre.comparar .m-verde { background:#173f2a; }
+.insignia { display:inline-grid; place-items:center; min-width:1.5em; height:1.5em; padding:0 4px; border-radius:999px; font:800 12px/1 var(--f-body); text-indent:0; vertical-align:middle; }
+.i-rojo { background:#ff8a8a; color:#2a0b10; } .i-ambar { background:#ffd36b; color:#2b2000; } .i-verde { background:#8be3a8; color:#06240f; }
+ol.leyenda { list-style:none; padding:0; margin:8px 0; } ol.leyenda li { margin:6px 0; } ol.leyenda .insignia { margin-right:6px; }
+pre.num { counter-reset:l; } pre.num .ln { display:block; } pre.num .ln::before { counter-increment:l; content:counter(l); display:inline-block; width:2.4em; color:#8c93a8; }
+table { width:100%; border-collapse:collapse; } td, th { border-top:2px solid var(--ink); padding:10px 8px; vertical-align:top; text-align:left; }
+th { font-weight:800; font-size:14px; color:var(--muted); }
+td.n { font-family:var(--f-display); width:2em; } td.opc { width:1%; white-space:nowrap; } td.cod { width:44%; } td.cod code { white-space:pre-wrap; }
+@media (max-width:820px) { td.opc { white-space:normal; } table.clasif, table.clasif tbody, table.clasif tr, table.clasif td, table.trad, table.trad tbody, table.trad tr, table.trad td, table.apilar, table.apilar tbody, table.apilar tr, table.apilar td { display:block; }
+  table.trad thead, table.apilar thead { display:none; } td.n { width:auto; border-top:2px solid var(--ink); padding-bottom:0; } table.clasif td:not(.n) { border-top:0; }
+  table.trad td, table.apilar td { border-top:0; padding:4px 8px; } table.trad tr, table.apilar tr { border-top:2px solid var(--ink); padding:6px 0; } td.cod { width:auto; } }
+button { font:800 14px var(--f-body); border:2px solid var(--ink); border-radius:10px; background:var(--surface); color:var(--ink); padding:6px 10px; margin:2px; cursor:pointer; }
+button:hover { background:var(--lav); } button.sel { background:var(--morado-osc); color:#fff; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline:3px solid var(--morado-osc); outline-offset:2px; }
+button.grande { background:var(--neon); box-shadow:3px 3px 0 var(--ink); padding:9px 16px; font-size:15px; }
+tr.bien td { background:#eefbe3; } tr.mal td { background:#ffe9e3; } .exp { margin-top:6px; font-size:14px; }
+.puntaje { font-weight:800; margin-left:10px; }
+ol.pasos li, ul.lista li, ol.lista li, ol.boleto li { margin:6px 0; } .fix { color:var(--morado-osc); font-weight:700; }
+.nota { color:var(--muted); font-size:14px; }
+a.boton { display:inline-block; text-decoration:none; color:var(--ink); background:var(--neon); border:2px solid var(--ink); border-radius:10px; box-shadow:3px 3px 0 var(--ink); padding:9px 16px; font-weight:800; margin:4px 6px 4px 0; }
+a.boton.blanco { background:var(--surface); }
+.frase { display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:17px; }
+.frase input, .frase select, select.cp-sel { font:16px var(--f-body); border:2px solid var(--ink); border-radius:8px; padding:6px 8px; min-width:0; max-width:100%; background:var(--surface); color:var(--ink); }
+.frase input { flex:1 1 200px; }
+textarea { width:100%; min-height:110px; font:15px/1.5 var(--f-body); border:2px solid var(--ink); border-radius:10px; padding:10px; }
+.cp-prac table.trad td:nth-child(3) { width:48%; } @media (max-width:820px) { .cp-prac table.trad td:nth-child(3) { width:auto; } }
+table.trad input { width:100%; font:14px var(--f-mono); border:2px solid var(--ink); border-radius:8px; padding:6px 8px; }
+.ok { color:var(--ok); font-weight:800; margin-left:6px; }
+.ficha-card h2 { color:var(--morado-osc); }
+.ficha { display:grid; grid-template-columns:minmax(0,15em) minmax(0,1fr); border-top:2px solid var(--ink); }
+.ficha .fk, .ficha .fv { padding:9px 8px; border-bottom:1px solid #c9c5ba; } .ficha .fk { font-weight:800; color:var(--morado-osc); }
+@media (max-width:820px) { .ficha { grid-template-columns:minmax(0,1fr); } .ficha .fk { border-bottom:0; padding-bottom:0; } }
+.desde { font-weight:700; } .paso { font:400 15px var(--f-display); color:var(--morado-osc); margin:0 0 4px; }
+.opciones { margin:2px 0 8px; }
+details { margin:8px 0; } summary { cursor:pointer; font-weight:800; }
+.check { display:flex; gap:10px; align-items:flex-start; cursor:pointer; } .check input { width:20px; height:20px; margin-top:3px; flex:none; accent-color:var(--morado-osc); }
+ul.checks { list-style:none; padding-left:0; } ul.checks li { margin:8px 0; }
+.ves { margin:2px 0 10px; font-size:15px; background:var(--surface); border:2px dashed #9a968b; border-radius:10px; padding:6px 10px; }
+ol.escalera { list-style:none; padding:0; margin:12px 0; }
+.peldano { display:flex; gap:12px; align-items:flex-start; border:2px solid var(--ink); border-radius:12px; background:var(--surface); padding:10px 12px; margin:8px 0; box-shadow:3px 3px 0 var(--ink); }
+.peldano .num { font:400 22px var(--f-display); width:1.6em; flex:none; color:var(--morado-osc); }
+.peldano > div { min-width:0; }
+.p1 { margin-right:16%; } .p2 { margin-left:4%; margin-right:12%; } .p3 { margin-left:8%; margin-right:8%; } .p4 { margin-left:12%; margin-right:4%; } .p5 { margin-left:16%; background:var(--peach); }
+@media (max-width:600px) { .p1, .p2, .p3, .p4, .p5 { margin-left:0; margin-right:0; } }
+.tipo { display:inline-block; border:2px solid var(--ink); border-radius:999px; padding:1px 9px; font-weight:800; font-size:12.5px; white-space:nowrap; }
+.t-ambiente { background:var(--cyan); } .t-pre { background:var(--lav); } .t-paso { background:var(--lime); } .t-dato { background:var(--yellow); } .t-esperado { background:var(--peach); }
+.contador { font:400 18px var(--f-display); color:var(--morado-osc); }
+.cp h3 { font-size:18px; }
+.cps { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; } .cps > .card { margin:0; }
+@media (max-width:980px) { .cps { grid-template-columns:minmax(0,1fr) minmax(0,1fr); } } @media (max-width:640px) { .cps { grid-template-columns:minmax(0,1fr); } }
+/* S7: el revisor y el mapeo */
+[hidden] { display:none !important; }
+@media (max-width:820px) { td.opc { width:auto; } }
+pre.code, code, textarea.gherkin { font-variant-ligatures:none; }
+.grid2 pre.code { white-space:pre-wrap; overflow-wrap:anywhere; }
+.idea { font:400 clamp(18px,2.6vw,22px)/1.35 var(--f-display); margin:6px 0 12px; max-width:860px; }
+.objetivo { display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; }
+.objetivo b.k { font:400 14px var(--f-display); color:var(--morado-osc); text-transform:uppercase; letter-spacing:.04em; }
+.linea-cp { margin:4px 0; }
+.frase-grande { font:400 clamp(17px,2.4vw,21px)/1.4 var(--f-display); margin:8px 0; }
+.letras { font:400 22px var(--f-display); color:var(--morado-osc); letter-spacing:.2em; margin:6px 0; }
+@media (min-width:821px) { .grid2.revisor { grid-template-columns:minmax(0,2fr) minmax(0,3fr); } }
+textarea.gherkin { min-height:320px; font:13px/1.55 var(--f-mono); background:#fbfaf6; color:var(--ink); white-space:pre; overflow:auto; tab-size:2; }
+.barra { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:8px 0; }
+.criterio { border:2px dashed var(--ink); border-radius:10px; padding:8px 12px; background:var(--surface); }
+.resumen { font:400 18px var(--f-display); padding:8px 12px; border:2px solid var(--ink); border-radius:10px; margin:10px 0; display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+.resumen.r-ok { background:#eefbe3; } .resumen.r-aviso { background:#fff3c4; } .resumen.r-error { background:#ffe9e3; }
+.escenario { border:2px solid var(--ink); border-radius:12px; background:var(--surface); padding:10px 12px; margin:10px 0; }
+.escenario h4 { margin:0 0 6px; font-size:16px; }
+ul.hallazgos { list-style:none; padding:0; margin:0; } ul.hallazgos li { display:flex; gap:8px; align-items:flex-start; padding:6px 8px; border-radius:8px; margin:4px 0; }
+.nivel { flex:none; font:800 12px/1 var(--f-body); border:2px solid currentColor; border-radius:999px; padding:3px 8px; margin-top:2px; text-transform:uppercase; }
+.h-ok { background:#eefbe3; color:#1e5a22; } .h-aviso { background:#fff3c4; color:#5e4500; } .h-error { background:#ffe9e3; color:#9c1616; }
+ul.hallazgos li span.t { color:var(--ink); }
+.cp-panel { border-top:2px solid var(--ink); padding-top:10px; margin-top:10px; }
+table.mapeo input, table.mapeo select { width:100%; font:14px var(--f-body); border:2px solid var(--ink); border-radius:8px; padding:6px 8px; background:var(--surface); color:var(--ink); min-width:0; }
+table.mapeo td:nth-child(2) { width:38%; } table.mapeo td:nth-child(3) { width:20%; }
+@media (max-width:820px) { table.mapeo, table.mapeo tbody, table.mapeo tr, table.mapeo td { display:block; } table.mapeo thead { display:none; }
+  table.mapeo tr { border-top:2px solid var(--ink); padding:6px 0; } table.mapeo td { border-top:0; padding:4px 8px; width:auto !important; } }
+.frase input { flex:1 1 160px; }
+a.boton.enorme { font-size:19px; padding:14px 22px; }
+
+/* S8: el rescate, el revisor con Ejemplos y el reporte */
+.linea-chat { font:600 15px/1.5 var(--f-mono); background:var(--surface); border:2px dashed var(--ink); border-radius:10px; padding:8px 12px; margin:10px 0; overflow-wrap:anywhere; }
+.rescate { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px 14px; }
+.rescate label { display:flex; flex-direction:column; gap:4px; font-weight:800; font-size:14px; min-width:0; }
+.rescate .ancho { grid-column:1 / -1; }
+.rescate input, .rescate select { font:16px var(--f-body); border:2px solid var(--ink); border-radius:8px; padding:6px 8px; background:var(--surface); color:var(--ink); min-width:0; width:100%; }
+@media (max-width:640px) { .rescate { grid-template-columns:minmax(0,1fr); } }
+.preciso td.oye { width:40%; } .preciso td.oye span { color:var(--muted); } .flecha { font-weight:800; color:var(--morado-osc); }
+@media (max-width:820px) { .preciso td.oye { width:auto; } table.apilar td[data-k]::before { content:attr(data-k); display:block; font-weight:800; font-size:13px; color:var(--morado-osc); } }
+table.ejemplos { width:auto; min-width:60%; max-width:100%; margin:6px 0; font:13px/1.4 var(--f-mono); background:var(--surface); border:2px solid var(--ink); border-radius:10px; border-collapse:separate; border-spacing:0; overflow:hidden; }
+table.ejemplos th, table.ejemplos td { border-top:1px solid #c9c5ba; padding:5px 10px; } table.ejemplos thead th { border-top:0; background:var(--yellow); color:var(--ink); font:800 13px var(--f-mono); }
+.cp-panel pre.code { white-space:pre; overflow-wrap:normal; overflow-x:auto; font-size:12.5px; }
+table.ejemplos td:not(:last-child), table.ejemplos th { white-space:nowrap; }
+.salen { font:400 clamp(22px,3vw,28px)/1.1 var(--f-display); color:var(--morado-osc); }
+.resumen .cabeza { font:700 14px/1.4 var(--f-mono); flex:1 1 260px; min-width:0; overflow-wrap:anywhere; }
+.escenario .chips { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 8px; }
+ol.titulos { margin:4px 0 10px; padding-left:22px; font:13px/1.5 var(--f-mono); } ol.titulos li { margin:2px 0; overflow-wrap:anywhere; }
+ol.titulos li.repite { color:var(--bad); font-weight:700; }
+a.chip { color:var(--ink); text-decoration:none; } a.chip:hover { background:var(--lav); }
+.via-d dt { font-weight:800; color:var(--morado-osc); margin-top:10px; } .via-d dd { margin:2px 0 0; }
+.creditos { font:700 15px/1.4 var(--f-mono); background:var(--surface); border:2px solid var(--ink); border-radius:10px; padding:8px 12px; overflow-wrap:anywhere; }
+@media (max-width:820px) { table.reporte td:first-child { display:none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="knot-bar"><span><img src="data:image/png;base64,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" alt="">knot academy × accenture</span><small>Bootcamp QA &amp; Automatización · S8 · Data Driven Testing y el reporte como evidencia</small></div>
+<h1>Una prueba, <span class="acc">muchos datos</span>, y el reporte que lee negocio</h1>
+<p class="idea">Negocio no firma código: firma la tabla y lee el reporte. La fila de la tabla es la fila del reporte.</p>
+<div class="card c-lime objetivo"><b class="k">Objetivo de hoy</b> <span class="frase-grande" style="margin:0">Tu tabla de Ejemplos convertida en N pruebas, cada una con su nombre en el reporte que lee negocio.</span></div>
+<div class="card c-cyan">
+<p style="margin-top:0"><b>Abran estos enlaces y respondan en el chat ✅ si cargan o ❌ si alguno no carga (digan cuál):</b></p>
+<a class="boton" href="https://coach1-knotacademy.github.io/knot-qa-framework/cps.html">Los CP del curso</a><a class="boton blanco" href="https://coach1-knotacademy.github.io/knot-qa-framework/proyecto.html">Kit de proyecto</a><a class="boton blanco" href="https://coach1-knotacademy.github.io/knot-qa-framework/actividades-s7.html">Actividades S7</a><a class="boton blanco" href="https://coach1-knotacademy.github.io/knot-qa-framework/guia-estudio.html">Guía de estudio</a>
+<p class="nota">Todo funciona sin instalar nada. Si GitHub no abre en su red, el instructor sube los archivos al chat: se abren con doble clic en Edge.</p>
+</div>
+<nav class="top" aria-label="Actividades"><a href="#rescate">Rescate</a><a href="#preciso">Lo preciso</a><a href="#ficha">Ficha</a><a href="#cuantas">¿Cuántas pruebas?</a><a href="#revisor">Tus Ejemplos</a><a href="#proyecto">Tu proyecto</a><a href="#reporte">El reporte</a><a href="#rosetta">Rosetta</a><a href="#boleto">Boleto</a><a href="#cierre">Cierre</a><a href="https://coach1-knotacademy.github.io/knot-qa-framework/cps.html" style="background:var(--neon)">📋 Los CP</a></nav>
+
+<section id="rescate">
+<div class="card c-yel">
+<h2>El rescate · <span class="acc">una línea cada uno</span></h2>
+<div class="meta"><span class="chip">6:00 · antes de saludar</span><span class="chip">en el chat principal</span></div>
+<p class="frase-grande">Antes de saludar, una línea cada uno en el chat: <b>vía · tu CP · solo o en equipo (con quién) · tu frase</b>. Sin esa línea no puedo armar el 10 de diciembre.</p>
+<p class="nota">Por ejemplo: <code>D · especificador · CP-104 · en equipo con ___ · Pruebo los montos de recarga; el riesgo es cobrar de más; lo cubre una tabla de Ejemplos.</code></p>
+<div class="rescate">
+<label>Mi vía <select id="r-via"><option value="">vía…</option><option value="A · mi framework">A · Mi framework</option><option value="B · revisión del framework">B · Revisión del framework</option><option value="C · diseño de un caso que no es web">C · Diseño de un caso que no es web</option><option value="D · especificador">D · Especificador</option></select></label>
+<label>Mi CP <input id="r-cp" type="text" placeholder="CP-104" autocomplete="off"></label>
+<label>Solo o en equipo <select id="r-modo"><option value="">elige…</option><option value="solo">solo</option><option value="equipo">en equipo</option></select></label>
+<label id="r-con-caja" hidden>Con quién <input id="r-con" type="text" placeholder="los nombres de tu equipo" autocomplete="off"></label>
+<label class="ancho">Mi frase <input id="r-frase" type="text" placeholder="Pruebo ___; el riesgo es ___; mi framework lo cubre con ___." autocomplete="off"></label>
+</div>
+<p class="paso" style="margin-top:12px">así queda en el chat</p>
+<p class="linea-chat" id="rescate-linea"></p>
+<p><button type="button" class="grande" id="copiar-linea">Copiar mi línea</button><span class="ok" id="linea-ok" aria-live="polite"></span></p>
+<p class="nota">Las salas de la S7 no se graban ni se transcriben, y el revisor guarda solo en el navegador de quien escribe. Si tu sala escribió algo, está en el chat de tu sala: cópialo al chat principal.</p>
+<p class="criterio"><b>Lo que no está en el chat principal no pasó.</b></p>
+</div>
+</section>
+
+<section id="preciso">
+<div class="card c-lav">
+<h2>Lo preciso · <span class="acc">tres correcciones de la S7</span></h2>
+<div class="meta"><span class="chip">6:12</span></div>
+<table class="apilar preciso"><thead><tr><th>Se oyó</th><th>Lo preciso</th></tr></thead><tbody><tr><td class="oye" data-k="Se oyó"><b>Las esperas</b><br><span>«El <code>expect</code> espera 30 segundos.»</span></td><td data-k="Lo preciso"><span class="flecha">→</span> El <code>expect</code> sobre un localizador <b>reintenta hasta 5 segundos</b>; <b>30 es el límite de toda la prueba</b>. Los clics esperan a que el botón se pueda usar, dentro de esos 30. <a href="https://playwright.dev/docs/test-timeouts" class="nota">(playwright.dev/docs/test-timeouts)</a></td></tr><tr><td class="oye" data-k="Se oyó"><b>El «Y» en el Cuando</b><br><span>«El «Y» en el Cuando hacía fallar la prueba.»</span></td><td data-k="Lo preciso"><span class="flecha">→</span> <b>El «Y» es para leer mejor</b>. Cucumber no mira la palabra; los pasos corren en orden, uno por uno, y el «Y» no cambia ninguna espera. <a href="https://cucumber.io/docs/gherkin/reference" class="nota">(cucumber.io/docs/gherkin/reference)</a></td></tr><tr><td class="oye" data-k="Se oyó"><b>El Entonces sin dato</b><br><span>«En el Entonces las dos eran correctas.»</span></td><td data-k="Lo preciso"><span class="flecha">→</span> <b>Solo la A, la que tiene el dato</b> («ve el mensaje «El celular debe tener 10 dígitos y empezar por 3»»). Un «Entonces» que no se puede reprobar («el sistema responde correctamente») no es un esperado.</td></tr></tbody></table>
+<p class="frase-grande">En QA, un error que se corrige a tiempo es un hallazgo; uno que se esconde llega a producción.</p>
+</div>
+<div class="grid2">
+<div class="card"><p class="paso">foto o video</p><p style="margin-top:0"><code>innerText</code> espera a que aparezca el elemento y le toma una <b>foto</b>. <code>toHaveText</code> sigue mirando hasta que el texto sea el esperado: es un <b>video</b>. Para el comprobante, que ya no cambia, la foto sirve (así lo hace <code>PaginaRecargas.esperarResultado</code>); para el saldo, que se mueve, va el video.</p></div>
+<div class="card c-cyan"><p class="paso">comprobación · una letra</p><div class="meta"><span class="chip">respondan a la vez: escriban sin enviar · «3, 2, 1, envíen»</span></div><table class="clasif" id="t-fv"><tbody><tr data-ok="b"><td class="n">1</td><td><b>El saldo tarda 2 segundos en actualizarse. ¿Foto o video?</b><p class="opciones"><b>a)</b> <code>expect(await saldo.innerText()).toBe('$1.490.000')</code><br><b>b)</b> <code>await expect(saldo).toHaveText('$1.490.000')</code></p><div class="exp" hidden><b>b)</b> El video: <code>toHaveText</code> reintenta hasta 5 s. La foto se toma una vez, quizá antes de que el saldo cambie.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr></tbody></table><p><button type="button" class="grande" data-revisar="fv">Revisar</button><button type="button" data-reiniciar="fv">Reiniciar</button><span class="puntaje" id="p-fv" aria-live="polite"></span></p><p><button type="button" class="grande" data-revelar="fv-resp">Ver la respuesta</button></p><div id="fv-resp" hidden><p class="letras">b</p><ol class="boleto"><li><b>b</b> · El video: <code>toHaveText</code> reintenta hasta 5 s. La foto se toma una vez, quizá antes de que el saldo cambie.</li></ol></div></div>
+</div>
+<div class="grid2">
+<div class="card c-peach"><p class="paso">la clave</p><p class="frase-grande" style="margin:0">Si la clave falta, la prueba falla. Nunca trae un valor por defecto en el código.</p></div>
+<div class="card c-peach"><p class="paso">en los escenarios</p><p class="frase-grande" style="margin:0">En los escenarios del Banco Demo se escribe «el banco». Se diseña, no se pega.</p></div>
+</div>
+</section>
+
+<section id="ficha">
+<div class="card c-peach">
+<p class="paso">gancho · 6:17</p>
+<p class="frase-grande" style="margin:0">«El jueves les prometí reportes que lea negocio. ¿Cuántas pruebas escriben para los montos fuera de rango? Hoy escriben una, y el reporte les devuelve tres, cada una con su nombre.»</p>
+</div>
+<div class="card ficha-card"><div class="meta"><span class="chip">ficha · 6:17 · 3 min</span></div>
+<h2>Esquema del escenario y Data Driven Testing</h2>
+<div class="ficha"><div class="fk">El problema que ya sufrías a mano</div><div class="fv">El CP-103 y el CP-104 se prueban con varios datos. Escribir una prueba por dato es copiar y pegar: cuando cambia un paso, hay que arreglarlo en diez lugares, y negocio no ve de un vistazo qué datos se probaron.</div><div class="fk">La idea, en una frase</div><div class="fv">Los pasos se escriben <b>una vez</b> con <code>&lt;marcadores&gt;</code>; cada fila de la tabla <code>Ejemplos</code> es <b>una prueba</b>. En Playwright, un <code>for</code> sobre una lista de la fábrica crea un <code>test()</code> por fila, con un <b>título único</b> que lleva el dato.</div><div class="fk">Sus partes, en el repo</div><div class="fv"><code>especificaciones/recargas-datos.feature</code> (los Esquemas) · <code>src/datos/fabricaDeRecargas.ts</code> (<code>rechazosPorMonto()</code>, las filas con nombre) · <code>tests/recargas/CP-104-limites.spec.ts</code> (el <code>for</code> con título único y <code>@CP-104</code>).</div><div class="fk">Sí, cuando</div><div class="fv">La regla es la misma y cambia el dato: límites, operadores, formatos, tipos de cliente. Y negocio quiere ver la lista de casos.</div><div class="fk">No, cuando</div><div class="fv">Las filas siguen caminos distintos (una pide código y otra no) o tienen otro tipo de resultado: eso es otro Esquema. Ni datos aleatorios que nadie puede repetir.</div><div class="fk">La frase para tu líder</div><div class="fv">La tabla es lo que firma negocio y cada fila es una línea del reporte. Agregar un caso es agregar una fila, no una prueba.</div><div class="fk">Cómo pedírselo a la IA</div><div class="fv">«Convierte este escenario en un Esquema del escenario con Ejemplos: pasos con &lt;marcadores&gt;, una columna por dato, el dato en el título y 3 filas que pasen por los mismos pasos (incluye el borde). Si una fila cambia el resultado, sepárala en otro Esquema y dime por qué.»</div></div></div>
+<div class="card c-yel"><p class="paso">la regla de los Ejemplos</p><p class="frase-grande" style="margin:0"><b>Mismos pasos, otro dato, el mismo tipo de «Entonces».</b> Si una fila cambia el camino o el resultado, es otro Esquema.</p></div>
+</section>
+
+<section id="cuantas">
+<div class="card c-lav">
+<p class="paso">comprobación · 6:17</p>
+<h2>¿Cuántas pruebas <span class="acc">salen de esta tabla</span>?</h2>
+<div class="meta"><span class="chip">respondan a la vez: escriban sin enviar · «3, 2, 1, envíen»</span></div>
+<p>Tres letras en el chat, en orden, al mismo tiempo. Las respuestas, cuando el instructor lo diga.</p>
+<table class="clasif" id="t-cuantas"><tbody><tr data-ok="b"><td class="n">1</td><td><b>¿Cuántas pruebas salen? Un Esquema con <code>Ejemplos</code> de 1 fila de títulos y 4 filas de datos</b><p class="opciones"><b>a)</b> 5<br><b>b)</b> 4<br><b>c)</b> 1</p><div class="exp" hidden><b>b)</b> La primera fila son los nombres de las columnas. Cada fila de datos es una prueba.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr><tr data-ok="c"><td class="n">2</td><td><b>¿Cuántas pruebas salen? Dos bloques <code>Ejemplos</code> en el mismo Esquema: uno con 3 filas de datos y otro con 2</b><p class="opciones"><b>a)</b> 2<br><b>b)</b> 3<br><b>c)</b> 5</p><div class="exp" hidden><b>c)</b> Los bloques se suman: 5 pruebas. Sirve para separar «montos bajos» y «montos altos» con su etiqueta.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr><tr data-ok="a"><td class="n">3</td><td><b>¿Cuántas pruebas salen? Un <code>Escenario:</code> (no dice «Esquema») con una tabla <code>Ejemplos</code> de 3 filas de datos</b><p class="opciones"><b>a)</b> 3<br><b>b)</b> 1<br><b>c)</b> 0: es un error</p><div class="exp" hidden><b>a)</b> Salen 3. Desde Gherkin 6, «Escenario» y «Esquema del escenario» son sinónimos. Igual se escribe «Esquema del escenario» para que se lea que es una plantilla: el revisor lo avisa.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr></tbody></table><p><button type="button" class="grande" data-revisar="cuantas">Revisar</button><button type="button" data-reiniciar="cuantas">Reiniciar</button><span class="puntaje" id="p-cuantas" aria-live="polite"></span></p><p><button type="button" class="grande" data-revelar="cuantas-resp">Ver las respuestas</button></p><div id="cuantas-resp" hidden><p class="letras">b c a</p><ol class="boleto"><li><b>b</b> · La primera fila son los nombres de las columnas. Cada fila de datos es una prueba.</li><li><b>c</b> · Los bloques se suman: 5 pruebas. Sirve para separar «montos bajos» y «montos altos» con su etiqueta.</li><li><b>a</b> · Salen 3. Desde Gherkin 6, «Escenario» y «Esquema del escenario» son sinónimos. Igual se escribe «Esquema del escenario» para que se lea que es una plantilla: el revisor lo avisa.</li></ol></div>
+</div>
+</section>
+
+<section id="revisor">
+<div class="card c-cyan">
+<h2>Tus Ejemplos · <span class="acc">el revisor de escenarios</span></h2>
+<div class="meta"><span class="chip">salas 6:31 · un tramo de 18 min</span><span class="chip">un CP por sala</span></div>
+<p>Elijan su sala: el revisor carga el arranque de su CP (el Dado, el Cuando con su <code>&lt;marcador&gt;</code> y los nombres de las columnas). Completen el título con el dato, el «Entonces» y las filas de «Ejemplos», y pulsen <b>Revisar</b>. El revisor dice cuántas pruebas salen y cómo se llamaría cada una en el reporte.</p>
+<p class="criterio"><b>Terminaron cuando el revisor dice 0 errores y «Salen N pruebas».</b> Con el botón «Copiar para el chat» pegan en el chat de la sala: «Sala 2 · CP-104 · 0 errores · salen 3 pruebas» y el escenario.</p>
+<ul class="lista nota"><li>Minuto 10: quien va primero en orden alfabético pega en el chat de la sala lo que tienen, con el botón «Copiar para el chat», aunque no esté terminado.</li><li>Minuto 15: faltan 3 minutos. Peguen la versión final en el chat de la sala. Al volver, la misma persona la pega en el chat principal.</li></ul>
+</div>
+<div class="grid2 revisor">
+<div class="card">
+<p class="paso">su sala y su caso</p>
+<p><label for="sala-cp"><b>Mi sala:</b></label> <select id="sala-cp" class="cp-sel"><option value="CP-103">Sala 1 · CP-103 · Celular mal escrito</option><option value="CP-104">Sala 2 · CP-104 · Monto fuera de rango</option><option value="CP-101">Sala 3 · CP-101 · Recarga válida sin código</option><option value="CP-105">Sala 4 · CP-105 · Límite diario</option><option value="CP-107">Sala 5 · CP-107 · Una recarga por operador</option><option value="proyecto">Mi proyecto · mi CP</option></select></p>
+<div class="cp-panel" data-cp="CP-103" hidden><div class="meta"><span class="chip">Sala 1</span><span class="chip">CP-103</span><a class="chip" href="https://coach1-knotacademy.github.io/knot-qa-framework/cps.html#CP-103">el caso manual ↗</a></div><h3 style="margin-top:0">Celular mal escrito</h3><p class="paso">los datos de su tabla</p><table class="ejemplos"><thead><tr><th>celular</th><th>caso</th></tr></thead><tbody><tr><td>300123</td><td>6 dígitos</td></tr><tr><td>30012345678</td><td>11 dígitos</td></tr><tr><td>2001234567</td><td>empieza por 2</td></tr></tbody></table><p class="nota">La primera fila del revisor ya tiene los nombres de las columnas. Cada fila de datos es una prueba.</p><p class="paso">lo que se discute</p><p class="frase-grande" style="font-size:18px">Tres datos, un mismo mensaje: ¿hacen falta las tres filas?</p><p><button type="button" class="" data-revelar="resp-CP-103">Ver la respuesta</button></p><div id="resp-CP-103" hidden><p class="criterio">Sí: cada una prueba un pedazo distinto de la regla (corto, largo y prefijo). Si se quita una, ese error puede volver sin que nadie lo vea.</p></div><p><button type="button" class="" data-revelar="sol-CP-103">Terminamos: ver la solución</button></p><div id="sol-CP-103" hidden><pre class="code">@CP-103
+Esquema del escenario: Un celular mal escrito se rechaza: &lt;celular&gt; (&lt;caso&gt;)
+  Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros
+  Cuando recarga $10.000 al celular &lt;celular&gt;
+  Entonces ve el mensaje «El celular debe tener 10 dígitos y empezar por 3»
+  Y su saldo de Ahorros sigue en $1.500.000
+
+  Ejemplos:
+    | celular     | caso          |
+    | 300123      | 6 dígitos     |
+    | 30012345678 | 11 dígitos    |
+    | 2001234567  | empieza por 2 |</pre><p><button type="button" data-cargar="CP-103">Cargar la solución de la Sala 1 en el revisor</button></p><p class="nota">Es una solución posible, no la única. Si la cargan, su borrador se guarda: «Deshacer» lo trae de vuelta.</p></div></div><div class="cp-panel" data-cp="CP-104" hidden><div class="meta"><span class="chip">Sala 2</span><span class="chip">CP-104</span><a class="chip" href="https://coach1-knotacademy.github.io/knot-qa-framework/cps.html#CP-104">el caso manual ↗</a></div><h3 style="margin-top:0">Monto fuera de rango</h3><p class="paso">los datos de su tabla</p><table class="ejemplos"><thead><tr><th>monto</th><th>mensaje</th></tr></thead><tbody><tr><td>$999</td><td>La recarga mínima es $1.000</td></tr><tr><td>$100.001</td><td>La recarga máxima es $100.000</td></tr><tr><td>$150.000</td><td>La recarga máxima es $100.000</td></tr></tbody></table><p class="nota">La primera fila del revisor ya tiene los nombres de las columnas. Cada fila de datos es una prueba.</p><p class="paso">lo que se discute</p><p class="frase-grande" style="font-size:18px">¿Por qué $99.999 no va en esta tabla?</p><p><button type="button" class="" data-revelar="resp-CP-104">Ver la respuesta</button></p><div id="resp-CP-104" hidden><p class="criterio">Porque todo monto de más de $50.000 pide código de seguridad: $99.999 sigue otro camino y tiene otro «Entonces». Va en el Esquema del CP-102.</p></div><p><button type="button" class="" data-revelar="sol-CP-104">Terminamos: ver la solución</button></p><div id="sol-CP-104" hidden><pre class="code">@CP-104
+Esquema del escenario: Un monto fuera de rango se rechaza: &lt;monto&gt;
+  Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros
+  Cuando recarga &lt;monto&gt; a un celular Claro 3001234567
+  Entonces ve el mensaje «&lt;mensaje&gt;»
+  Y su saldo de Ahorros sigue en $1.500.000
+
+  Ejemplos:
+    | monto    | mensaje                       |
+    | $999     | La recarga mínima es $1.000   |
+    | $100.001 | La recarga máxima es $100.000 |
+    | $150.000 | La recarga máxima es $100.000 |</pre><p><button type="button" data-cargar="CP-104">Cargar la solución de la Sala 2 en el revisor</button></p><p class="nota">Es una solución posible, no la única. Si la cargan, su borrador se guarda: «Deshacer» lo trae de vuelta.</p></div></div><div class="cp-panel" data-cp="CP-101" hidden><div class="meta"><span class="chip">Sala 3</span><span class="chip">CP-101</span><a class="chip" href="https://coach1-knotacademy.github.io/knot-qa-framework/cps.html#CP-101">el caso manual ↗</a></div><h3 style="margin-top:0">Recarga válida sin código</h3><p class="paso">los datos de su tabla</p><table class="ejemplos"><thead><tr><th>monto</th><th>saldo_final</th></tr></thead><tbody><tr><td>$1.000</td><td>$1.499.000</td></tr><tr><td>$10.000</td><td>$1.490.000</td></tr><tr><td>$50.000</td><td>$1.450.000</td></tr></tbody></table><p class="nota">La primera fila del revisor ya tiene los nombres de las columnas. Cada fila de datos es una prueba.</p><p class="paso">lo que se discute</p><p class="frase-grande" style="font-size:18px">¿Y $50.001?</p><p><button type="button" class="" data-revelar="resp-CP-101">Ver la respuesta</button></p><div id="resp-CP-101" hidden><p class="criterio">Pide código: otro camino, otro Esquema (el CP-102). $50.000 es el borde: el último monto que no pide código.</p></div><p><button type="button" class="" data-revelar="sol-CP-101">Terminamos: ver la solución</button></p><div id="sol-CP-101" hidden><pre class="code">@CP-101
+Esquema del escenario: Una recarga sin código da comprobante y descuenta: &lt;monto&gt;
+  Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros
+  Cuando recarga &lt;monto&gt; a un celular Claro 3001234567
+  Entonces ve el comprobante «Recarga exitosa» con «Valor: &lt;monto&gt;»
+  Y su saldo de Ahorros queda en &lt;saldo_final&gt;
+
+  Ejemplos:
+    | monto   | saldo_final |
+    | $1.000  | $1.499.000  |
+    | $10.000 | $1.490.000  |
+    | $50.000 | $1.450.000  |</pre><p><button type="button" data-cargar="CP-101">Cargar la solución de la Sala 3 en el revisor</button></p><p class="nota">Es una solución posible, no la única. Si la cargan, su borrador se guarda: «Deshacer» lo trae de vuelta.</p></div></div><div class="cp-panel" data-cp="CP-105" hidden><div class="meta"><span class="chip">Sala 4</span><span class="chip">CP-105</span><a class="chip" href="https://coach1-knotacademy.github.io/knot-qa-framework/cps.html#CP-105">el caso manual ↗</a></div><h3 style="margin-top:0">Límite diario</h3><p class="paso">los datos de su tabla</p><table class="ejemplos"><thead><tr><th>ya_recargo</th><th>monto</th></tr></thead><tbody><tr><td>$190.000</td><td>$20.000</td></tr><tr><td>$200.000</td><td>$1.000</td></tr><tr><td>$160.000</td><td>$50.000</td></tr></tbody></table><p class="nota">La primera fila del revisor ya tiene los nombres de las columnas. Cada fila de datos es una prueba.</p><p class="paso">lo que se discute</p><p class="frase-grande" style="font-size:18px">¿El dato del «Dado» también va en la tabla? ¿Y $180.000 + $20.000?</p><p><button type="button" class="" data-revelar="resp-CP-105">Ver la respuesta</button></p><div id="resp-CP-105" hidden><p class="criterio">Sí, el «Dado» también lleva dato. $180.000 + $20.000 da exactamente $200.000 y <b>pasa</b> (el límite es «más de»): otro resultado, otro Esquema.</p></div><p><button type="button" class="" data-revelar="sol-CP-105">Terminamos: ver la solución</button></p><div id="sol-CP-105" hidden><pre class="code">@CP-105
+Esquema del escenario: Pasado el límite diario no se puede recargar: &lt;ya_recargo&gt; + &lt;monto&gt;
+  Dado que Ana tiene la sesión abierta y hoy ya recargó &lt;ya_recargo&gt;
+  Cuando recarga &lt;monto&gt; a un celular Claro 3001234567
+  Entonces ve el mensaje «Superaste el límite diario de recargas ($200.000)»
+
+  Ejemplos:
+    | ya_recargo | monto   |
+    | $190.000   | $20.000 |
+    | $200.000   | $1.000  |
+    | $160.000   | $50.000 |</pre><p><button type="button" data-cargar="CP-105">Cargar la solución de la Sala 4 en el revisor</button></p><p class="nota">Es una solución posible, no la única. Si la cargan, su borrador se guarda: «Deshacer» lo trae de vuelta.</p></div></div><div class="cp-panel" data-cp="CP-107" hidden><div class="meta"><span class="chip">Sala 5</span><span class="chip">CP-107</span><a class="chip" href="https://coach1-knotacademy.github.io/knot-qa-framework/cps.html#CP-107">el caso manual ↗</a></div><h3 style="margin-top:0">Una recarga por operador</h3><p class="paso">los datos de su tabla</p><table class="ejemplos"><thead><tr><th>operador</th></tr></thead><tbody><tr><td>Claro</td></tr><tr><td>Movistar</td></tr><tr><td>Tigo</td></tr><tr><td>WOM</td></tr></tbody></table><p class="nota">La primera fila del revisor ya tiene los nombres de las columnas. Cada fila de datos es una prueba.</p><p class="paso">lo que se discute</p><p class="frase-grande" style="font-size:18px">Esto ya existe en el repo (<code>fabricaDeRecargas.paraCadaOperador</code>). ¿Para qué escribir la tabla?</p><p><button type="button" class="" data-revelar="resp-CP-107">Ver la respuesta</button></p><div id="resp-CP-107" hidden><p class="criterio">Porque la tabla es la especificación que firma negocio: el día que llegue un operador nuevo, se agrega una fila y negocio la ve.</p></div><p><button type="button" class="" data-revelar="sol-CP-107">Terminamos: ver la solución</button></p><div id="sol-CP-107" hidden><pre class="code">@CP-107
+Esquema del escenario: Cada operador recibe la recarga: &lt;operador&gt;
+  Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros
+  Cuando recarga $10.000 a un celular &lt;operador&gt; 3001234567
+  Entonces ve el comprobante «Recarga exitosa» con «&lt;operador&gt; · 3001234567»
+  Y su saldo de Ahorros queda en $1.490.000
+
+  Ejemplos:
+    | operador |
+    | Claro    |
+    | Movistar |
+    | Tigo     |
+    | WOM      |</pre><p><button type="button" data-cargar="CP-107">Cargar la solución de la Sala 5 en el revisor</button></p><p class="nota">Es una solución posible, no la única. Si la cargan, su borrador se guarda: «Deshacer» lo trae de vuelta.</p></div></div><div class="cp-panel" data-cp="proyecto" hidden><div class="meta"><span class="chip">mi proyecto</span></div><h3 style="margin-top:0">Mi CP como Esquema del escenario</h3><p>Tu CP como <b>Esquema del escenario</b> con <b>3 filas que pasan por los mismos pasos</b> (incluye el borde: el último valor que todavía da ese resultado). Pásalo por el revisor y pega en el chat principal: «Mi CP · 3 filas · 0 errores».</p><p class="nota">Si vas por la vía de especificador, <b>aquí entregas tu Gherkin</b>: lo que llegue después ya no entra.</p><p class="nota">El borrador de su proyecto se guarda aparte del de las salas.</p></div>
+<p class="nota">El CP-106 (el operador no responde, BUG-04) no va en el DDT: es un solo dato. Entra en el triage de la S9.</p>
+</div>
+<div class="card">
+<p class="paso">su escenario · <span class="etiqueta-sala"></span></p>
+<label for="gherkin" class="nota">Escriban sobre el arranque. Se guarda solo en este navegador, un borrador por CP: cambiar de sala no borra el de otra.</label>
+<textarea id="gherkin" class="gherkin" spellcheck="false"></textarea>
+<div class="barra">
+<button type="button" class="grande" id="revisar-gherkin">Revisar</button>
+<button type="button" id="reiniciar-gherkin">Volver al arranque</button>
+<button type="button" id="deshacer" hidden>Deshacer</button>
+<button type="button" class="grande" id="copiar-chat">Copiar para el chat</button><span class="ok" id="chat-ok" aria-live="polite"></span>
+</div>
+<p class="nota" id="estado-revisor" aria-live="polite"></p>
+<div class="resumen" id="resumen" hidden><span class="salen"></span><span class="cabeza"></span></div>
+<div id="hallazgos"></div>
+</div>
+</div>
+</section>
+
+<section id="proyecto">
+<div class="card c-peach">
+<h2>Tu proyecto · <span class="acc">tu CP con 3 filas</span></h2>
+<div class="meta"><span class="chip">7:07 · 20 min fijos · en la sala principal</span></div>
+<p class="frase-grande">Tu CP como <b>Esquema del escenario</b> con <b>3 filas que pasan por los mismos pasos</b> (incluye el borde: el último valor que todavía da ese resultado). Pásalo por el revisor y pega en el chat principal: «Mi CP · 3 filas · 0 errores».</p>
+<p><button type="button" class="grande" data-ir-proyecto>Abrir mi proyecto en el revisor</button></p>
+<p class="nota">En el revisor, «Mi proyecto» tiene su propio borrador y el botón copia «Mi CP · CP-xxx · 0 errores · salen 3 pruebas».</p>
+</div>
+<div class="card c-lav via-d" id="via-d">
+<p class="paso">vía D · especificar</p>
+<h3 style="margin-top:0">Especificador</h3>
+<p class="criterio"><b>Si vas por la vía de especificador, <b>aquí entregas tu Gherkin</b>: lo que llegue después ya no entra.</b></p>
+<dl><dt>Para quién</dt><dd>Quien quiere llevarse lo que hace un analista de QA en un equipo real: escribir el caso para que otro lo automatice sin preguntar.</dd><dt>Qué</dt><dd>Tú escribes el escenario, la tabla de Ejemplos y el esperado; el instructor escribe el código, con ayuda de una IA, <b>reutilizando los pasos y las tareas que ya existen</b> (como máximo un paso nuevo). Tú aceptas el código: lo lees junto al escenario y en la S9 provocas y clasificas una falla en tu prueba.</dd>
+<dt>Los límites</dt><dd><ul class="lista"><li>1 CP por persona o por equipo, sobre un gemelo público (Banco Demo o un kit).</li><li>El Gherkin se entrega en el bloque del proyecto de la S8, en clase.</li><li>La medida de calidad: si el instructor tuvo que preguntar algo, el Gherkin no estaba listo.</li></ul></dd>
+<dt>Cómo lo defiendes en la S10</dt><dd>En la S10 cambias una fila de Ejemplos y predices qué se pone rojo, y dices qué capa ejecuta cada paso.</dd>
+<dt>Ejemplos</dt><dd><ul class="lista"><li>Los montos de recarga del CP-104 con su borde.</li><li>Las frases obligatorias de una llamada del kit de voz, como tabla.</li></ul></dd>
+<dt>La primera lámina lleva los créditos</dt><dd><p class="creditos" id="creditos">Escenarios, datos y aceptación: [tu nombre] · Código: instructor, con ayuda de IA</p>
+<button type="button" id="copiar-creditos">Copiar los créditos</button><span class="ok" id="creditos-ok" aria-live="polite"></span></dd></dl>
+<p><a class="boton blanco" href="https://coach1-knotacademy.github.io/knot-qa-framework/proyecto.html#vias">Las cuatro vías en el kit de proyecto</a></p>
+</div>
+</section>
+
+<section id="reporte">
+<div class="card">
+<h2>El reporte <span class="acc">que lee negocio</span></h2>
+<div class="meta"><span class="chip">mírame · 7:27</span><span class="chip">con las manos: leer una fila</span></div>
+<p class="frase-grande">La fila de la tabla es la fila del reporte.</p>
+<table class="apilar reporte"><thead><tr><th></th><th>Paso</th><th>Qué se hace</th><th>Qué se ve</th></tr></thead><tbody><tr><td class="n">1</td><td data-k="Paso"><b>Correr</b></td><td data-k="Qué se hace"><code>npx.cmd playwright test -g "@CP-104" --project=recargas</code> (en Mac o Linux: <code>npx</code>)</td><td data-k="Qué se ve">Salen 3 pruebas por API y una por la pantalla.</td></tr><tr><td class="n">2</td><td data-k="Paso"><b>Abrir</b></td><td data-k="Qué se hace"><code>npm.cmd run reporte</code> (en Mac o Linux: <code>npm</code>)</td><td data-k="Qué se ve">Una línea por fila, con su título: «CP-104 · $150.000 → «La recarga máxima es $100.000»».</td></tr><tr><td class="n">3</td><td data-k="Paso"><b>Filtrar</b></td><td data-k="Qué se hace">Escribir <code>@CP-104</code> en el buscador del reporte</td><td data-k="Qué se ve">Solo las pruebas de ese caso: la fila del ALM.</td></tr><tr><td class="n">4</td><td data-k="Paso"><b>Abrir una fila</b></td><td data-k="Qué se hace">Clic en una línea</td><td data-k="Qué se ve">Sus pasos (<code>test.step</code>, con el texto del Gherkin) y, en la de la pantalla, la captura: la evidencia de ese dato.</td></tr></tbody></table>
+<p class="nota">Lo corre el instructor en su pantalla. Con el repo instalado en Windows, el mismo comando va con <code>npx.cmd</code> y <code>npm.cmd</code>.</p>
+</div>
+<div class="card"><p class="paso">el <code>for</code> de <code>tests/recargas/CP-104-limites.spec.ts</code></p><pre class="code">for (const rechazo of fabricaDeRecargas.rechazosPorMonto()) {
+  test(`CP-104 · ${pesos(rechazo.monto)} → «${rechazo.mensaje}»`, { tag: &#x27;@CP-104&#x27; }, async ({ cliente }) =&gt; {
+    // Los pasos son los del Esquema, llenados con esta fila: así se leen en el reporte.
+    await test.step(`Dado que Ana tiene la sesión abierta y ${pesos(SALDO_INICIAL)} en Ahorros`, async () =&gt; {
+      await cliente.iniciarSesion(usuarios.ana);
+      expect(await cliente.saldoDeAhorros()).toBe(SALDO_INICIAL);
+    });
+
+    const respuesta = await test.step(`Cuando recarga ${pesos(rechazo.monto)} a un celular Claro ${CELULAR}`, async () =&gt; {
+      return cliente.recargar(fabricaDeRecargas.valida({ monto: rechazo.monto, numero: CELULAR, operador: &#x27;Claro&#x27; }));
+    });
+
+    await test.step(`Entonces ve el mensaje «${rechazo.mensaje}»`, async () =&gt; {
+      // 400 = el banco rechazó la recarga. El texto de &quot;error&quot; es el mismo que la pantalla le muestra al cliente.
+      expect(respuesta.estado).toBe(400);
+      expect(respuesta.datos.error).toBe(rechazo.mensaje);
+    });
+
+    await test.step(`Y su saldo de Ahorros sigue en ${pesos(SALDO_INICIAL)}`, async () =&gt; {
+      expect(await cliente.saldoDeAhorros()).toBe(SALDO_INICIAL);
+    });
+  });
+}</pre><p class="nota">Un <code>test()</code> por fila de la fábrica, con el dato en el título y la etiqueta <code>@CP-104</code>: cada fila tiene su línea en el reporte.</p></div>
+<div class="grid2">
+<div class="card c-peach"><p class="paso">el error provocado</p><p style="margin-top:0">Se quita el monto del título: las filas de $100.001 y $150.000 quedan con el mismo nombre (las dos dicen «La recarga máxima es $100.000») y <b>Playwright se niega a correr: no corre ninguna prueba</b> («duplicate test title»). El título único no es estética: es lo que hace que cada fila tenga su línea en el reporte.</p></div>
+<div class="card c-yel"><p class="paso">¿y Allure?</p><p style="margin-top:0">Allure se muestra en una sola captura: necesita Java y no se puede instalar en sus equipos. El reporte HTML de Playwright trae lo mismo que pide negocio.</p></div>
+</div>
+</section>
+
+<section id="rosetta">
+<div class="card">
+<p class="paso">solo lectura · 1 min</p>
+<h2>Rosetta · <span class="acc">una prueba por fila, en el framework del banco</span></h2>
+<table class="apilar"><thead><tr><th>La pieza</th><th>Gherkin (hoy)</th><th>En el banco (Java · Cucumber · Serenity)</th><th>Playwright</th></tr></thead><tbody><tr><td data-k="La pieza"><b>La tabla</b></td><td data-k="Gherkin (hoy)"><code>Esquema del escenario</code> + <code>Ejemplos</code></td><td data-k="En el banco (Java)"><code>Scenario Outline</code> + <code>Examples</code> (Cucumber-JVM, Serenity)</td><td data-k="Playwright">Un <code>for</code> sobre <code>fabricaDeRecargas.rechazosPorMonto()</code></td></tr><tr><td data-k="La pieza"><b>El dato en el paso</b></td><td data-k="Gherkin (hoy)"><code>&lt;monto&gt;</code></td><td data-k="En el banco (Java)"><code>@Cuando("recarga {int} a un celular {word}")</code></td><td data-k="Playwright"><code>rechazo.monto</code></td></tr><tr><td data-k="La pieza"><b>Una prueba por fila</b></td><td data-k="Gherkin (hoy)">La herramienta expande la tabla</td><td data-k="En el banco (Java)">El runner expande <code>Examples</code>; JUnit <code>@CsvSource</code> o TestNG <code>@DataProvider</code></td><td data-k="Playwright">Un <code>test()</code> por fila, con título único</td></tr><tr><td data-k="La pieza"><b>Lo que nunca</b></td><td data-k="Gherkin (hoy)">Un <code>for</code> dentro de un paso</td><td data-k="En el banco (Java)">Un <code>for</code> dentro de una <i>step definition</i>: una sola prueba, la primera falla tapa las demás</td><td data-k="Playwright">Un solo <code>test()</code> con un ciclo adentro</td></tr></tbody></table>
+<p class="frase-grande">El <code>&lt;monto&gt;</code> en el título del escenario es tu título único.</p>
+</div>
+</section>
+
+<section id="boleto">
+<div class="card c-lime">
+<h2>Boleto de salida</h2>
+<div class="meta"><span class="chip">7:42</span><span class="chip">respondan a la vez: escriban sin enviar · «3, 2, 1, envíen»</span></div>
+<p>Las cuatro letras en orden, en el chat, todos al mismo tiempo.</p>
+<table class="clasif" id="t-b8"><tbody><tr data-ok="c"><td class="n">1</td><td><b>Tu tabla del CP-104 tiene $999, $100.001 y $150.000. ¿Puedes agregar $99.999 como otra fila?</b><p class="opciones"><b>a)</b> sí, es otro monto<br><b>b)</b> sí, si se le cambia el mensaje<br><b>c)</b> no: pide código, sigue otro camino y va en otro Esquema</p><div class="exp" hidden><b>c)</b> Mismos pasos, otro dato, el mismo tipo de «Entonces».</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr><tr data-ok="a"><td class="n">2</td><td><b>¿Qué hace que cada fila tenga su línea en el reporte?</b><p class="opciones"><b>a)</b> un título único por prueba, con el dato<br><b>b)</b> el <code>await</code><br><b>c)</b> la etiqueta <code>@CP-104</code></p><div class="exp" hidden><b>a)</b> Sin el dato en el título, las pruebas se llaman igual y Playwright no corre. La etiqueta agrupa; el título distingue.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr><tr data-ok="b"><td class="n">3</td><td><b>El saldo tarda 2 segundos en cambiar. ¿Qué va en el «Entonces»?</b><p class="opciones"><b>a)</b> <code>expect(await saldo.innerText()).toBe(…)</code><br><b>b)</b> <code>await expect(saldo).toHaveText(…)</code><br><b>c)</b> <code>await page.waitForTimeout(3000)</code></p><div class="exp" hidden><b>b)</b> El video: reintenta hasta 5 s. La foto se toma una vez; la espera fija adivina.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr><tr data-ok="c"><td class="n">4</td><td><b>Negocio pide probar un operador nuevo. ¿Qué cambias?</b><p class="opciones"><b>a)</b> una prueba nueva copiada de la de Claro<br><b>b)</b> el Page Object<br><b>c)</b> una fila en la tabla (y en la fábrica)</p><div class="exp" hidden><b>c)</b> Agregar un caso es agregar una fila. Es lo que firma negocio.</div></td><td class="opc"><button type="button" data-v="a">a</button><button type="button" data-v="b">b</button><button type="button" data-v="c">c</button></td></tr></tbody></table><p><button type="button" class="grande" data-revisar="b8">Revisar</button><button type="button" data-reiniciar="b8">Reiniciar</button><span class="puntaje" id="p-b8" aria-live="polite"></span></p><p><button type="button" class="grande" data-revelar="b8-resp">Ver las respuestas</button></p><div id="b8-resp" hidden><p class="letras">c a b c</p><ol class="boleto"><li><b>c</b> · Mismos pasos, otro dato, el mismo tipo de «Entonces».</li><li><b>a</b> · Sin el dato en el título, las pruebas se llaman igual y Playwright no corre. La etiqueta agrupa; el título distingue.</li><li><b>b</b> · El video: reintenta hasta 5 s. La foto se toma una vez; la espera fija adivina.</li><li><b>c</b> · Agregar un caso es agregar una fila. Es lo que firma negocio.</li></ol></div>
+</div>
+</section>
+
+<section id="cierre">
+<div class="card">
+<h2>Cierre</h2>
+<div class="meta"><span class="chip">7:50</span></div>
+<p class="frase-grande">Hoy escribieron las dos cosas que negocio lee: la tabla y el reporte. El jueves algo se pone rojo, y la pregunta es otra: ¿es culpa del sistema, del script o del ambiente?</p>
+<a class="boton" href="https://coach1-knotacademy.github.io/knot-qa-framework/cps.html">Los CP del curso</a><a class="boton blanco" href="https://coach1-knotacademy.github.io/knot-qa-framework/proyecto.html">Kit de proyecto</a><a class="boton blanco" href="https://coach1-knotacademy.github.io/knot-qa-framework/actividades-s7.html">Actividades S7</a><a class="boton blanco" href="https://coach1-knotacademy.github.io/knot-qa-framework/guia-estudio.html">Guía de estudio</a>
+<p class="nota">En el repo: la ficha de hoy en <code>docs/datos-y-reportes.md</code>, los Esquemas en <code>especificaciones/recargas-datos.feature</code> y la prueba en <code>tests/recargas/CP-104-limites.spec.ts</code>.</p>
+</div>
+</section>
+<p class="nota">Página de práctica del Bootcamp QA · Knot Academy, generada con <code>laboratorio/generar/generar_actividades_s8.py</code>. No carga nada de internet salvo las fuentes. Los datos son de práctica: nunca escriban aquí datos, pantallas ni casos del banco. Lo que escriban queda solo en este navegador.</p>
+</div>
+<script type="application/json" id="datos-s8">{"arranques": {"CP-103": "# Sala 1 · CP-103 · Celular mal escrito\n@CP-103\nEsquema del escenario: ___\n  Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros\n  Cuando recarga $10.000 al celular <celular>\n  Entonces ___\n\n  Ejemplos:\n    | celular | caso |\n", "CP-104": "# Sala 2 · CP-104 · Monto fuera de rango\n@CP-104\nEsquema del escenario: ___\n  Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros\n  Cuando recarga <monto> a un celular Claro 3001234567\n  Entonces ___\n\n  Ejemplos:\n    | monto | mensaje |\n", "CP-101": "# Sala 3 · CP-101 · Recarga válida sin código\n@CP-101\nEsquema del escenario: ___\n  Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros\n  Cuando recarga <monto> a un celular Claro 3001234567\n  Entonces ___\n\n  Ejemplos:\n    | monto | saldo_final |\n", "CP-105": "# Sala 4 · CP-105 · Límite diario\n@CP-105\nEsquema del escenario: ___\n  Dado que Ana tiene la sesión abierta y hoy ya recargó <ya_recargo>\n  Cuando recarga <monto> a un celular Claro 3001234567\n  Entonces ___\n\n  Ejemplos:\n    | ya_recargo | monto |\n", "CP-107": "# Sala 5 · CP-107 · Una recarga por operador\n@CP-107\nEsquema del escenario: ___\n  Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros\n  Cuando recarga $10.000 a un celular <operador> 3001234567\n  Entonces ___\n\n  Ejemplos:\n    | operador |\n", "proyecto": "# Mi proyecto · mi CP como Esquema del escenario, con 3 filas\n@CP-___\nEsquema del escenario: ___\n  Dado que ___\n  Cuando ___\n  Entonces ___\n\n  Ejemplos:\n    | ___ |\n"}, "soluciones": {"CP-103": "@CP-103\nEsquema del escenario: Un celular mal escrito se rechaza: <celular> (<caso>)\n  Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros\n  Cuando recarga $10.000 al celular <celular>\n  Entonces ve el mensaje «El celular debe tener 10 dígitos y empezar por 3»\n  Y su saldo de Ahorros sigue en $1.500.000\n\n  Ejemplos:\n    | celular     | caso          |\n    | 300123      | 6 dígitos     |\n    | 30012345678 | 11 dígitos    |\n    | 2001234567  | empieza por 2 |\n", "CP-104": "@CP-104\nEsquema del escenario: Un monto fuera de rango se rechaza: <monto>\n  Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros\n  Cuando recarga <monto> a un celular Claro 3001234567\n  Entonces ve el mensaje «<mensaje>»\n  Y su saldo de Ahorros sigue en $1.500.000\n\n  Ejemplos:\n    | monto    | mensaje                       |\n    | $999     | La recarga mínima es $1.000   |\n    | $100.001 | La recarga máxima es $100.000 |\n    | $150.000 | La recarga máxima es $100.000 |\n", "CP-101": "@CP-101\nEsquema del escenario: Una recarga sin código da comprobante y descuenta: <monto>\n  Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros\n  Cuando recarga <monto> a un celular Claro 3001234567\n  Entonces ve el comprobante «Recarga exitosa» con «Valor: <monto>»\n  Y su saldo de Ahorros queda en <saldo_final>\n\n  Ejemplos:\n    | monto   | saldo_final |\n    | $1.000  | $1.499.000  |\n    | $10.000 | $1.490.000  |\n    | $50.000 | $1.450.000  |\n", "CP-105": "@CP-105\nEsquema del escenario: Pasado el límite diario no se puede recargar: <ya_recargo> + <monto>\n  Dado que Ana tiene la sesión abierta y hoy ya recargó <ya_recargo>\n  Cuando recarga <monto> a un celular Claro 3001234567\n  Entonces ve el mensaje «Superaste el límite diario de recargas ($200.000)»\n\n  Ejemplos:\n    | ya_recargo | monto   |\n    | $190.000   | $20.000 |\n    | $200.000   | $1.000  |\n    | $160.000   | $50.000 |\n", "CP-107": "@CP-107\nEsquema del escenario: Cada operador recibe la recarga: <operador>\n  Dado que Ana tiene la sesión abierta y $1.500.000 en Ahorros\n  Cuando recarga $10.000 a un celular <operador> 3001234567\n  Entonces ve el comprobante «Recarga exitosa» con «<operador> · 3001234567»\n  Y su saldo de Ahorros queda en $1.490.000\n\n  Ejemplos:\n    | operador |\n    | Claro    |\n    | Movistar |\n    | Tigo     |\n    | WOM      |\n"}, "salas": {"CP-103": "Sala 1", "CP-104": "Sala 2", "CP-101": "Sala 3", "CP-105": "Sala 4", "CP-107": "Sala 5", "proyecto": "Mi CP"}, "frase": "Pruebo ___; el riesgo es ___; mi framework lo cubre con ___."}</script>
+<script>
+/*
+ * S7 y S8 · REVISOR DE ESCENARIOS: revisa un texto en Gherkin con las reglas de la lista de cotejo.
+ * Lo usan las páginas de actividades (en el navegador, sin instalar nada) y `npm run revisar-escenarios`.
+ * Es una ayuda, no un juez: señala lo típico (clics, localizadores, falta de ID, «Entonces» sin dato).
+ * Lo que no puede saber (si el esperado es el correcto) lo decide la persona.
+ *
+ * S8 (council_S8): lee el «Esquema del escenario» con sus «Ejemplos» y dice cuántas pruebas salen
+ * (una por fila); el ID del caso va exacto (@CP-104); un <marcador> fuera de un Esquema tiene su propio mensaje.
+ *
+ * Devuelve, por escenario:
+ *   { titulo, linea, id, esquema, columnas, filas, pruebas, pasos, hallazgos: [{ nivel: 'ok'|'aviso'|'error', texto }] }
+ */
+(function (raiz) {
+  const PALABRAS = /^\s*(Dado|Dada|Dados|Dadas|Cuando|Entonces|Y|E|Pero)\b/i;
+  const IMPERATIVO = /\b(clic|click|cliquea|pulsa|pulso|pulsar|presiona|oprime|da clic|hace clic|hago clic|selecciona|seleccionar|escribe en|digita|llena|llenar|ingresa en|botón|boton|campo|casilla|desplegable|scroll|navega a|abre la url|url)\b/i;
+  const TECNICO = /(getBy\w+|locator\(|xpath|css|#[a-z][\w-]*|\.[a-z][\w-]*\b(?=\s*(?:>|$))|data-testid|nth-child|\/\/[a-z]+\[|<[a-z]+)/i;
+  const ESPERA_FIJA = /\b(espera|esperar|esperamos)\s+\d+\s*(s|seg|segundos|ms|milisegundos)\b/i;
+  const CLAVE = /\b(clave|contraseña|password)\b\s*[:=«"']?\s*[\w@#$%&*]{4,}/i;
+  const DATO = /(\$\s?[\d.]+|\d|«[^»]+»|"[^"]+"|“[^”]+”)/;
+  // Un marcador de Esquema: <monto>, <ya_recargo>. Las etiquetas de HTML (<div>, <button>…) siguen siendo «código».
+  const MARCADOR = /<([a-záéíóúñ_][a-záéíóúñ_0-9]*)>/gi;
+  const HTML = /^(a|b|i|p|div|span|button|input|form|label|select|option|li|ul|ol|td|tr|th|table|img|h[1-6]|br|section|nav|header|footer)$/i;
+  // El ID del caso: exacto, @CP- y tres dígitos. Es el puente con el reporte (-g "CP-104"), Trello y Jira.
+  const ID_EXACTO = /^@CP-\d{3}$/;
+  const ID_CASI = /cp/i;
+
+  const marcadores = (texto) => Array.from(String(texto).matchAll(MARCADOR)).map((m) => m[1]).filter((m) => !HTML.test(m));
+  const celdas = (linea) => linea.replace(/^\|/, '').replace(/\|\s*$/, '').split('|').map((c) => c.trim());
+
+  function revisar(texto) {
+    const lineas = String(texto || '').split(/\r?\n/);
+    const escenarios = [];
+    let etiquetas = [];
+    let actual = null;
+    let tabla = null; // el bloque «Ejemplos» que se está leyendo
+    lineas.forEach((cruda, i) => {
+      const linea = cruda.trim();
+      if (!linea || linea.startsWith('#')) return;
+      if (linea.startsWith('|')) {
+        if (tabla) {
+          if (!tabla.columnas) tabla.columnas = celdas(linea);
+          else tabla.filas.push({ celdas: celdas(linea), linea: i + 1 });
+        }
+        return; // una tabla de datos de un paso (sin «Ejemplos») no se revisa
+      }
+      if (linea.startsWith('@')) { etiquetas = etiquetas.concat(linea.split(/\s+/)); return; }
+      if (/^(Ejemplos|Examples|Escenarios)\s*:/i.test(linea)) {
+        // Las etiquetas que estén encima de «Ejemplos» son de esa tabla, no del escenario siguiente.
+        etiquetas = [];
+        if (!actual) return;
+        tabla = { columnas: null, filas: [], linea: i + 1 };
+        actual.tablas.push(tabla);
+        return;
+      }
+      tabla = null;
+      const esc = linea.match(/^(Escenario|Ejemplo|Esquema del escenario|Scenario|Scenario Outline)\s*:\s*(.*)$/i);
+      if (esc) {
+        actual = { titulo: esc[2] || '(sin título)', linea: i + 1, etiquetas, pasos: [], tablas: [], esquema: /^(Esquema del escenario|Scenario Outline)$/i.test(esc[1]) };
+        escenarios.push(actual);
+        etiquetas = [];
+        return;
+      }
+      if (/^(Característica|Caracteristica|Feature|Antecedentes|Background|Regla|Rule)\s*:/i.test(linea)) { actual = null; etiquetas = []; return; }
+      const p = linea.match(PALABRAS);
+      if (p) {
+        if (!actual) { actual = { titulo: '(pasos sin «Escenario:»)', linea: i + 1, etiquetas, pasos: [], tablas: [], esquema: false }; escenarios.push(actual); etiquetas = []; }
+        actual.pasos.push({ tipo: p[1].toLowerCase(), texto: linea, linea: i + 1 });
+      }
+    });
+    return escenarios.map(evaluar);
+  }
+
+  function evaluar(e) {
+    const h = [];
+    // Desde Gherkin 6, «Escenario» y «Esquema del escenario» son sinónimos: con «Ejemplos», los dos dan una prueba por fila.
+    const escenarioConTabla = !e.esquema && e.tablas.length > 0;
+    if (escenarioConTabla) e = Object.assign({}, e, { esquema: true });
+    const agregar = (nivel, texto) => h.push({ nivel, texto });
+    // El tipo real de Y/Pero es el del paso anterior (la palabra es para leer mejor; los pasos corren en orden).
+    let previo = null;
+    const pasos = e.pasos.map((p) => {
+      let tipo = p.tipo;
+      if (/^(y|e|pero)$/.test(tipo)) tipo = previo || 'dado';
+      if (/^dad/.test(tipo)) tipo = 'dado';
+      previo = tipo;
+      return Object.assign({}, p, { tipoReal: tipo });
+    });
+    const tiene = (t) => pasos.some((p) => p.tipoReal === t);
+
+    // La tabla de Ejemplos (puede haber varias: se suman).
+    const columnas = (e.tablas.find((t) => t.columnas) || {}).columnas || [];
+    const filas = [].concat(...e.tablas.map((t) => t.filas));
+    const pruebas = e.esquema ? filas.length : 1;
+    const resumen = { titulo: e.titulo, linea: e.linea, id: null, esquema: !!e.esquema, columnas, filas: filas.map((f) => f.celdas), pruebas, pasos: pasos.length };
+
+    // El ID del caso, exacto.
+    const ids = e.etiquetas.filter((t) => ID_EXACTO.test(t));
+    const casi = e.etiquetas.filter((t) => !ID_EXACTO.test(t) && ID_CASI.test(t));
+    if (ids.length) {
+      resumen.id = ids[0];
+      agregar('ok', `Trazable: ${ids.join(' ')} (el ID del caso va en la etiqueta)`);
+    } else if (casi.length) {
+      const sugerido = (casi[0].match(/\d{3}/) || ['102'])[0];
+      agregar('error', `Encontré «${casi[0]}», pero el ID va exacto: @CP-${sugerido}. Es el puente con el reporte, Trello y Jira; si está mal escrito, nadie lo encuentra`);
+    } else {
+      agregar('error', 'Sin ID del caso: agrega una etiqueta como @CP-102 encima de «Escenario:»');
+    }
+
+    if (!pasos.length) { agregar('error', 'Todavía no tiene pasos (Dado, Cuando, Entonces)'); resumen.hallazgos = h; return resumen; }
+    ['dado', 'cuando', 'entonces'].forEach((t) => {
+      if (!tiene(t)) agregar('error', `Falta un «${t[0].toUpperCase() + t.slice(1)}»`);
+    });
+    const orden = pasos.map((p) => p.tipoReal);
+    if (orden.indexOf('cuando') > -1 && orden.indexOf('dado') > orden.indexOf('cuando')) agregar('aviso', 'El «Dado» va antes del «Cuando»: primero la precondición');
+    if (orden.filter((t, i) => t === 'cuando' && orden[i - 1] !== 'cuando').length > 1) agregar('aviso', 'Tiene más de un «Cuando»: ¿son dos escenarios? Si el caso lo pide (pedir código y confirmar), está bien');
+    if (pasos.length > 5) agregar('aviso', `Tiene ${pasos.length} pasos: con más de 5 suele estar contando la pantalla y no el negocio`);
+
+    // Los marcadores que usan los pasos (y el título, que en un Esquema también se llena con la fila).
+    const usados = new Set(marcadores(e.titulo));
+    pasos.forEach((p) => marcadores(p.texto).forEach((m) => usados.add(m)));
+    const conColumna = (m) => columnas.includes(m);
+
+    pasos.forEach((p) => {
+      const suyos = marcadores(p.texto);
+      if (!e.esquema && suyos.length) {
+        agregar('error', `Línea ${p.linea}: «<${suyos[0]}>» es un marcador del Esquema del escenario. Usa «Esquema del escenario:» con una tabla «Ejemplos» que tenga la columna «${suyos[0]}», o escribe el dato real (por ejemplo, $150.000)`);
+        return;
+      }
+      // En un Esquema, <monto> se llena con la fila de «Ejemplos»: cuenta como dato, no como HTML.
+      const texto = e.esquema ? p.texto.replace(MARCADOR, (todo, m) => (HTML.test(m) ? todo : '«X»')) : p.texto;
+      if (TECNICO.test(texto)) agregar('error', `Línea ${p.linea}: tiene un localizador o código («${p.texto}»). El escenario es del negocio; el localizador vive en el Page Object`);
+      else if (IMPERATIVO.test(p.texto)) agregar('error', `Línea ${p.linea}: describe la pantalla («${p.texto}»). Di QUÉ hace el cliente, no DÓNDE hace clic: «Cuando recarga $10.000…». El clic es asunto del Page Object`);
+      if (ESPERA_FIJA.test(p.texto)) agregar('error', `Línea ${p.linea}: una espera fija no es un paso del negocio. Playwright espera solo`);
+      if (CLAVE.test(p.texto)) agregar('error', `Línea ${p.linea}: la clave nunca va escrita en el escenario (sale del entorno)`);
+      if (p.tipoReal === 'entonces' && !DATO.test(texto)) agregar('aviso', `Línea ${p.linea}: este «Entonces» no tiene un dato que se pueda verificar (un monto, un texto entre «comillas»)`);
+    });
+
+    // El Esquema y sus Ejemplos.
+    if (e.esquema) {
+      if (!e.tablas.length || !columnas.length) {
+        agregar('error', 'Un «Esquema del escenario» necesita su tabla «Ejemplos»: la primera fila son los nombres de las columnas y cada fila siguiente es una prueba');
+      } else {
+        usados.forEach((m) => { if (!conColumna(m)) agregar('error', `«<${m}>» no tiene columna en «Ejemplos»: agrega la columna «${m}» o corrige el nombre`); });
+        columnas.forEach((c) => { if (c && !usados.has(c)) agregar('aviso', `La columna «${c}» no se usa en ningún paso: ¿sobra o falta un <${c}>?`); });
+        filas.forEach((f) => { if (f.celdas.length !== columnas.length) agregar('error', `Línea ${f.linea}: la fila tiene ${f.celdas.length} celdas y la tabla tiene ${columnas.length} columnas`); });
+        const vistas = new Map();
+        filas.forEach((f) => {
+          const clave = f.celdas.join('|');
+          if (vistas.has(clave)) agregar('aviso', `Línea ${f.linea}: la fila repite la de la línea ${vistas.get(clave)}: es la misma prueba dos veces`);
+          else vistas.set(clave, f.linea);
+        });
+        if (!filas.length) agregar('error', 'La tabla «Ejemplos» no tiene filas de datos: cada fila es una prueba');
+        else if (!marcadores(e.titulo).length) agregar('aviso', `El título no tiene ningún <marcador>: las ${filas.length} pruebas se llamarían igual en el reporte. Pon el dato en el título (por ejemplo «…: <monto>»)`);
+        if (filas.length) agregar('ok', `Salen ${filas.length} prueba${filas.length === 1 ? '' : 's'}, una por fila de «Ejemplos»`);
+      }
+    }
+    if (escenarioConTabla) agregar('aviso', 'Tiene «Ejemplos» bajo un «Escenario:». Cucumber igual saca una prueba por fila (desde Gherkin 6 son sinónimos), pero escribe «Esquema del escenario:» para que quien lo lea sepa que es una plantilla');
+
+    if (!h.some((x) => x.nivel !== 'ok')) agregar('ok', 'Declarativo, con Dado, Cuando y Entonces, y un esperado verificable');
+    resumen.hallazgos = h;
+    return resumen;
+  }
+
+  /**
+   * El texto para pegar en el chat de Teams (S8: lo que no está en el chat principal no pasó).
+   * Primera línea: «Sala 2 · CP-104 · 0 errores · salen 3 pruebas»; debajo, el escenario.
+   */
+  function paraElChat(texto, sala) {
+    const res = revisar(texto);
+    const errores = res.reduce((n, e) => n + e.hallazgos.filter((x) => x.nivel === 'error').length, 0);
+    const pruebas = res.reduce((n, e) => n + e.pruebas, 0);
+    const ids = res.map((e) => (e.id || '').replace('@', '')).filter(Boolean);
+    const cabeza = [sala, ids.length ? ids.join(', ') : 'sin ID', `${errores} error${errores === 1 ? '' : 'es'}`, `salen ${pruebas} prueba${pruebas === 1 ? '' : 's'}`].filter(Boolean).join(' · ');
+    return cabeza + '\n' + String(texto || '').trim();
+  }
+
+  const api = { revisar, paraElChat };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else raiz.RevisorDeEscenarios = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+(function () {
+  function guardar(clave, valor) { try { localStorage.setItem(clave, valor); } catch (e) {} }
+  function recuperar(clave) { try { return localStorage.getItem(clave); } catch (e) { return null; } }
+  var DATOS = JSON.parse(document.getElementById('datos-s8').textContent);
+  var R = window.RevisorDeEscenarios;
+
+  // Clasificadores (los mismos de la S5 a la S7), con Reiniciar
+  document.querySelectorAll('table.clasif').forEach(function (tabla) {
+    tabla.querySelectorAll('tr').forEach(function (tr) {
+      tr.querySelectorAll('button').forEach(function (b) {
+        b.setAttribute('aria-pressed', 'false');
+        b.addEventListener('click', function () {
+          tr.querySelectorAll('button').forEach(function (x) { x.classList.remove('sel'); x.setAttribute('aria-pressed', 'false'); });
+          b.classList.add('sel'); b.setAttribute('aria-pressed', 'true'); tr.classList.remove('bien', 'mal');
+        });
+      });
+    });
+  });
+  document.querySelectorAll('[data-revisar]').forEach(function (boton) {
+    boton.addEventListener('click', function () {
+      var id = boton.getAttribute('data-revisar');
+      var filas = document.querySelectorAll('#t-' + id + ' tr');
+      var bien = 0, marcadas = 0;
+      filas.forEach(function (tr) {
+        var sel = tr.querySelector('button.sel');
+        tr.classList.remove('bien', 'mal');
+        tr.querySelector('.exp').hidden = false;
+        if (!sel) return;
+        marcadas++;
+        if (sel.getAttribute('data-v') === tr.getAttribute('data-ok')) { bien++; tr.classList.add('bien'); } else tr.classList.add('mal');
+      });
+      document.getElementById('p-' + id).textContent = bien + ' de ' + filas.length + ' bien' + (marcadas < filas.length ? ' (faltan ' + (filas.length - marcadas) + ' por marcar)' : '');
+    });
+  });
+  document.querySelectorAll('[data-reiniciar]').forEach(function (boton) {
+    boton.addEventListener('click', function () {
+      var id = boton.getAttribute('data-reiniciar');
+      document.querySelectorAll('#t-' + id + ' tr').forEach(function (tr) {
+        tr.classList.remove('bien', 'mal'); tr.querySelector('.exp').hidden = true;
+        tr.querySelectorAll('button').forEach(function (x) { x.classList.remove('sel'); x.setAttribute('aria-pressed', 'false'); });
+      });
+      document.getElementById('p-' + id).textContent = '';
+      var resp = document.getElementById(id + '-resp'), b = document.querySelector('[data-revelar="' + id + '-resp"]');
+      if (resp && b) { resp.hidden = true; b.hidden = false; }
+    });
+  });
+  document.querySelectorAll('[data-revelar]').forEach(function (boton) {
+    boton.addEventListener('click', function () { document.getElementById(boton.getAttribute('data-revelar')).hidden = false; boton.hidden = true; });
+  });
+
+  function copiar(texto, aviso) {
+    var listo = function () { if (aviso) { aviso.textContent = 'Copiado'; setTimeout(function () { aviso.textContent = ''; }, 2500); } };
+    var aMano = function () {
+      var t = document.createElement('textarea'); t.value = texto; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.left = '-9999px';
+      document.body.appendChild(t); t.select();
+      try { document.execCommand('copy'); listo(); } catch (e) { if (aviso) aviso.textContent = 'Selecciónalo y usa Ctrl + C'; }
+      document.body.removeChild(t);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(texto).then(listo, aMano); else aMano();
+  }
+
+  // ---------- El rescate: una línea por persona ----------
+  var campos = ['r-via', 'r-cp', 'r-modo', 'r-con', 'r-frase'].map(function (id) { return document.getElementById(id); });
+  var lineaRescate = document.getElementById('rescate-linea'), conQuien = document.getElementById('r-con-caja');
+  function armarLinea() {
+    var v = function (i) { return campos[i].value.trim() || '___'; };
+    var modo = campos[2].value === 'equipo' ? 'en equipo con ' + v(3) : campos[2].value === 'solo' ? 'solo' : '___';
+    conQuien.hidden = campos[2].value !== 'equipo';
+    return [v(0), v(1).toUpperCase(), modo, v(4)].join(' · ');
+  }
+  function pintarLinea() { lineaRescate.textContent = armarLinea(); guardar('s8-rescate', JSON.stringify(campos.map(function (c) { return c.value; }))); }
+  try { var r = JSON.parse(recuperar('s8-rescate') || 'null'); if (r) campos.forEach(function (c, i) { if (r[i] !== undefined) c.value = r[i]; }); } catch (e) {}
+  campos.forEach(function (c) { c.addEventListener('input', pintarLinea); c.addEventListener('change', pintarLinea); });
+  lineaRescate.textContent = armarLinea();
+  document.getElementById('copiar-linea').addEventListener('click', function () { copiar(armarLinea(), document.getElementById('linea-ok')); });
+
+  // ---------- El revisor con Ejemplos: un borrador por CP (s8-CP-104) ----------
+  var area = document.getElementById('gherkin'), salida = document.getElementById('hallazgos'), resumen = document.getElementById('resumen');
+  var selector = document.getElementById('sala-cp'), estado = document.getElementById('estado-revisor'), deshacer = document.getElementById('deshacer');
+  var actual = null, respaldo = null;
+  function clave(cp) { return 's8-' + cp; }
+  function limpiarHallazgos() { salida.textContent = ''; resumen.hidden = true; }
+  function mostrarPanel() {
+    document.querySelectorAll('.cp-panel').forEach(function (d) { d.hidden = d.getAttribute('data-cp') !== actual; });
+    document.querySelectorAll('.etiqueta-sala').forEach(function (s) { s.textContent = DATOS.salas[actual]; });
+  }
+  function abrir(cp) {
+    actual = cp; respaldo = null; deshacer.hidden = true;
+    var b = recuperar(clave(cp));
+    area.value = b !== null && b.trim() ? b : DATOS.arranques[cp];
+    guardar('s8-sala', cp); limpiarHallazgos(); mostrarPanel();
+    estado.textContent = (b !== null && b.trim() ? 'Su borrador de ' : 'El arranque de ') + DATOS.salas[cp] + (cp === 'proyecto' ? '' : ' · ' + cp) + '.';
+  }
+  var guardada = recuperar('s8-sala');
+  if (guardada && DATOS.arranques[guardada]) selector.value = guardada;
+  selector.addEventListener('change', function () { abrir(selector.value); });
+  area.addEventListener('input', function () { guardar(clave(actual), area.value); });
+
+  var NOMBRE = { ok: 'ok', aviso: 'aviso', error: 'error' };
+  function plural(n, uno, varios) { return n + ' ' + (n === 1 ? uno : varios); }
+  function tituloDeFila(titulo, columnas, fila) {
+    return titulo.replace(/<([^<>]+)>/g, function (todo, m) { var i = columnas.indexOf(m.trim()); return i > -1 && fila[i] !== undefined ? fila[i] : todo; });
+  }
+  function revisarTexto() {
+    var resultado = R.revisar(area.value), errores = 0, avisos = 0, pruebas = 0;
+    salida.textContent = '';
+    if (!resultado.length) {
+      var p = document.createElement('p'); p.className = 'escenario h-error';
+      p.textContent = 'No encontré ningún «Esquema del escenario:». Escriban uno, con su etiqueta @CP-xxx encima y su tabla «Ejemplos».';
+      salida.appendChild(p); errores = 1;
+    }
+    resultado.forEach(function (e) {
+      pruebas += e.pruebas;
+      var caja = document.createElement('div'); caja.className = 'escenario';
+      var h = document.createElement('h4'); h.textContent = (e.esquema ? 'Esquema' : 'Escenario') + ' (línea ' + e.linea + '): ' + e.titulo; caja.appendChild(h);
+      var chips = document.createElement('div'); chips.className = 'chips';
+      [e.id || 'sin ID', e.columnas.length ? 'columnas: ' + e.columnas.join(' · ') : 'sin tabla', e.esquema ? plural(e.pruebas, 'prueba', 'pruebas') : '1 prueba (no es Esquema)']
+        .forEach(function (t) { var c = document.createElement('span'); c.className = 'chip'; c.textContent = t; chips.appendChild(c); });
+      caja.appendChild(chips);
+      if (e.esquema && e.filas.length) {
+        var lbl = document.createElement('p'); lbl.className = 'paso'; lbl.textContent = 'así se llaman en el reporte (una línea por fila)'; caja.appendChild(lbl);
+        var ol = document.createElement('ol'); ol.className = 'titulos'; var vistos = {};
+        e.filas.forEach(function (f) {
+          var t = tituloDeFila(e.titulo, e.columnas, f), li = document.createElement('li');
+          li.textContent = t; if (vistos[t]) { li.className = 'repite'; li.textContent = t + '  ← se llama igual que otra: en el reporte no se distinguen'; }
+          vistos[t] = true; ol.appendChild(li);
+        });
+        caja.appendChild(ol);
+      }
+      var ul = document.createElement('ul'); ul.className = 'hallazgos';
+      e.hallazgos.forEach(function (x) {
+        if (x.nivel === 'error') errores++; if (x.nivel === 'aviso') avisos++;
+        var li = document.createElement('li'); li.className = 'h-' + x.nivel;
+        var n = document.createElement('span'); n.className = 'nivel'; n.textContent = (x.nivel === 'ok' ? '✓ ' : x.nivel === 'aviso' ? '! ' : '✗ ') + NOMBRE[x.nivel];
+        var t = document.createElement('span'); t.className = 't'; t.textContent = x.texto;
+        li.appendChild(n); li.appendChild(t); ul.appendChild(li);
+      });
+      caja.appendChild(ul); salida.appendChild(caja);
+    });
+    resumen.hidden = false;
+    resumen.className = 'resumen ' + (errores ? 'r-error' : avisos ? 'r-aviso' : 'r-ok');
+    resumen.querySelector('.salen').textContent = (errores ? '✗ ' : '✓ ') + (pruebas === 1 ? 'Sale 1 prueba' : 'Salen ' + pruebas + ' pruebas');
+    resumen.querySelector('.cabeza').textContent = R.paraElChat(area.value, DATOS.salas[actual]).split('\n')[0] + (avisos ? ' (' + plural(avisos, 'aviso', 'avisos') + ')' : '');
+    estado.textContent = 'Revisado: ' + plural(errores, 'error', 'errores') + ', ' + plural(avisos, 'aviso', 'avisos') + ' y ' + (pruebas === 1 ? 'sale 1 prueba.' : 'salen ' + pruebas + ' pruebas.');
+  }
+  function reemplazar(texto, mensaje) {
+    respaldo = area.value; area.value = texto; guardar(clave(actual), texto);
+    deshacer.hidden = respaldo === texto; limpiarHallazgos(); estado.textContent = mensaje;
+  }
+  document.getElementById('revisar-gherkin').addEventListener('click', revisarTexto);
+  document.getElementById('reiniciar-gherkin').addEventListener('click', function () {
+    reemplazar(DATOS.arranques[actual], 'Volvió el arranque. Si fue sin querer: «Deshacer».');
+  });
+  deshacer.addEventListener('click', function () {
+    if (respaldo === null) return;
+    area.value = respaldo; guardar(clave(actual), respaldo); respaldo = null; deshacer.hidden = true; limpiarHallazgos();
+    estado.textContent = 'Volvió su borrador.';
+  });
+  document.querySelectorAll('[data-cargar]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var cp = b.getAttribute('data-cargar');
+      if (cp !== actual) { selector.value = cp; abrir(cp); }
+      reemplazar(DATOS.soluciones[cp], 'Cargada la solución de la ' + DATOS.salas[cp] + '. Para volver a lo suyo: «Deshacer».');
+      revisarTexto(); area.scrollIntoView({ block: 'nearest' });
+    });
+  });
+  document.getElementById('copiar-chat').addEventListener('click', function () {
+    copiar(R.paraElChat(area.value, DATOS.salas[actual]), document.getElementById('chat-ok'));
+  });
+  document.querySelectorAll('[data-ir-proyecto]').forEach(function (b) {
+    b.addEventListener('click', function () { selector.value = 'proyecto'; abrir('proyecto'); document.getElementById('revisor').scrollIntoView(); area.focus(); });
+  });
+  abrir(selector.value);
+
+  // ---------- Los créditos de la vía de especificador ----------
+  var cred = document.getElementById('copiar-creditos');
+  if (cred) cred.addEventListener('click', function () { copiar(document.getElementById('creditos').textContent, document.getElementById('creditos-ok')); });
+})();
+</script>
+</body>
+</html>
